@@ -265,7 +265,7 @@ img {
     min-height: 600px;
     display: flex;
     align-items: center;
-    background: url('images/hero-background.jpg') no-repeat center center/cover;
+    background: url('hero-background.jpg') no-repeat center center/cover;
     color: var(--white);
     text-align: center;
 }
