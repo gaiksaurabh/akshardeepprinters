@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Calculation with GST</title>
+    <title>Responsive Paper Calculator</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -13,8 +13,8 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px; /* Added padding for smaller screens */
-            box-sizing: border-box; /* Ensures padding is included in width/height */
+            padding: 1rem;
+            box-sizing: border-box;
         }
         .calculator-card {
             background-color: #ffffff;
@@ -22,20 +22,20 @@
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px; /* Default max-width for mobile */
+            transition: max-width 0.3s ease-in-out;
         }
         .calculator-card h1 {
             text-align: center;
             color: #333;
-            margin-top: 0;
             margin-bottom: 2rem;
             font-size: 1.8rem;
         }
+        .form-container {
+            display: block; /* Default for mobile */
+        }
         .input-group {
             margin-bottom: 1.5rem;
-        }
-        .input-group:last-of-type {
-            margin-bottom: 0;
         }
         .input-group label {
             display: block;
@@ -69,8 +69,24 @@
         .result-display .price {
             font-size: 2.2rem;
             font-weight: bold;
-            margin-top: 0.5rem;
-            display: block;
+        }
+
+        /* --- Landscape for PC --- */
+        @media (min-width: 768px) {
+            .calculator-card {
+                max-width: 800px; /* Wider card for landscape */
+            }
+            .form-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0 2rem; /* 0 for top/bottom, 2rem for left/right */
+            }
+            .input-group {
+                width: calc(50% - 1rem); /* 2 columns with gap */
+            }
+            .result-display {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -79,43 +95,44 @@
     <div class="calculator-card">
         <h1>Calculate Price</h1>
         
-        <div class="input-group">
-            <label for="size-select">Size</label>
-            <select id="size-select"></select>
-        </div>
+        <div class="form-container">
+            <div class="input-group">
+                <label for="size-select">Size</label>
+                <select id="size-select"></select>
+            </div>
 
-        <div class="input-group">
-            <label for="gsm-select">GSM</label>
-            <select id="gsm-select"></select>
-        </div>
+            <div class="input-group">
+                <label for="gsm-select">GSM</label>
+                <select id="gsm-select"></select>
+            </div>
 
-        <div class="input-group">
-            <label for="sheets-input">No. Of Sheets</label>
-            <input type="number" id="sheets-input" placeholder="e.g., 500">
-        </div>
+            <div class="input-group">
+                <label for="sheets-input">No. Of Sheets</label>
+                <input type="number" id="sheets-input" placeholder="e.g., 500">
+            </div>
 
-        <div class="input-group">
-            <label for="rate-input">Rate per kg</label>
-            <input type="number" id="rate-input" placeholder="e.g., 85">
-        </div>
+            <div class="input-group">
+                <label for="rate-input">Rate per kg</label>
+                <input type="number" id="rate-input" placeholder="e.g., 85">
+            </div>
 
-        <div class="input-group">
-            <label for="gst-select">GST Option</label>
-            <select id="gst-select">
-                <option value="0.06" selected>Without GST (6%)</option>
-                <option value="0.12">With GST (12%)</option>
-            </select>
-        </div>
+            <div class="input-group">
+                <label for="gst-select">GST Option</label>
+                <select id="gst-select">
+                    <option value="0.12" selected>With GST (12%)</option>
+                    <option value="0">Without GST</option>
+                </select>
+            </div>
 
-        <div class="result-display">
-            <h2>Total Price</h2>
-            <p class="price" id="total-price">₹ 0.00</p>
+            <div class="result-display">
+                <h2>Total Price</h2>
+                <p class="price" id="total-price">₹ 0.00</p>
+            </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Data derived from your Google Sheet
             const paperData = [
                 { size: "23x36", gsm: 58, perSheetWeight: 0.0308 }, { size: "23x36", gsm: 70, perSheetWeight: 0.0372 },
                 { size: "23x36", gsm: 80, perSheetWeight: 0.0426 }, { size: "23x36", gsm: 90, perSheetWeight: 0.0480 },
@@ -135,10 +152,8 @@
             const gstSelect = document.getElementById('gst-select');
             const totalPriceDisplay = document.getElementById('total-price');
 
-            // Variable to hold the per-sheet weight in memory
             let currentPerSheetWeight = 0;
 
-            // --- Main Calculation Function ---
             function calculate() {
                 const sheets = parseFloat(sheetsInput.value) || 0;
                 const rate = parseFloat(rateInput.value) || 0;
@@ -150,60 +165,44 @@
                 totalPriceDisplay.textContent = `₹ ${finalPrice.toFixed(2)}`;
             }
 
-            // --- Update Weight based on Size and GSM ---
             function updateWeight() {
                 const selectedSize = sizeSelect.value;
                 const selectedGsm = parseFloat(gsmSelect.value);
-
-                currentPerSheetWeight = 0; // Reset weight before finding new one
-                if (selectedSize && selectedGsm) {
-                    const item = paperData.find(d => d.size === selectedSize && d.gsm === selectedGsm);
-                    if (item) {
-                        currentPerSheetWeight = item.perSheetWeight;
-                    }
-                }
-                calculate(); // Recalculate whenever weight changes
+                const item = paperData.find(d => d.size === selectedSize && d.gsm === selectedGsm);
+                currentPerSheetWeight = item ? item.perSheetWeight : 0;
+                calculate();
             }
 
-            // --- Populate GSM Dropdown based on Size ---
             function populateGsm() {
                 const selectedSize = sizeSelect.value;
-                gsmSelect.innerHTML = '<option value="">Select GSM</option>'; // Clear previous options
-                
+                gsmSelect.innerHTML = '<option value="">Select GSM</option>';
                 if (selectedSize) {
-                    const availableGsm = paperData
-                        .filter(item => item.size === selectedSize)
-                        .map(item => item.gsm);
-                    
-                    // Add unique GSM values to the dropdown
-                    [...new Set(availableGsm)].sort((a, b) => a - b).forEach(gsm => {
+                    const availableGsm = [...new Set(paperData.filter(item => item.size === selectedSize).map(item => item.gsm))];
+                    availableGsm.forEach(gsm => {
                         const option = document.createElement('option');
                         option.value = gsm;
                         option.textContent = gsm;
                         gsmSelect.appendChild(option);
                     });
                 }
-                updateWeight(); // Update weight and calculate
+                updateWeight();
             }
 
-            // --- Initial Setup ---
             const uniqueSizes = [...new Set(paperData.map(item => item.size))];
             sizeSelect.innerHTML = '<option value="">Select Size</option>';
-            uniqueSizes.sort().forEach(size => {
+            uniqueSizes.forEach(size => {
                 const option = document.createElement('option');
                 option.value = size;
                 option.textContent = size;
                 sizeSelect.appendChild(option);
             });
 
-            // --- Add Event Listeners ---
             sizeSelect.addEventListener('change', populateGsm);
             gsmSelect.addEventListener('change', updateWeight);
             sheetsInput.addEventListener('input', calculate);
             rateInput.addEventListener('input', calculate);
             gstSelect.addEventListener('change', calculate);
 
-            // Initialize fields
             populateGsm();
         });
     </script>
