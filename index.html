@@ -11,8 +11,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px; /* Added padding for smaller screens */
+            box-sizing: border-box; /* Ensures padding is included in width/height */
         }
         .calculator-card {
             background-color: #ffffff;
@@ -25,11 +27,15 @@
         .calculator-card h1 {
             text-align: center;
             color: #333;
+            margin-top: 0;
             margin-bottom: 2rem;
             font-size: 1.8rem;
         }
         .input-group {
             margin-bottom: 1.5rem;
+        }
+        .input-group:last-of-type {
+            margin-bottom: 0;
         }
         .input-group label {
             display: block;
@@ -63,6 +69,8 @@
         .result-display .price {
             font-size: 2.2rem;
             font-weight: bold;
+            margin-top: 0.5rem;
+            display: block;
         }
     </style>
 </head>
@@ -147,13 +155,12 @@
                 const selectedSize = sizeSelect.value;
                 const selectedGsm = parseFloat(gsmSelect.value);
 
+                currentPerSheetWeight = 0; // Reset weight before finding new one
                 if (selectedSize && selectedGsm) {
                     const item = paperData.find(d => d.size === selectedSize && d.gsm === selectedGsm);
                     if (item) {
                         currentPerSheetWeight = item.perSheetWeight;
                     }
-                } else {
-                    currentPerSheetWeight = 0;
                 }
                 calculate(); // Recalculate whenever weight changes
             }
@@ -162,27 +169,27 @@
             function populateGsm() {
                 const selectedSize = sizeSelect.value;
                 gsmSelect.innerHTML = '<option value="">Select GSM</option>'; // Clear previous options
-                currentPerSheetWeight = 0; // Reset weight
-
+                
                 if (selectedSize) {
                     const availableGsm = paperData
                         .filter(item => item.size === selectedSize)
                         .map(item => item.gsm);
                     
-                    [...new Set(availableGsm)].forEach(gsm => {
+                    // Add unique GSM values to the dropdown
+                    [...new Set(availableGsm)].sort((a, b) => a - b).forEach(gsm => {
                         const option = document.createElement('option');
                         option.value = gsm;
                         option.textContent = gsm;
                         gsmSelect.appendChild(option);
                     });
                 }
-                calculate(); // Recalculate
+                updateWeight(); // Update weight and calculate
             }
 
             // --- Initial Setup ---
             const uniqueSizes = [...new Set(paperData.map(item => item.size))];
             sizeSelect.innerHTML = '<option value="">Select Size</option>';
-            uniqueSizes.forEach(size => {
+            uniqueSizes.sort().forEach(size => {
                 const option = document.createElement('option');
                 option.value = size;
                 option.textContent = size;
