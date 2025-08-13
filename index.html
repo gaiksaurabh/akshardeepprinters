@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Calculation</title>
+    <title>Paper Calculation with GST</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -47,11 +47,6 @@
             box-sizing: border-box;
             background-color: #f8f9fa;
         }
-        .input-group input[readonly] {
-            background-color: #e9ecef;
-            cursor: not-allowed;
-            font-weight: bold;
-        }
         .result-display {
             margin-top: 2rem;
             padding: 1.5rem;
@@ -87,11 +82,6 @@
         </div>
 
         <div class="input-group">
-            <label for="weight-input">Weight (per sheet in kg)</label>
-            <input type="text" id="weight-input" readonly>
-        </div>
-
-        <div class="input-group">
             <label for="sheets-input">No. Of Sheets</label>
             <input type="number" id="sheets-input" placeholder="e.g., 500">
         </div>
@@ -102,10 +92,10 @@
         </div>
 
         <div class="input-group">
-            <label for="gst-select">GST Type</label>
+            <label for="gst-select">GST Option</label>
             <select id="gst-select">
-                <option value="6">With GST (6%)</option>
-                <option value="12">Without GST (12%)</option>
+                <option value="0.06" selected>Without GST (6%)</option>
+                <option value="0.12">With GST (12%)</option>
             </select>
         </div>
 
@@ -132,31 +122,47 @@
 
             const sizeSelect = document.getElementById('size-select');
             const gsmSelect = document.getElementById('gsm-select');
-            const weightInput = document.getElementById('weight-input');
             const sheetsInput = document.getElementById('sheets-input');
             const rateInput = document.getElementById('rate-input');
-            const gstSelect = document.getElementById('gst-select'); // New GST dropdown
+            const gstSelect = document.getElementById('gst-select');
             const totalPriceDisplay = document.getElementById('total-price');
+
+            // Variable to hold the per-sheet weight in memory
+            let currentPerSheetWeight = 0;
 
             // --- Main Calculation Function ---
             function calculate() {
-                const perSheetWeight = parseFloat(weightInput.value) || 0;
                 const sheets = parseFloat(sheetsInput.value) || 0;
                 const rate = parseFloat(rateInput.value) || 0;
-                const gstRate = parseFloat(gstSelect.value) || 0; // Get selected GST rate
+                const gstRate = parseFloat(gstSelect.value) || 0;
 
-                const basePrice = perSheetWeight * sheets * rate;
-                const gstAmount = basePrice * (gstRate / 100);
-                const finalPrice = basePrice + gstAmount;
+                const basePrice = currentPerSheetWeight * sheets * rate;
+                const finalPrice = basePrice * (1 + gstRate);
                 
                 totalPriceDisplay.textContent = `₹ ${finalPrice.toFixed(2)}`;
+            }
+
+            // --- Update Weight based on Size and GSM ---
+            function updateWeight() {
+                const selectedSize = sizeSelect.value;
+                const selectedGsm = parseFloat(gsmSelect.value);
+
+                if (selectedSize && selectedGsm) {
+                    const item = paperData.find(d => d.size === selectedSize && d.gsm === selectedGsm);
+                    if (item) {
+                        currentPerSheetWeight = item.perSheetWeight;
+                    }
+                } else {
+                    currentPerSheetWeight = 0;
+                }
+                calculate(); // Recalculate whenever weight changes
             }
 
             // --- Populate GSM Dropdown based on Size ---
             function populateGsm() {
                 const selectedSize = sizeSelect.value;
-                gsmSelect.innerHTML = '<option value="">Select GSM</option>';
-                weightInput.value = '';
+                gsmSelect.innerHTML = '<option value="">Select GSM</option>'; // Clear previous options
+                currentPerSheetWeight = 0; // Reset weight
 
                 if (selectedSize) {
                     const availableGsm = paperData
@@ -170,23 +176,7 @@
                         gsmSelect.appendChild(option);
                     });
                 }
-                calculate();
-            }
-
-            // --- Update Weight based on Size and GSM ---
-            function updateWeight() {
-                const selectedSize = sizeSelect.value;
-                const selectedGsm = parseFloat(gsmSelect.value);
-
-                if (selectedSize && selectedGsm) {
-                    const item = paperData.find(d => d.size === selectedSize && d.gsm === selectedGsm);
-                    if (item) {
-                        weightInput.value = item.perSheetWeight.toFixed(4);
-                    }
-                } else {
-                    weightInput.value = '';
-                }
-                calculate();
+                calculate(); // Recalculate
             }
 
             // --- Initial Setup ---
@@ -204,7 +194,7 @@
             gsmSelect.addEventListener('change', updateWeight);
             sheetsInput.addEventListener('input', calculate);
             rateInput.addEventListener('input', calculate);
-            gstSelect.addEventListener('change', calculate); // Add listener for GST dropdown
+            gstSelect.addEventListener('change', calculate);
 
             // Initialize fields
             populateGsm();
