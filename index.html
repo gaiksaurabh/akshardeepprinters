@@ -1,424 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Offset Printers - Premium Printing Solutions</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
-    <script src="scroll.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="icon" href="favicon.png" type="image/png">
+    <title>Paper Calculation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #eef2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-card {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .calculator-card h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+        }
+        .input-group input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            font-weight: bold;
+        }
+        .result-display {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .result-display h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+        .result-display .price {
+            font-size: 2.2rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
-
 <body>
-    <!-- Header with Navigation -->
-    <header class="header">
-        <div class="container">
-            <a href="#" class="logo">
-                <!-- img src="images/logo.png" -->
-                <span class="logo-text">Akshardeep Offset Printers</span>
-            </a>
-            <nav class="navbar">
-                <ul class="nav-list">
-                    <li class="nav-item"><a href="#home" class="nav-link active">Home</a></li>
-                    <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
-                    <li class="nav-item"><a href="#services" class="nav-link">Services</a></li>
-                    <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
-                </ul>
-            </nav>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
+
+    <div class="calculator-card">
+        <h1>Calculate Price</h1>
+        
+        <div class="input-group">
+            <label for="size-select">Size</label>
+            <select id="size-select"></select>
         </div>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="hero-overlay"></div>
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">Premium Printing Solutions</h1>
-                <p class="hero-subtitle">Delivering excellence in print for over 25 years</p>
-                <div class="hero-buttons">
-                    <a href="#services" class="btn btn-primary">Our Services</a>
-                    <a href="#contact" class="btn btn-primary">Get a Quote</a>
-                </div>
-            </div>
+        <div class="input-group">
+            <label for="gsm-select">GSM</label>
+            <select id="gsm-select"></select>
         </div>
-    </section>
 
-    <!-- About Section -->
-    <section class="about section-padding" id="about">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">About Akshardeep Offset Printers</h2>
-                <p class="section-subtitle">Your trusted printing partner since 1995</p>
-            </div>
-            <div class="about-content">
-                <div class="about-image">
-                    <img src="about.jpg" alt="About Akshardeep Offset Printers">
-                </div>
-                <div class="about-text">
-                    <p>Akshardeep Offset Printers is a leading printing company dedicated to delivering high-quality
-                        printing solutions to businesses and individuals across various industries. With our
-                        state-of-the-art technology and skilled professionals, we ensure that every print job meets the
-                        highest standards of quality and precision.</p>
-                    <p>Our commitment to excellence, attention to detail, and customer-centric approach have made us a
-                        preferred choice for printing needs in the region.</p>
-                    <div class="about-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">25+</span>
-                            <span class="stat-label">Years Experience</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">5000+</span>
-                            <span class="stat-label">Satisfied Clients</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">100+</span>
-                            <span class="stat-label">Printing Solutions</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Industry Verticals Section -->
-            <div class="section-header" style="margin-top: 60px;">
-                <h2 class="section-title">Industry Verticals We Serve</h2>
-                <p class="section-subtitle">Tailored printing solutions for diverse industries</p>
-            </div>
-            <div class="verticals-grid">
-                <div class="vertical-card">
-                    <div class="vertical-image">
-                        <img src="service1.jpg" alt="Pharmaceutical">
-                    </div>
-                    <div class="vertical-content">
-                        <h3 class="vertical-title">Pharmaceutical</h3>
-                        <p class="vertical-description">Compliant packaging and labeling solutions for the
-                            pharmaceutical industry.</p>
-                    </div>
-                </div>
-                <div class="vertical-card">
-                    <div class="vertical-image">
-                        <img src="service2.jpg" alt="Food & Beverage">
-                    </div>
-                    <div class="vertical-content">
-                        <h3 class="vertical-title">Food & Beverage</h3>
-                        <p class="vertical-description">Appealing packaging that preserves quality and attracts
-                            consumers.</p>
-                    </div>
-                </div>
-                <div class="vertical-card">
-                    <div class="vertical-image">
-                        <img src="service3.jpg" alt="Retail">
-                    </div>
-                    <div class="vertical-content">
-                        <h3 class="vertical-title">Retail</h3>
-                        <p class="vertical-description">Eye-catching retail packaging and point-of-sale materials.</p>
-                    </div>
-                </div>
-                <div class="vertical-card">
-                    <div class="vertical-image">
-                        <img src="service4.jpg" alt="Education">
-                    </div>
-                    <div class="vertical-content">
-                        <h3 class="vertical-title">Education</h3>
-                        <p class="vertical-description">Textbooks, workbooks, and educational materials with durable
-                            binding.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Our Values Section -->
-            <div class="section-header" style="margin-top: 60px;">
-                <h2 class="section-title">Our Core Values</h2>
-                <p class="section-subtitle">What drives us to deliver excellence</p>
-            </div>
-            <div class="values-grid">
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h3 class="value-title">Mission</h3>
-                    <p class="value-description">To provide exceptional printing solutions that exceed customer
-                        expectations through innovative technology and skilled craftsmanship.</p>
-                </div>
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                    <h3 class="value-title">Vision</h3>
-                    <p class="value-description">To revolutionize the printing industry by adopting cutting-edge
-                        technologies while maintaining traditional values of quality.</p>
-                </div>
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <h3 class="value-title">Philosophy</h3>
-                    <p class="value-description">We believe every print job tells a story and represents a brand's
-                        identity. We translate vision into tangible results.</p>
-                </div>
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <h3 class="value-title">Values</h3>
-                    <p class="value-description">Quality, Integrity, Innovation, Customer Focus, and Sustainability
-                        guide every decision we make.</p>
-                </div>
-            </div>
+        <div class="input-group">
+            <label for="weight-input">Weight (per sheet in kg)</label>
+            <input type="text" id="weight-input" readonly>
         </div>
-    </section>
 
-    <!-- Services Section -->
-    <section class="services section-padding" id="services">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Our Printing Services</h2>
-                <p class="section-subtitle">Comprehensive solutions for all your printing needs</p>
-            </div>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <h3 class="service-title">Offset Printing</h3>
-                    <ul class="service-features">
-                        <li>High-quality commercial printing</li>
-                        <li>Brochures, catalogs, and books</li>
-                        <li>Vibrant colors and sharp details</li>
-                        <li>Large volume printing</li>
-                        <li>Custom finishing options</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Get Quote <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <h3 class="service-title">Digital Printing</h3>
-                    <ul class="service-features">
-                        <li>Fast turnaround times</li>
-                        <li>Business cards and stationery</li>
-                        <li>Short run printing</li>
-                        <li>Variable data printing</li>
-                        <li>Personalized prints</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Get Quote <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-box-open"></i>
-                    </div>
-                    <h3 class="service-title">Packaging Solutions</h3>
-                    <ul class="service-features">
-                        <li>Custom packaging design</li>
-                        <li>Product protection</li>
-                        <li>Brand enhancement</li>
-                        <li>Eco-friendly options</li>
-                        <li>Retail-ready packaging</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Get Quote <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <h3 class="service-title">Label Printing</h3>
-                    <ul class="service-features">
-                        <li>Premium label materials</li>
-                        <li>Product and bottle labels</li>
-                        <li>Custom shapes and sizes</li>
-                        <li>Various finishes available</li>
-                        <li>Compliant labeling</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Get Quote <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <h3 class="service-title">Stationery Printing</h3>
-                    <ul class="service-features">
-                        <li>Professional business cards</li>
-                        <li>Letterheads and envelopes</li>
-                        <li>Corporate identity sets</li>
-                        <li>Premium paper stocks</li>
-                        <li>Special finishes</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Get Quote <i class="fas fa-arrow-right"></i></a>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-gift"></i>
-                    </div>
-                    <h3 class="service-title">Promotional Items</h3>
-                    <ul class="service-features">
-                        <li>Custom printed merchandise</li>
-                        <li>Branded giveaways</li>
-                        <li>Trade show materials</li>
-                        <li>Marketing collateral</li>
-                        <li>Corporate gifts</li>
-                    </ul>
-                    <a href="#contact" class="service-link">Get Quote <i class="fas fa-arrow-right"></i></a>
-                </div>
-            </div>
+        <div class="input-group">
+            <label for="sheets-input">No. Of Sheets</label>
+            <input type="number" id="sheets-input" placeholder="e.g., 500">
         </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section class="contact section-padding" id="contact">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Contact Us</h2>
-                <p class="section-subtitle">Get in touch for your printing needs</p>
-            </div>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="info-text">
-                            <h3>Address</h3>
-                            <p>123 Printing Street, Industrial Area<br>Sambhajinagar, Maharashtra 431001</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-phone-alt"></i>
-                        </div>
-                        <div class="info-text">
-                            <h3>Phone</h3>
-                            <p>+91 98810 07612<br>+91 98810 07612</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="info-text">
-                            <h3>Email</h3>
-                            <p>info@akshardeepoffset.com<br>sales@akshardeepoffset.com</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="info-text">
-                            <h3>Working Hours</h3>
-                            <p>Monday - Saturday: 9:00 AM - 7:00 PM<br>Sunday: Closed</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="contact-form">
-                    <form id="contactForm">
-                        <div class="form-group">
-                            <input type="text" id="name" name="name" placeholder="Your Name" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder="Your Email" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="tel" id="phone" name="phone" placeholder="Your Phone">
-                        </div>
-                        <div class="form-group">
-                            <select id="service" name="service" required>
-                                <option value="">Select Service</option>
-                                <option value="offset">Offset Printing</option>
-                                <option value="digital">Digital Printing</option>
-                                <option value="packaging">Packaging Solutions</option>
-                                <option value="labels">Label Printing</option>
-                                <option value="stationery">Stationery Printing</option>
-                                <option value="promotional">Promotional Items</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <textarea id="message" name="message" placeholder="Your Message" rows="5"
-                                required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </form>
-                </div>
-            </div>
-            <div class="contact-map">
-                <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.566255415366!2d77.2069073150822!3d28.613900982426833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce2f2e8e6a4a1%3A0x9e9a9e9e9e9e9e9e!2sAkshardeep%20Offset%20Printers!5e0!3m2!1sen!2sin!4v1623456789012!5m2!1sen!2sin"
-                    width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-            </div>
+        <div class="input-group">
+            <label for="rate-input">Rate per kg</label>
+            <input type="number" id="rate-input" placeholder="e.g., 85">
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-col footer-about">
-                    <div class="footer-logo">
-                        <span class="logo-text">Akshardeep Offset</span>
-                    </div>
-                    <p>Akshardeep Offset Printers is a premier printing company delivering high-quality printing
-                        solutions with cutting-edge technology and exceptional customer service since 1995.</p>
-                    <div class="footer-social">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-                <div class="footer-col footer-links">
-                    <h3 class="footer-title">Quick Links</h3>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col footer-services">
-                    <h3 class="footer-title">Our Services</h3>
-                    <ul>
-                        <li><a href="#services">Offset Printing</a></li>
-                        <li><a href="#services">Digital Printing</a></li>
-                        <li><a href="#services">Packaging Solutions</a></li>
-                        <li><a href="#services">Label Printing</a></li>
-                        <li><a href="#services">Stationery Printing</a></li>
-                        <li><a href="#services">Promotional Items</a></li>
-                    </ul>
-                </div>
-            </div>
+        <div class="result-display">
+            <h2>Total Price</h2>
+            <p class="price" id="total-price">₹ 0.00</p>
         </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <div class="copyright">
-                    <p>&copy; 2025 Akshardeep Offset Printers. All Rights Reserved.</p>
-                </div>
-                <div class="footer-menu">
-                    <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms & Conditions</a></li>
-                        <li><a href="#">Sitemap</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
+    </div>
 
-    <!-- Back to Top Button -->
-    <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Data derived from your Google Sheet
+            const paperData = [
+                { size: "23x36", gsm: 58, perSheetWeight: 0.0308 }, { size: "23x36", gsm: 70, perSheetWeight: 0.0372 },
+                { size: "23x36", gsm: 80, perSheetWeight: 0.0426 }, { size: "23x36", gsm: 90, perSheetWeight: 0.0480 },
+                { size: "23x36", gsm: 100, perSheetWeight: 0.0532 }, { size: "23x36", gsm: 120, perSheetWeight: 0.0640 },
+                { size: "23x36", gsm: 125, perSheetWeight: 0.0668 }, { size: "23x36", gsm: 250, perSheetWeight: 0.1328 },
+                { size: "23x36", gsm: 300, perSheetWeight: 0.1600 }, { size: "20x30", gsm: 90, perSheetWeight: 0.0348 },
+                { size: "25x36", gsm: 80, perSheetWeight: 0.0462 }, { size: "25x36", gsm: 90, perSheetWeight: 0.0520 },
+                { size: "25x36", gsm: 100, perSheetWeight: 0.0578 }, { size: "25x36", gsm: 125, perSheetWeight: 0.0726 },
+                { size: "25x36", gsm: 250, perSheetWeight: 0.1448 }, { size: "25x36", gsm: 300, perSheetWeight: 0.1736 },
+                { size: "25x38", gsm: 250, perSheetWeight: 0.1532 }, { size: "25x38", gsm: 300, perSheetWeight: 0.1839 }
+            ];
 
-    <script src="js/script.js"></script>
-    <script src="js/scroll.js"></script>
+            const sizeSelect = document.getElementById('size-select');
+            const gsmSelect = document.getElementById('gsm-select');
+            const weightInput = document.getElementById('weight-input');
+            const sheetsInput = document.getElementById('sheets-input');
+            const rateInput = document.getElementById('rate-input');
+            const totalPriceDisplay = document.getElementById('total-price');
+
+            // --- Main Calculation Function ---
+            function calculate() {
+                const perSheetWeight = parseFloat(weightInput.value) || 0;
+                const sheets = parseFloat(sheetsInput.value) || 0;
+                const rate = parseFloat(rateInput.value) || 0;
+
+                const totalWeight = perSheetWeight * sheets;
+                const finalPrice = totalWeight * rate;
+                
+                totalPriceDisplay.textContent = `₹ ${finalPrice.toFixed(2)}`;
+            }
+
+            // --- Populate GSM Dropdown based on Size ---
+            function populateGsm() {
+                const selectedSize = sizeSelect.value;
+                gsmSelect.innerHTML = '<option value="">Select GSM</option>'; // Clear previous options
+                weightInput.value = ''; // Clear weight
+
+                if (selectedSize) {
+                    const availableGsm = paperData
+                        .filter(item => item.size === selectedSize)
+                        .map(item => item.gsm);
+                    
+                    // Add unique GSM values to the dropdown
+                    [...new Set(availableGsm)].forEach(gsm => {
+                        const option = document.createElement('option');
+                        option.value = gsm;
+                        option.textContent = gsm;
+                        gsmSelect.appendChild(option);
+                    });
+                }
+                calculate(); // Recalculate
+            }
+
+            // --- Update Weight based on Size and GSM ---
+            function updateWeight() {
+                const selectedSize = sizeSelect.value;
+                const selectedGsm = parseFloat(gsmSelect.value);
+
+                if (selectedSize && selectedGsm) {
+                    const item = paperData.find(d => d.size === selectedSize && d.gsm === selectedGsm);
+                    if (item) {
+                        weightInput.value = item.perSheetWeight.toFixed(4);
+                    }
+                } else {
+                    weightInput.value = '';
+                }
+                calculate(); // Recalculate
+            }
+
+            // --- Initial Setup ---
+            // Populate Size Dropdown
+            const uniqueSizes = [...new Set(paperData.map(item => item.size))];
+            sizeSelect.innerHTML = '<option value="">Select Size</option>';
+            uniqueSizes.forEach(size => {
+                const option = document.createElement('option');
+                option.value = size;
+                option.textContent = size;
+                sizeSelect.appendChild(option);
+            });
+
+            // --- Add Event Listeners ---
+            sizeSelect.addEventListener('change', populateGsm);
+            gsmSelect.addEventListener('change', updateWeight);
+            sheetsInput.addEventListener('input', calculate);
+            rateInput.addEventListener('input', calculate);
+
+            // Initialize fields
+            populateGsm();
+        });
+    </script>
 </body>
-
 </html>
