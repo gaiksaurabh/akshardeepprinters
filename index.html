@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Paper Calculator</title>
+    <title>Final Paper Calculator</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -22,7 +22,7 @@
             border-radius: 15px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 420px; /* Default max-width for mobile */
+            max-width: 420px; /* Default for mobile */
             transition: max-width 0.3s ease-in-out;
         }
         .calculator-card h1 {
@@ -32,7 +32,7 @@
             font-size: 1.8rem;
         }
         .form-container {
-            display: block; /* Default for mobile */
+            display: block;
         }
         .input-group {
             margin-bottom: 1.5rem;
@@ -44,7 +44,7 @@
             font-weight: 500;
         }
         .input-group select,
-        .input-group input {
+        .input-group input[type="number"] {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #ccc;
@@ -52,6 +52,25 @@
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #f8f9fa;
+        }
+        /* Styling for the checkbox group */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0; /* Override default margin */
+            font-weight: normal;
+            color: #333;
         }
         .result-display {
             margin-top: 2rem;
@@ -71,18 +90,18 @@
             font-weight: bold;
         }
 
-        /* --- Landscape for PC --- */
+        /* Landscape for PC */
         @media (min-width: 768px) {
             .calculator-card {
-                max-width: 800px; /* Wider card for landscape */
+                max-width: 800px;
             }
             .form-container {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 0 2rem; /* 0 for top/bottom, 2rem for left/right */
+                gap: 0 2rem;
             }
-            .input-group {
-                width: calc(50% - 1rem); /* 2 columns with gap */
+            .input-group, .checkbox-group-wrapper {
+                width: calc(50% - 1rem);
             }
             .result-display {
                 width: 100%;
@@ -108,7 +127,7 @@
 
             <div class="input-group">
                 <label for="sheets-input">No. Of Sheets</label>
-                <input type="number" id="sheets-input" placeholder="e.g., 500">
+                <input type="number" id="sheets-input" value="500">
             </div>
 
             <div class="input-group">
@@ -116,12 +135,12 @@
                 <input type="number" id="rate-input" placeholder="e.g., 85">
             </div>
 
-            <div class="input-group">
-                <label for="gst-select">GST Option</label>
-                <select id="gst-select">
-                    <option value="0.12" selected>With GST (12%)</option>
-                    <option value="0">Without GST</option>
-                </select>
+            <div class="input-group checkbox-group-wrapper">
+                 <label>GST Option</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="gst-checkbox">
+                    <label for="gst-checkbox">Calculate Without GST</label>
+                </div>
             </div>
 
             <div class="result-display">
@@ -149,7 +168,7 @@
             const gsmSelect = document.getElementById('gsm-select');
             const sheetsInput = document.getElementById('sheets-input');
             const rateInput = document.getElementById('rate-input');
-            const gstSelect = document.getElementById('gst-select');
+            const gstCheckbox = document.getElementById('gst-checkbox');
             const totalPriceDisplay = document.getElementById('total-price');
 
             let currentPerSheetWeight = 0;
@@ -157,7 +176,8 @@
             function calculate() {
                 const sheets = parseFloat(sheetsInput.value) || 0;
                 const rate = parseFloat(rateInput.value) || 0;
-                const gstRate = parseFloat(gstSelect.value) || 0;
+                // If checkbox is checked, no GST (rate is 0). If unchecked (default), 12% GST.
+                const gstRate = gstCheckbox.checked ? 0 : 0.12;
 
                 const basePrice = currentPerSheetWeight * sheets * rate;
                 const finalPrice = basePrice * (1 + gstRate);
@@ -201,8 +221,9 @@
             gsmSelect.addEventListener('change', updateWeight);
             sheetsInput.addEventListener('input', calculate);
             rateInput.addEventListener('input', calculate);
-            gstSelect.addEventListener('change', calculate);
+            gstCheckbox.addEventListener('change', calculate);
 
+            // Initial population and calculation on page load
             populateGsm();
         });
     </script>
