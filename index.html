@@ -188,7 +188,7 @@
                     <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Cost"></div>
                     <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
                     <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
-                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option></select></div>
+                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="9x6">9x6</option></select></div>
                     <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
                 </div>
             </div>
@@ -295,10 +295,8 @@
             let rates;
             const rateType = appData.printingRates ? (isWithoutPlate ? appData.printingRates.withoutPlate : appData.printingRates.withPlate) : null;
             if (!rateType) {
-                printingCostInput.value = "0.00";
-                secondCostInput.value = "0.00";
-                calculateGrandTotal();
-                return;
+                printingCostInput.value = "0.00"; secondCostInput.value = "0.00";
+                calculateGrandTotal(); return;
             }
 
             if (smallSizes.includes(selectedSize)) { rates = rateType.small; } 
@@ -330,9 +328,7 @@
             const rate = parseFloat(paperRateInput.value) || 0;
 
             if (!paperSizeSelect.value || !paperGsmSelect.value || !sheets || !rate) {
-                paperCostInput.value = "0.00";
-                calculateGrandTotal();
-                return;
+                paperCostInput.value = "0.00"; calculateGrandTotal(); return;
             }
             
             const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
@@ -405,7 +401,26 @@
             doc.text(`Dear ${customerName},`, 14, 50);
             doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
 
-            const singleLineDescription = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
+            // --- Build the dynamic description ---
+            const jobSize = jobSizeSelect.value || 'N/A';
+            const gsm = printingGsmSelect.value || 'N/A';
+            const quantity = quantityInput.value || '0';
+            const fb = fbCheck.checked ? ' F/B' : '';
+            let singleLineDescription = `${jobSize} - ${gsm} GSM - ${quantity}${fb}`;
+
+            const laminationType = document.getElementById('lamination-type').value;
+            if (laminationType) {
+                const laminationSize = document.getElementById('lami-size').value;
+                const formattedLamiType = laminationType.charAt(0).toUpperCase() + laminationType.slice(1);
+                singleLineDescription += ` - ${formattedLamiType} (${laminationSize})`;
+            }
+
+            const envelopeSize = document.getElementById('envelope-size').value;
+            if (envelopeSize) {
+                singleLineDescription += ` - Envelope (${envelopeSize})`;
+            }
+            // --- End of description logic ---
+
             doc.setFont("helvetica", "bold"); doc.text(singleLineDescription, 14, 67); doc.setFont("helvetica", "normal");
 
             const tableBody = [];
@@ -420,20 +435,27 @@
 
             costItems.forEach((item) => {
                 if (item.value > 0) {
-                    tableBody.push([tableBody.length + 1, item.label, '1', 'Item', item.value.toFixed(2), item.value.toFixed(2)]);
+                    tableBody.push([tableBody.length + 1, item.label, item.value.toFixed(2)]);
                     subtotal += item.value;
                 }
             });
 
-            doc.autoTable({
-                head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']], body: tableBody, startY: 75, theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255] },
-                columnStyles: { 0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'left' }, 4: { halign: 'right' }, 5: { halign: 'right' } }
-            });
-
             const total = Math.ceil(subtotal / 50) * 50;
-            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text('Total', 145, doc.lastAutoTable.finalY + 10);
-            doc.text(`₹ ${total.toFixed(2)}`, 196, doc.lastAutoTable.finalY + 10, { align: 'right' });
+
+            doc.autoTable({
+                head: [['Pos.', 'Designation', 'Total price']],
+                body: tableBody,
+                foot: [['', 'Total', `₹ ${total.toFixed(2)}`]],
+                startY: 75,
+                theme: 'grid',
+                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], fontStyle: 'bold' },
+                footStyles: { fontStyle: 'bold', fillColor: [240, 240, 240], textColor: [0,0,0] },
+                columnStyles: { 
+                    0: { halign: 'center', cellWidth: 15 },
+                    1: { halign: 'left' },
+                    2: { halign: 'right' }
+                }
+            });
             
             doc.setFontSize(10); doc.setFont("helvetica", "normal");
             const validUntil = new Date(); validUntil.setDate(validUntil.getDate() + 15);
@@ -561,14 +583,9 @@
 
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
             
-            [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
-                el.addEventListener('change', calculatePrintingCosts);
-                el.addEventListener('input', calculatePrintingCosts);
-            });
-            
-            [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox].forEach(el => {
-                el.addEventListener('change', calculateNumberOfSheets);
-                el.addEventListener('input', calculateNumberOfSheets);
+            [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox].forEach(el => {
+                el.addEventListener('change', calculateAllCosts);
+                el.addEventListener('input', calculateAllCosts);
             });
 
             printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
