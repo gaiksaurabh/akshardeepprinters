@@ -147,9 +147,9 @@
                            <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
                            <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label for="without-plate-check">Without Plate</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="printing-cost" placeholder="0.00" data-label="Printing Cost">
+                        <input type="number" class="cost-input" id="printing-cost" placeholder="Auto-calculated">
                     </div>
-                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="0.00" data-label="Second Printing"></div>
+                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="Auto-calculated"></div>
                 </div>
             </div>
 
@@ -165,7 +165,7 @@
                             <label for="paper-cost" style="margin:0;">Paper Cost (₹)</label>
                             <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Without GST</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00" data-label="Paper Cost">
+                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00">
                     </div>
                 </div>
             </div>
@@ -177,19 +177,19 @@
                         <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option></select></div>
                         <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="20x28">20x28</option></select></div>
                     </div>
-                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00" data-label="Lamination Cost"></div>
+                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00"></div>
                 </div>
             </div>
             
             <div class="section">
                 <h2 class="section-title">4. Other Costs</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
-                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Cost"></div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
-                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="9x6">9x6</option></select></div>
-                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
+                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option></select></div>
+                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00"></div>
                 </div>
             </div>
         </div>
@@ -197,40 +197,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        // --- SITE ANALYTICS ---
-        const STATS_KEY = 'akshardeep_site_stats';
-
-        function trackVisit() {
-            try {
-                let stats = JSON.parse(localStorage.getItem(STATS_KEY));
-                const now = new Date().toISOString();
-                if (stats) {
-                    stats.visitCount++;
-                    stats.lastVisit = now;
-                } else {
-                    stats = { visitCount: 1, firstVisit: now, lastVisit: now };
-                }
-                localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-            } catch (e) { console.error("Failed to track visit:", e); }
-        }
-
-        function displayVisitStats() {
-            try {
-                const stats = JSON.parse(localStorage.getItem(STATS_KEY));
-                if (stats) {
-                    const firstVisitDate = new Date(stats.firstVisit).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
-                    const lastVisitDate = new Date(stats.lastVisit).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
-                    const message = `📈 Website Analytics:\n\n` +
-                                  `Total Visits: ${stats.visitCount}\n` +
-                                  `First Visit: ${firstVisitDate}\n` +
-                                  `Last Visit: ${lastVisitDate}`;
-                    alert(message);
-                } else {
-                    alert('No visit data recorded yet. Reload the page to start tracking.');
-                }
-            } catch (e) { alert("Could not retrieve analytics data."); }
-        }
-
         // --- DATA STORE ---
         let appData = {};
 
@@ -252,6 +218,9 @@
         const printingGsmSelect = document.getElementById('printing-gsm-select');
         const paperRateInput = document.getElementById('paper-rate-input');
         const gstCheckbox = document.getElementById('gst-checkbox');
+        const laminationTypeSelect = document.getElementById('lamination-type');
+        const laminationSizeSelect = document.getElementById('lami-size');
+        const envelopeSizeSelect = document.getElementById('envelope-size');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         const whatsappBtn = document.getElementById('whatsapp-btn');
         const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
@@ -269,7 +238,6 @@
         }
 
         function initializeApp() {
-            trackVisit();
             populateDropdowns();
             setupEventListeners();
             calculateAllCosts();
@@ -286,17 +254,24 @@
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value.toUpperCase();
             const selectedSize = jobSizeSelect.value;
+
+            if (!selectedGsm || !selectedSize) {
+                printingCostInput.value = "";
+                secondCostInput.value = "";
+                calculateGrandTotal();
+                return;
+            }
+
             const isWithoutPlate = withoutPlateCheck.checked;
             const heavyGsmList = ['300', '350', 'DUPLEX'];
             const smallSizes = ['10X15', '12X18'];
             const mediumSizes = ['15X20', '18X23', '18X25'];
-            const largeHeavySizes = ['19X25', '20X28'];
             
             let rates;
             const rateType = appData.printingRates ? (isWithoutPlate ? appData.printingRates.withoutPlate : appData.printingRates.withPlate) : null;
             if (!rateType) {
-                printingCostInput.value = "0.00"; secondCostInput.value = "0.00";
-                calculateGrandTotal(); return;
+                calculateGrandTotal();
+                return;
             }
 
             if (smallSizes.includes(selectedSize)) { rates = rateType.small; } 
@@ -304,20 +279,27 @@
                 if (isWithoutPlate) { rates = rateType.largeHeavy; } 
                 else {
                     if (mediumSizes.includes(selectedSize)) rates = rateType.medium;
-                    else if (largeHeavySizes.includes(selectedSize)) rates = rateType.largeHeavy;
-                    else rates = rateType.large;
+                    else rates = rateType.largeHeavy;
                 }
             } else {
                 rates = mediumSizes.includes(selectedSize) ? (isWithoutPlate ? rateType.large : rateType.medium) : rateType.large;
             }
 
             printingCostInput.value = (rates?.cost || 0).toFixed(2);
+            
+            // --- New Second Printing Price Logic ---
+            let secondRate = 500; // Default rate
+            if (heavyGsmList.includes(selectedGsm)) {
+                secondRate = 600;
+            }
+            if (selectedSize === '20X28') {
+                secondRate = 600; // This rule overrides the GSM rule
+            }
+
             let secondCost = 0;
-            if (rates?.secondRate) {
-                const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
-                if (effectiveQuantity > 1000) {
-                    secondCost = Math.ceil((effectiveQuantity - 1000) / 1000) * rates.secondRate;
-                }
+            const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
+            if (effectiveQuantity > 1000) {
+                secondCost = Math.ceil((effectiveQuantity - 1000) / 1000) * secondRate;
             }
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
@@ -328,7 +310,9 @@
             const rate = parseFloat(paperRateInput.value) || 0;
 
             if (!paperSizeSelect.value || !paperGsmSelect.value || !sheets || !rate) {
-                paperCostInput.value = "0.00"; calculateGrandTotal(); return;
+                paperCostInput.value = "0.00";
+                calculateGrandTotal();
+                return;
             }
             
             const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
@@ -357,18 +341,29 @@
         }
 
         // --- UI & HELPER FUNCTIONS ---
-        function syncGsm(source, target) {
-            if (source.value) {
-                target.value = source.value;
-                target.dispatchEvent(new Event('change'));
+        function getDynamicDescription() {
+            let baseDesc = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
+            
+            const lamiType = laminationTypeSelect.value;
+            if (lamiType) {
+                const lamiSize = laminationSizeSelect.value;
+                const typeCapitalized = lamiType.charAt(0).toUpperCase() + lamiType.slice(1);
+                baseDesc += ` - ${typeCapitalized} (${lamiSize || 'N/A'})`;
             }
+
+            const envelopeSize = envelopeSizeSelect.value;
+            if (envelopeSize) {
+                baseDesc += ` - Envelope (${envelopeSize})`;
+            }
+
+            return baseDesc;
         }
 
         function sendToWhatsApp() {
             const customer = customerNameInput.value || 'Customer';
             const total = totalCostDisplay.textContent;
-            const singleLineDescription = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
-            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${singleLineDescription}*\n\n*Total:* ${total}`;
+            const description = getDynamicDescription();
+            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${description}*\n\n*Total:* ${total}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
@@ -401,26 +396,7 @@
             doc.text(`Dear ${customerName},`, 14, 50);
             doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
 
-            // --- Build the dynamic description ---
-            const jobSize = jobSizeSelect.value || 'N/A';
-            const gsm = printingGsmSelect.value || 'N/A';
-            const quantity = quantityInput.value || '0';
-            const fb = fbCheck.checked ? ' F/B' : '';
-            let singleLineDescription = `${jobSize} - ${gsm} GSM - ${quantity}${fb}`;
-
-            const laminationType = document.getElementById('lamination-type').value;
-            if (laminationType) {
-                const laminationSize = document.getElementById('lami-size').value;
-                const formattedLamiType = laminationType.charAt(0).toUpperCase() + laminationType.slice(1);
-                singleLineDescription += ` - ${formattedLamiType} (${laminationSize})`;
-            }
-
-            const envelopeSize = document.getElementById('envelope-size').value;
-            if (envelopeSize) {
-                singleLineDescription += ` - Envelope (${envelopeSize})`;
-            }
-            // --- End of description logic ---
-
+            const singleLineDescription = getDynamicDescription();
             doc.setFont("helvetica", "bold"); doc.text(singleLineDescription, 14, 67); doc.setFont("helvetica", "normal");
 
             const tableBody = [];
@@ -435,25 +411,24 @@
 
             costItems.forEach((item) => {
                 if (item.value > 0) {
-                    tableBody.push([tableBody.length + 1, item.label, item.value.toFixed(2)]);
+                    tableBody.push([tableBody.length + 1, item.label, `₹ ${item.value.toFixed(2)}`]);
                     subtotal += item.value;
                 }
             });
-
+            
             const total = Math.ceil(subtotal / 50) * 50;
+            tableBody.push(['', { content: 'Total', styles: { fontStyle: 'bold', halign: 'right' } }, { content: `₹ ${total.toFixed(2)}`, styles: { fontStyle: 'bold' } }]);
 
             doc.autoTable({
-                head: [['Pos.', 'Designation', 'Total price']],
-                body: tableBody,
-                foot: [['', 'Total', `₹ ${total.toFixed(2)}`]],
-                startY: 75,
+                head: [['Pos.', 'Designation', 'Total price']], 
+                body: tableBody, 
+                startY: 75, 
                 theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], fontStyle: 'bold' },
-                footStyles: { fontStyle: 'bold', fillColor: [240, 240, 240], textColor: [0,0,0] },
+                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255] },
                 columnStyles: { 
-                    0: { halign: 'center', cellWidth: 15 },
-                    1: { halign: 'left' },
-                    2: { halign: 'right' }
+                    0: { halign: 'center', cellWidth: 15 }, 
+                    1: { halign: 'left' }, 
+                    2: { halign: 'right' } 
                 }
             });
             
@@ -490,10 +465,7 @@
             
             const userInput = prompt(`To confirm deletion, please solve this problem:\n\nWhat is the sum of ${num1} + ${num2} ?`);
             
-            if (userInput === null) {
-                alert("Deletion cancelled.");
-                return;
-            }
+            if (userInput === null) { return; }
 
             if (parseInt(userInput) === correctAnswer) {
                 localStorage.removeItem(estimateKey);
@@ -553,20 +525,16 @@
                     else input.value = '';
                 });
                 customerNameInput.value = name;
-                allCostInputs.forEach(input => input.value = "0.00");
+                allCostInputs.forEach(input => input.value = "");
+                document.querySelectorAll('.cost-input').forEach(i => i.placeholder = '0.00');
+                printingCostInput.placeholder = "Auto-calculated";
+                secondCostInput.placeholder = "Auto-calculated";
                 paperSheetsInput.value = '0';
                 calculateAllCosts();
             }
         }
 
         function setupEventListeners() {
-            document.addEventListener('keydown', (event) => {
-                if ((event.metaKey || event.ctrlKey) && event.key === 'o') {
-                    event.preventDefault();
-                    displayVisitStats();
-                }
-            });
-
             modalContainer.addEventListener('click', (e) => {
                 if(e.target.matches('.modal-overlay, .modal-close')) closeModal();
                 if(e.target.matches('.estimate-name')) loadEstimate(e.target.dataset.key);
@@ -583,7 +551,8 @@
 
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
             
-            [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox].forEach(el => {
+            const triggers = [...allInputs];
+            triggers.forEach(el => {
                 el.addEventListener('change', calculateAllCosts);
                 el.addEventListener('input', calculateAllCosts);
             });
