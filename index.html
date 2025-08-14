@@ -179,7 +179,6 @@
     <script>
 document.addEventListener('DOMContentLoaded', async () => {
     // --- DATA STORE ---
-    // We'll store the fetched data here
     let appData = {};
 
     // --- ELEMENT SELECTORS ---
@@ -206,10 +205,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
     const whatsappBtn = document.getElementById('whatsapp-btn');
     const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
-    const saveBtn = document.getElementById('save-btn'); // New save button
-    const resetBtn = document.getElementById('reset-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const resetBtn = document.getElementById('reset-btn'); // Note: This button is not in your HTML
     const modalContainer = document.getElementById('modal-container');
-    const ESTIMATE_PREFIX = 'akshardeep_estimate_'; // Prefix for localStorage keys
+    const ESTIMATE_PREFIX = 'akshardeep_estimate_';
 
     // --- DATA LOADING & INITIALIZATION ---
     async function loadAppData() {
@@ -220,7 +219,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("Application data loaded successfully!");
         } catch (error) {
             console.error("Could not load application data:", error);
-            // Not fatal; app can still function with manual inputs
         }
     }
 
@@ -313,20 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         calculateGrandTotal();
     }
     
-    function calculateLaminationCost() {
-        const lamiType = laminationTypeSelect.value;
-        const lamiSize = laminationSizeSelect.value;
-        const sheets = parseFloat(paperSheetsInput.value) || 0;
-        if (!lamiType || !lamiSize || !sheets) {
-            laminationCostInput.value = "0.00";
-            calculateGrandTotal();
-            return;
-        }
-        const rate = (appData.laminationData && appData.laminationData[lamiSize]) ? (appData.laminationData[lamiSize][lamiType] || 0) : 0;
-        const cost = rate * sheets;
-        laminationCostInput.value = cost.toFixed(2);
-        calculateGrandTotal();
-    }
+    // The lamination calculation function is now removed.
 
     function calculateNumberOfSheets() {
         const jobSize = jobSizeSelect.value;
@@ -342,12 +327,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const sheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
         paperSheetsInput.value = sheets;
+        
+        // This now only calculates paper cost. The lamination cost call is removed.
         calculatePaperCost();
-        calculateLaminationCost();
     }
     
     function calculateAllCosts() {
-        calculateNumberOfSheets(); // This triggers paper and lamination
+        calculateNumberOfSheets(); // This triggers paper cost calculation
         calculatePrintingCosts();  // This triggers grand total
     }
 
@@ -435,7 +421,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert("Please enter a customer name to save the estimate.");
             return;
         }
-        // Use a stable key but still store original customer name inside data
         const estimateKey = ESTIMATE_PREFIX + customerName.toLowerCase().replace(/\s+/g, '_');
         const estimateData = {};
         allInputs.forEach(input => {
@@ -455,7 +440,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if(input.id && estimateData[input.id] !== undefined) {
                         if(input.type === 'checkbox') { input.checked = estimateData[input.id]; } 
                         else { input.value = estimateData[input.id]; }
-                        // Trigger change event for selects to ensure dependent calculations run
                         if (input.tagName === 'SELECT') {
                              input.dispatchEvent(new Event('change'));
                         }
@@ -477,7 +461,7 @@ document.addEventListener('DOMContentLoaded', async () => {
          })() : estimateKey.replace(ESTIMATE_PREFIX, '');
          if (confirm(`Are you sure you want to delete the estimate for "${friendlyName}"? This cannot be undone.`)) {
             localStorage.removeItem(estimateKey);
-            showPreviousEstimates(); // Refresh the modal
+            showPreviousEstimates();
         }
     }
     
@@ -485,7 +469,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const estimates = Object.keys(localStorage)
             .filter(key => key.startsWith(ESTIMATE_PREFIX))
             .sort((a,b) => {
-                // Sort by saved customer-name if available, fallback to key
                 const aItem = (() => { try { return JSON.parse(localStorage.getItem(a))['customer-name'] || a.replace(ESTIMATE_PREFIX,''); } catch(e){ return a.replace(ESTIMATE_PREFIX,''); } })();
                 const bItem = (() => { try { return JSON.parse(localStorage.getItem(b))['customer-name'] || b.replace(ESTIMATE_PREFIX,''); } catch(e){ return b.replace(ESTIMATE_PREFIX,''); } })();
                 return aItem.toLowerCase().localeCompare(bItem.toLowerCase());
@@ -503,9 +486,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 } catch(e) { /* ignore parse errors */ }
                 listHtml += `<li class="estimate-item">
-                                <span class="estimate-name" data-key="${key}">${displayName}</span>
-                                <button class="delete-estimate-btn" data-key="${key}" title="Delete estimate">✕</button>
-                             </li>`;
+                                 <span class="estimate-name" data-key="${key}">${displayName}</span>
+                                 <button class="delete-estimate-btn" data-key="${key}" title="Delete estimate">✕</button>
+                               </li>`;
             });
         } else {
             listHtml += '<li>No saved estimates found.</li>';
@@ -585,8 +568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         paperTriggers.forEach(el => { if (el) el.addEventListener('change', calculatePaperCost); });
         [paperSheetsInput, paperRateInput].forEach(el => { if (el) el.addEventListener('input', calculatePaperCost); });
 
-        const laminationTriggers = [laminationTypeSelect, laminationSizeSelect];
-        laminationTriggers.forEach(el => { if (el) el.addEventListener('change', calculateLaminationCost); });
+        // The event listeners for lamination have been removed.
         
         const sheetTriggers = [jobSizeSelect, quantityInput, paperGsmSelect];
         sheetTriggers.forEach(el => { if (el) el.addEventListener('change', calculateNumberOfSheets); });
