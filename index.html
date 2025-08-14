@@ -113,6 +113,8 @@
                         <label for="lami-cost">Lamination Cost (₹)</label>
                         <input type="number" class="cost-input" id="lami-cost" placeholder="0.00">
                     </div>
+                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                 </div>
             </div>
             
@@ -121,8 +123,6 @@
                 <div class="form-grid">
                     <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
                     <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00"></div>
                 </div>
@@ -163,10 +163,7 @@
         function calculateGrandTotal() {
             let total = 0;
             allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
-            
-            // Round up to the next 50
             const roundedTotal = Math.ceil(total / 50) * 50;
-            
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
@@ -215,7 +212,11 @@
             const basePrice = perSheetWeight * sheets * rate;
             const gstRate = withoutGst ? 0 : 0.12;
             const finalPrice = basePrice * (1 + gstRate);
-            paperCostInput.value = finalPrice.toFixed(2);
+
+            // Round up paper cost to the next 50
+            const roundedPaperCost = Math.ceil(finalPrice / 50) * 50;
+            paperCostInput.value = roundedPaperCost.toFixed(2);
+            
             calculateGrandTotal();
         }
         
