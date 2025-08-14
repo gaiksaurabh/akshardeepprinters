@@ -10,6 +10,7 @@
     { "size": "20x30", "gsm": 90, "perSheetWeight": 0.0348 },
     { "size": "23x36", "gsm": 120, "perSheetWeight": 0.064 },
     { "size": "23x36", "gsm": 125, "perSheetWeight": 0.0668 },
+    { "size": "23x36", "gsm": 170, "perSheetWeight": 0.0900 },
     { "size": "23x36", "gsm": 250, "perSheetWeight": 0.1328 },
     { "size": "23x36", "gsm": 300, "perSheetWeight": 0.16 },
     { "size": "23x36", "gsm": 350, "perSheetWeight": 0.185 },
@@ -36,15 +37,15 @@
   },
   "printingRates": {
     "withPlate": {
-      "small":      { "cost": 1200, "secondRate": 300 },
-      "medium":     { "cost": 1900, "secondRate": 600 },
-      "large":      { "cost": 1900, "secondRate": 500 },
-      "largeHeavy": { "cost": 2000, "secondRate": 600 }
+      "small":      { "cost": 1200 },
+      "medium":     { "cost": 1900 },
+      "large":      { "cost": 1900 },
+      "largeHeavy": { "cost": 2000 }
     },
     "withoutPlate": {
-      "small":      { "cost": 700,  "secondRate": 300 },
-      "large":      { "cost": 1000, "secondRate": 500 },
-      "largeHeavy": { "cost": 1400, "secondRate": 600 }
+      "small":      { "cost": 700 },
+      "large":      { "cost": 1000 },
+      "largeHeavy": { "cost": 1400 }
     }
   }
 }
