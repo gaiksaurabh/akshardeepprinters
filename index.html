@@ -106,7 +106,7 @@
             </div>
             
             <div class="icon-group">
-                <button id="download-pdf-btn" class="icon-btn" title="Download PDF">
+                <button id="download-pdf-btn" class="icon-btn" title="Download PDF & Save Estimate">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                 </button>
                 <button id="whatsapp-btn" class="icon-btn" title="Send to WhatsApp">
@@ -197,6 +197,40 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
+        // --- SITE ANALYTICS ---
+        const STATS_KEY = 'akshardeep_site_stats';
+
+        function trackVisit() {
+            try {
+                let stats = JSON.parse(localStorage.getItem(STATS_KEY));
+                const now = new Date().toISOString();
+                if (stats) {
+                    stats.visitCount++;
+                    stats.lastVisit = now;
+                } else {
+                    stats = { visitCount: 1, firstVisit: now, lastVisit: now };
+                }
+                localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+            } catch (e) { console.error("Failed to track visit:", e); }
+        }
+
+        function displayVisitStats() {
+            try {
+                const stats = JSON.parse(localStorage.getItem(STATS_KEY));
+                if (stats) {
+                    const firstVisitDate = new Date(stats.firstVisit).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
+                    const lastVisitDate = new Date(stats.lastVisit).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
+                    const message = `📈 Website Analytics:\n\n` +
+                                  `Total Visits: ${stats.visitCount}\n` +
+                                  `First Visit: ${firstVisitDate}\n` +
+                                  `Last Visit: ${lastVisitDate}`;
+                    alert(message);
+                } else {
+                    alert('No visit data recorded yet. Reload the page to start tracking.');
+                }
+            } catch (e) { alert("Could not retrieve analytics data."); }
+        }
+
         // --- DATA STORE ---
         let appData = {};
 
@@ -211,20 +245,14 @@
         const withoutPlateCheck = document.getElementById('without-plate-check');
         const printingCostInput = document.getElementById('printing-cost');
         const secondCostInput = document.getElementById('second-cost');
-        const printingGsmSelect = document.getElementById('printing-gsm-select');
-        const paperGsmSelect = document.getElementById('paper-gsm-select');
-        const paperSizeSelect = document.getElementById('paper-size-select');
         const paperSheetsInput = document.getElementById('paper-sheets-input');
-        const paperRateInput = document.getElementById('paper-rate-input');
-        const gstCheckbox = document.getElementById('gst-checkbox');
         const paperCostInput = document.getElementById('paper-cost');
-        const laminationCostInput = document.getElementById('lami-cost');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         const whatsappBtn = document.getElementById('whatsapp-btn');
         const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
         const resetBtn = document.getElementById('reset-btn');
         const modalContainer = document.getElementById('modal-container');
-        const ESTIMATE_PREFIX = 'akshardeep_estimate_';
+        const COUNTER_KEY = 'akshardeep_estimate_counter';
 
         // --- DATA LOADING & INITIALIZATION ---
         async function loadAppData() {
@@ -232,35 +260,14 @@
                 const response = await fetch('data.json');
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 appData = await response.json();
-                console.log("Application data loaded successfully!");
-            } catch (error) {
-                console.error("Could not load application data:", error);
-            }
+            } catch (error) { console.error("Could not load application data:", error); }
         }
 
         function initializeApp() {
-            populatePaperSizes();
-            populateStaticGsmDropdowns();
+            trackVisit();
+            populateDropdowns();
             setupEventListeners();
             calculateAllCosts();
-        }
-        
-        // --- AUTO-SAVE FUNCTION ---
-        function autoSaveEstimate() {
-            const customerName = customerNameInput.value.trim();
-            if (!customerName) {
-                return;
-            }
-            const estimateKey = ESTIMATE_PREFIX + customerName.toLowerCase().replace(/\s+/g, '_');
-            const estimateData = {};
-            allInputs.forEach(input => {
-                if (input.id) { 
-                    estimateData[input.id] = (input.type === 'checkbox') ? input.checked : input.value; 
-                }
-            });
-            estimateData._savedAt = new Date().toISOString();
-            localStorage.setItem(estimateKey, JSON.stringify(estimateData));
-            console.log(`Estimate for "${customerName}" auto-saved.`);
         }
 
         // --- CALCULATION FUNCTIONS ---
@@ -269,11 +276,10 @@
             allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
             const roundedTotal = Math.ceil(total / 50) * 50;
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
-            autoSaveEstimate();
         }
 
         function calculatePrintingCosts() {
-            const selectedGsm = String(printingGsmSelect.value).toUpperCase();
+            const selectedGsm = document.getElementById('printing-gsm-select').value.toUpperCase();
             const selectedSize = jobSizeSelect.value;
             const isWithoutPlate = withoutPlateCheck.checked;
             const heavyGsmList = ['300', '350', 'DUPLEX'];
@@ -283,7 +289,6 @@
             
             let rates;
             const rateType = appData.printingRates ? (isWithoutPlate ? appData.printingRates.withoutPlate : appData.printingRates.withPlate) : null;
-
             if (!rateType) {
                 printingCostInput.value = "0.00";
                 secondCostInput.value = "0.00";
@@ -303,31 +308,24 @@
                 rates = mediumSizes.includes(selectedSize) ? (isWithoutPlate ? rateType.large : rateType.medium) : rateType.large;
             }
 
-            if (!rates) {
-                printingCostInput.value = "0.00";
-                secondCostInput.value = "0.00";
-            } else {
-                printingCostInput.value = (rates.cost || 0).toFixed(2);
-                const baseQuantity = parseFloat(quantityInput.value) || 0;
-                const isFbChecked = fbCheck.checked;
-                const effectiveQuantity = isFbChecked ? baseQuantity * 2 : baseQuantity;
-                let secondCost = 0;
+            printingCostInput.value = (rates?.cost || 0).toFixed(2);
+            let secondCost = 0;
+            if (rates?.secondRate) {
+                const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
                 if (effectiveQuantity > 1000) {
-                    const exceedingQuantity = effectiveQuantity - 1000;
-                    const blocks = Math.ceil(exceedingQuantity / 1000);
-                    secondCost = blocks * (rates.secondRate || 0);
+                    secondCost = Math.ceil((effectiveQuantity - 1000) / 1000) * rates.secondRate;
                 }
-                secondCostInput.value = secondCost.toFixed(2);
             }
+            secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
         }
 
         function calculatePaperCost() {
-            const selectedSize = paperSizeSelect.value;
-            const selectedGsm = paperGsmSelect.value;
+            const selectedSize = document.getElementById('paper-size-select').value;
+            const selectedGsm = document.getElementById('paper-gsm-select').value;
             const sheets = parseFloat(paperSheetsInput.value) || 0;
-            const rate = parseFloat(paperRateInput.value) || 0;
-            const withoutGst = gstCheckbox.checked;
+            const rate = parseFloat(document.getElementById('paper-rate-input').value) || 0;
+            const withoutGst = document.getElementById('gst-checkbox').checked;
 
             if (!selectedSize || !selectedGsm || !sheets || !rate) {
                 paperCostInput.value = "0.00";
@@ -335,30 +333,24 @@
                 return;
             }
 
-            const paperInfo = appData.paperData ? appData.paperData.find(d => d.size.toLowerCase() === selectedSize.toLowerCase() && String(d.gsm).toLowerCase() === selectedGsm.toLowerCase()) : null;
-            const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
-            const basePrice = perSheetWeight * sheets * rate;
-            const gstRate = withoutGst ? 0.06 : 0.12;
-            const finalPrice = basePrice * (1 + gstRate);
-            const roundedPaperCost = Math.ceil(finalPrice / 50) * 50;
-            paperCostInput.value = roundedPaperCost.toFixed(2);
+            const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === selectedSize.toLowerCase() && String(d.gsm).toLowerCase() === selectedGsm.toLowerCase());
+            const basePrice = (paperInfo?.perSheetWeight || 0) * sheets * rate;
+            const finalPrice = basePrice * (1 + (withoutGst ? 0.06 : 0.12));
+            paperCostInput.value = (Math.ceil(finalPrice / 50) * 50).toFixed(2);
             calculateGrandTotal();
         }
 
         function calculateNumberOfSheets() {
             const jobSize = jobSizeSelect.value;
             const quantity = parseFloat(quantityInput.value) || 0;
-            const paperGsm = String(paperGsmSelect.value).toUpperCase();
+            const paperGsm = document.getElementById('paper-gsm-select').value.toUpperCase();
             let divisionFactor = 0;
             if (jobSize === '20X28') { divisionFactor = 1; } 
-            else if (jobSize === '12X18' || jobSize === '10X15') { divisionFactor = (paperGsm === 'STICKER') ? 2 : 4; } 
+            else if (['12X18', '10X15'].includes(jobSize)) { divisionFactor = (paperGsm === 'STICKER') ? 2 : 4; } 
             else if (jobSize) { divisionFactor = (paperGsm === 'STICKER') ? 1 : 2; }
             
             const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
-            // Add 5 extra sheets for wastage if a job is being calculated
-            const sheets = baseSheets > 0 ? baseSheets + 5 : 0;
-
-            paperSheetsInput.value = sheets;
+            paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
             calculatePaperCost();
         }
         
@@ -368,164 +360,143 @@
         }
 
         // --- UI & HELPER FUNCTIONS ---
-        function syncGsm(sourceSelect, targetSelect) {
-            if (sourceSelect.value) {
-                targetSelect.value = sourceSelect.value;
-                targetSelect.dispatchEvent(new Event('change'));
+        function syncGsm(source, target) {
+            if (source.value) {
+                target.value = source.value;
+                target.dispatchEvent(new Event('change'));
             }
         }
 
         function sendToWhatsApp() {
             const customer = customerNameInput.value || 'Customer';
             const total = totalCostDisplay.textContent;
-            const singleLineDescription = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
-            
-            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${singleLineDescription}*\n\n`;
-            message += `*Total:* ${total}`; // Changed from Grand Total
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            const singleLineDescription = `${jobSizeSelect.value || 'N/A'} - ${document.getElementById('printing-gsm-select').value || 'N/A'} GSM - ${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
+            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${singleLineDescription}*\n\n*Total:* ${total}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
         function generatePDF() {
+            const customerName = customerNameInput.value.trim();
+            if (!customerName) {
+                alert("Please enter a customer name before creating a PDF.");
+                return;
+            }
+            
+            // --- New Estimate Numbering and Saving Logic ---
+            let counter = parseInt(localStorage.getItem(COUNTER_KEY)) || 0;
+            counter++;
+            const estimateNr = 'AOP' + String(counter).padStart(2, '0');
+            
+            const estimateData = {};
+            allInputs.forEach(input => {
+                if(input.id) estimateData[input.id] = input.type === 'checkbox' ? input.checked : input.value;
+            });
+            localStorage.setItem(estimateNr, JSON.stringify(estimateData));
+            localStorage.setItem(COUNTER_KEY, counter);
+            alert(`Estimate ${estimateNr} has been saved.`);
+            // --- End of New Logic ---
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const customerName = customerNameInput.value || 'Valued Customer';
-            const estimateNr = customerName.replace(/\s/g, '_') || 'current';
             const today = new Date().toLocaleDateString('en-GB');
 
-            doc.setFontSize(20);
-            doc.setFont("helvetica", "bold");
-            doc.text("Cost Estimate", 105, 20, { align: 'center' });
-
-            doc.setFontSize(11);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35);
-            doc.text(`Date: ${today}`, 148, 35);
-
+            doc.setFontSize(20); doc.setFont("helvetica", "bold"); doc.text("Cost Estimate", 105, 20, { align: 'center' });
+            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35); doc.text(`Date: ${today}`, 148, 35);
             doc.text(`Dear ${customerName},`, 14, 50);
             doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
 
-            const jobSize = jobSizeSelect.value || 'N/A';
-            const gsm = printingGsmSelect.value || 'N/A';
-            const quantity = quantityInput.value || '0';
-            const fb = fbCheck.checked ? ' F/B' : '';
-            const singleLineDescription = `${jobSize} - ${gsm} GSM - ${quantity}${fb}`;
-            
-            doc.setFont("helvetica", "bold");
-            doc.text(singleLineDescription, 14, 67);
-            doc.setFont("helvetica", "normal");
+            const singleLineDescription = `${jobSizeSelect.value || 'N/A'} - ${document.getElementById('printing-gsm-select').value || 'N/A'} GSM - ${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
+            doc.setFont("helvetica", "bold"); doc.text(singleLineDescription, 14, 67); doc.setFont("helvetica", "normal");
 
             const tableBody = [];
-            let pos = 1;
             let subtotal = 0;
-
             const costItems = [
-                { label: 'Printing Cost', value: parseFloat(printingCostInput.value) || 0 },
-                { label: 'Second Printing', value: parseFloat(secondCostInput.value) || 0 },
-                { label: 'Paper Cost', value: parseFloat(paperCostInput.value) || 0 },
-                { label: 'Lamination Cost', value: parseFloat(laminationCostInput.value) || 0 },
-                { label: 'Binding Cost', value: parseFloat(document.getElementById('binding-cost').value) || 0 },
-                { label: 'Punching', value: parseFloat(document.getElementById('punching-cost').value) || 0 },
-                { label: 'Clips', value: parseFloat(document.getElementById('clips-cost').value) || 0 },
-                { label: 'Envelope Cost', value: parseFloat(document.getElementById('env-cost').value) || 0 },
+                { label: 'Printing Cost', value: parseFloat(printingCostInput.value) || 0 }, { label: 'Second Printing', value: parseFloat(secondCostInput.value) || 0 },
+                { label: 'Paper Cost', value: parseFloat(paperCostInput.value) || 0 }, { label: 'Lamination Cost', value: parseFloat(document.getElementById('lami-cost').value) || 0 },
+                { label: 'Binding Cost', value: parseFloat(document.getElementById('binding-cost').value) || 0 }, { label: 'Punching', value: parseFloat(document.getElementById('punching-cost').value) || 0 },
+                { label: 'Clips', value: parseFloat(document.getElementById('clips-cost').value) || 0 }, { label: 'Envelope Cost', value: parseFloat(document.getElementById('env-cost').value) || 0 },
                 { label: 'Other Costs', value: parseFloat(document.getElementById('other-misc-cost').value) || 0 }
             ];
 
-            costItems.forEach(item => {
+            costItems.forEach((item, index) => {
                 if (item.value > 0) {
-                    tableBody.push([
-                        pos++, item.label, '1', 'Item', item.value.toFixed(2), item.value.toFixed(2)
-                    ]);
+                    tableBody.push([tableBody.length + 1, item.label, '1', 'Item', item.value.toFixed(2), item.value.toFixed(2)]);
                     subtotal += item.value;
                 }
             });
 
             doc.autoTable({
-                head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']],
-                body: tableBody,
-                startY: 75,
-                theme: 'grid',
+                head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']], body: tableBody, startY: 75, theme: 'grid',
                 headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255] },
-                columnStyles: {
-                    0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' },
-                    3: { halign: 'left' }, 4: { halign: 'right' }, 5: { halign: 'right' }
-                }
+                columnStyles: { 0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' }, 3: { halign: 'left' }, 4: { halign: 'right' }, 5: { halign: 'right' } }
             });
 
-            let finalY = doc.lastAutoTable.finalY;
             const total = Math.ceil(subtotal / 50) * 50;
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
-            doc.text('Total', 145, finalY + 10);
-            doc.text(`₹ ${total.toFixed(2)}`, 196, finalY + 10, { align: 'right' });
-
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            const validUntil = new Date();
-            validUntil.setDate(validUntil.getDate() + 15);
+            doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text('Total', 145, doc.lastAutoTable.finalY + 10);
+            doc.text(`₹ ${total.toFixed(2)}`, 196, doc.lastAutoTable.finalY + 10, { align: 'right' });
+            
+            doc.setFontSize(10); doc.setFont("helvetica", "normal");
+            const validUntil = new Date(); validUntil.setDate(validUntil.getDate() + 15);
             doc.text(`This offer is valid until ${validUntil.toLocaleDateString('en-GB')}.`, 14, doc.internal.pageSize.height - 20);
             doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
-            
             doc.save(`Cost-Estimate-${estimateNr}.pdf`);
         }
 
         // --- LOAD/DELETE FUNCTIONS ---
         function loadEstimate(estimateKey) {
             const dataString = localStorage.getItem(estimateKey);
-            if(dataString) {
+            if (dataString) {
                 try {
                     const estimateData = JSON.parse(dataString);
                     allInputs.forEach(input => {
-                        if(input.id && estimateData[input.id] !== undefined) {
-                            if(input.type === 'checkbox') { input.checked = estimateData[input.id]; } 
-                            else { input.value = estimateData[input.id]; }
-                            if (input.tagName === 'SELECT') {
-                                 input.dispatchEvent(new Event('change'));
-                            }
+                        if (input.id && estimateData[input.id] !== undefined) {
+                            input.type === 'checkbox' ? input.checked = estimateData[input.id] : input.value = estimateData[input.id];
+                            if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
                         }
                     });
-                    calculateAllCosts();
-                    closeModal();
-                    alert(`Loaded estimate for "${estimateData['customer-name'] || ''}"`);
-                } catch (e) {
-                    console.error("Failed to parse estimate data", e);
-                    alert("Failed to load estimate (corrupted data).");
-                }
+                    calculateAllCosts(); closeModal();
+                    alert(`Loaded estimate for "${estimateData['customer-name'] || estimateKey}"`);
+                } catch (e) { alert("Failed to load estimate (corrupted data)."); }
             }
         }
         
         function deleteEstimate(estimateKey) {
-             const friendlyName = (localStorage.getItem(estimateKey)) ? (() => {
-                 try { const d = JSON.parse(localStorage.getItem(estimateKey)); return d && d['customer-name'] ? d['customer-name'] : estimateKey.replace(ESTIMATE_PREFIX, ''); } catch(e){ return estimateKey.replace(ESTIMATE_PREFIX,''); }
-             })() : estimateKey.replace(ESTIMATE_PREFIX, '');
-             if (confirm(`Are you sure you want to delete the estimate for "${friendlyName}"? This cannot be undone.`)) {
+            const num1 = Math.floor(Math.random() * 100);
+            const num2 = Math.floor(Math.random() * 100);
+            const correctAnswer = num1 + num2 + 5;
+            
+            const userInput = prompt(`To confirm deletion, please solve this problem:\n\nWhat is the sum of ${num1} + ${num2} ?\n\n(Hint: Add 5 to the real answer)`);
+            
+            if (userInput === null) {
+                alert("Deletion cancelled.");
+                return;
+            }
+
+            if (parseInt(userInput) === correctAnswer) {
                 localStorage.removeItem(estimateKey);
-                showPreviousEstimates();
+                alert("Estimate deleted successfully.");
+                showPreviousEstimates(); // Refresh the modal
+            } else {
+                alert("Incorrect answer. Deletion cancelled.");
             }
         }
         
         function showPreviousEstimates() {
             const estimates = Object.keys(localStorage)
-                .filter(key => key.startsWith(ESTIMATE_PREFIX))
-                .sort((a,b) => {
-                    const aItem = (() => { try { return JSON.parse(localStorage.getItem(a))['customer-name'] || a.replace(ESTIMATE_PREFIX,''); } catch(e){ return a.replace(ESTIMATE_PREFIX,''); } })();
-                    const bItem = (() => { try { return JSON.parse(localStorage.getItem(b))['customer-name'] || b.replace(ESTIMATE_PREFIX,''); } catch(e){ return b.replace(ESTIMATE_PREFIX,''); } })();
-                    return aItem.toLowerCase().localeCompare(bItem.toLowerCase());
-                });
+                .filter(key => key.startsWith('AOP'))
+                .sort();
             
             let listHtml = '<ul class="estimates-list">';
-            if(estimates.length > 0) {
+            if (estimates.length > 0) {
                 estimates.forEach(key => {
-                    let displayName = key.replace(ESTIMATE_PREFIX, '');
+                    let customerName = 'Unknown Customer';
                     try {
-                        const raw = localStorage.getItem(key);
-                        if (raw) {
-                            const parsed = JSON.parse(raw);
-                            if (parsed && parsed['customer-name']) displayName = parsed['customer-name'];
-                        }
-                    } catch(e) { /* ignore parse errors */ }
+                        const data = JSON.parse(localStorage.getItem(key));
+                        if(data && data['customer-name']) customerName = data['customer-name'];
+                    } catch(e) {}
                     listHtml += `<li class="estimate-item">
-                                     <span class="estimate-name" data-key="${key}">${displayName}</span>
+                                     <span class="estimate-name" data-key="${key}">${key}: ${customerName}</span>
                                      <button class="delete-estimate-btn" data-key="${key}" title="Delete estimate">✕</button>
                                    </li>`;
                 });
@@ -533,39 +504,32 @@
                 listHtml += '<li>No saved estimates found.</li>';
             }
             listHtml += '</ul>';
-            const modalHtml = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close" title="Close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
-            modalContainer.innerHTML = modalHtml;
+            modalContainer.innerHTML = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close" title="Close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
         }
         
         function closeModal() { modalContainer.innerHTML = ''; }
         
-        function populatePaperSizes() {
-            if (!appData.paperData) return;
-            const uniqueSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))];
-            paperSizeSelect.innerHTML = '<option value="">Select Size</option>';
-            uniqueSizes.sort().forEach(size => { paperSizeSelect.innerHTML += `<option value="${size}">${size}</option>`; });
-        }
+        function populateDropdowns() {
+            const paperSizeSelect = document.getElementById('paper-size-select');
+            const printingGsmSelect = document.getElementById('printing-gsm-select');
+            const paperGsmSelect = document.getElementById('paper-gsm-select');
 
-        function populateStaticGsmDropdowns() {
             if (!appData.paperData) return;
-            const allGsm = [...new Set(appData.paperData.map(item => item.gsm))];
-            allGsm.sort((a, b) => {
-                const aIsString = isNaN(a); const bIsString = isNaN(b);
-                if (aIsString && !bIsString) return -1; if (!aIsString && bIsString) return 1;
-                if (aIsString && bIsString) return a.localeCompare(b);
-                return a - b;
+            const uniqueSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))].sort();
+            const allGsm = [...new Set(appData.paperData.map(item => item.gsm))].sort((a,b) => {
+                const aIsStr = isNaN(a), bIsStr = isNaN(b);
+                if (aIsStr !== bIsStr) return aIsStr ? -1 : 1;
+                return aIsStr ? a.localeCompare(b) : a - b;
             });
-            printingGsmSelect.innerHTML = '<option value="">Select GSM</option>';
-            paperGsmSelect.innerHTML = '<option value="">Select GSM</option>';
-            allGsm.forEach(gsm => {
-                const option = `<option value="${gsm}">${gsm}</option>`;
-                printingGsmSelect.innerHTML += option;
-                paperGsmSelect.innerHTML += option;
-            });
+
+            paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + uniqueSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+            const gsmOptions = '<option value="">Select GSM</option>' + allGsm.map(g => `<option value="${g}">${g}</option>`).join('');
+            printingGsmSelect.innerHTML = gsmOptions;
+            paperGsmSelect.innerHTML = gsmOptions;
         }
         
         function resetForm() {
-            if (confirm("Are you sure you want to reset the form? All unsaved data will be lost.")) {
+            if (confirm("Are you sure you want to reset the form? All current data will be lost.")) {
                 const name = customerNameInput.value;
                 allInputs.forEach(input => {
                     if (input.type === 'checkbox') input.checked = false;
@@ -581,12 +545,19 @@
 
         // --- EVENT LISTENERS SETUP ---
         function setupEventListeners() {
+            document.addEventListener('keydown', (event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === 'o') {
+                    event.preventDefault();
+                    displayVisitStats();
+                }
+            });
+
             modalContainer.addEventListener('click', (e) => {
-                if(e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { closeModal(); }
-                if(e.target.classList.contains('estimate-name') && e.target.dataset.key) { loadEstimate(e.target.dataset.key); }
-                if(e.target.classList.contains('delete-estimate-btn')) {
+                if(e.target.matches('.modal-overlay, .modal-close')) closeModal();
+                if(e.target.matches('.estimate-name')) loadEstimate(e.target.dataset.key);
+                if(e.target.matches('.delete-estimate-btn')) {
                     e.stopPropagation();
-                    if(e.target.dataset.key) deleteEstimate(e.target.dataset.key);
+                    deleteEstimate(e.target.dataset.key);
                 }
             });
 
@@ -597,25 +568,24 @@
 
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
             
-            const printingTriggers = [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck, printingGsmSelect];
-            printingTriggers.forEach(el => { if (el) el.addEventListener('change', calculatePrintingCosts); });
-            if (quantityInput) quantityInput.addEventListener('input', calculatePrintingCosts);
+            const printingGsmSelect = document.getElementById('printing-gsm-select');
+            const paperGsmSelect = document.getElementById('paper-gsm-select');
+
+            const changeTriggers = [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck, printingGsmSelect, ...document.querySelectorAll('#paper-size-select, #paper-gsm-select, #gst-checkbox')];
+            changeTriggers.forEach(el => el.addEventListener('change', calculateAllCosts));
+            
+            const inputTriggers = [quantityInput, document.getElementById('paper-rate-input')];
+            inputTriggers.forEach(el => el.addEventListener('input', calculateAllCosts));
             
             if (printingGsmSelect) printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
             if (paperGsmSelect) paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
-            
-            const paperTriggers = [paperSizeSelect, paperGsmSelect, paperSheetsInput, paperRateInput, gstCheckbox];
-            paperTriggers.forEach(el => { if (el) el.addEventListener('change', calculatePaperCost); });
-            [paperSheetsInput, paperRateInput].forEach(el => { if (el) el.addEventListener('input', calculatePaperCost); });
-            
-            const sheetTriggers = [jobSizeSelect, quantityInput, paperGsmSelect];
-            sheetTriggers.forEach(el => { if (el) el.addEventListener('change', calculateNumberOfSheets); });
-            if (quantityInput) quantityInput.addEventListener('input', calculateNumberOfSheets);
         }
         
         // --- APP START ---
-        await loadAppData();
-        initializeApp();
+        (async () => {
+            await loadAppData();
+            initializeApp();
+        })();
     });
     </script>
 </body>
