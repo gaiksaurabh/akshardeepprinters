@@ -81,9 +81,9 @@
                            <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
                            <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label for="without-plate-check">Without Plate</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="printing-cost" readonly>
+                        <input type="number" class="cost-input" id="printing-cost" placeholder="0.00">
                     </div>
-                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" readonly></div>
+                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="0.00"></div>
                 </div>
             </div>
 
@@ -92,14 +92,14 @@
                 <div class="form-grid">
                     <div class="form-group"><label for="paper-size-select">Paper Size</label><select id="paper-size-select"></select></div>
                     <div class="form-group"><label for="paper-gsm-select">Paper GSM</label><select id="paper-gsm-select"></select></div>
-                    <div class="form-group"><label for="paper-sheets-input">No. of Sheets</label><input type="number" id="paper-sheets-input" readonly></div>
+                    <div class="form-group"><label for="paper-sheets-input">No. of Sheets</label><input type="number" id="paper-sheets-input" placeholder="0"></div>
                     <div class="form-group"><label for="paper-rate-input">Rate per kg (₹)</label><input type="number" id="paper-rate-input" placeholder="e.g., 85"></div>
                     <div class="form-group grid-col-span-2">
                         <div class="label-with-checkbox">
                             <label for="paper-cost" style="margin:0;">Paper Cost (₹)</label>
                             <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Without GST</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="paper-cost" readonly>
+                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00">
                     </div>
                 </div>
             </div>
@@ -113,8 +113,6 @@
                         <label for="lami-cost">Lamination Cost (₹)</label>
                         <input type="number" class="cost-input" id="lami-cost" placeholder="0.00">
                     </div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                 </div>
             </div>
             
@@ -123,6 +121,8 @@
                 <div class="form-grid">
                     <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
                     <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00"></div>
                 </div>
@@ -212,11 +212,8 @@
             const basePrice = perSheetWeight * sheets * rate;
             const gstRate = withoutGst ? 0 : 0.12;
             const finalPrice = basePrice * (1 + gstRate);
-
-            // Round up paper cost to the next 50
             const roundedPaperCost = Math.ceil(finalPrice / 50) * 50;
             paperCostInput.value = roundedPaperCost.toFixed(2);
-            
             calculateGrandTotal();
         }
         
@@ -267,19 +264,19 @@
 
         // --- EVENT LISTENERS ---
         allCostInputs.forEach(input => {
-            if (!input.readOnly) { input.addEventListener('input', calculateGrandTotal); }
+            input.addEventListener('input', calculateGrandTotal);
         });
         
-        [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
-        quantityInput.addEventListener('input', calculatePrintingCosts);
-
+        [jobSizeSelect, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
+        quantityInput.addEventListener('input', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
+        
         printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
         paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
         
         paperSizeSelect.addEventListener('change', calculateNumberOfSheets);
+        [paperRateInput, gstCheckbox].forEach(el => el.addEventListener('change', calculatePaperCost));
         paperRateInput.addEventListener('input', calculatePaperCost);
-        gstCheckbox.addEventListener('change', calculatePaperCost);
-        
+
         // --- INITIALIZATION ---
         populatePaperSizes();
         populateStaticGsmDropdowns();
