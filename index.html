@@ -136,10 +136,6 @@
                         <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="11x17">11x17</option><option value="18x23">18x23</option><option value="15x20">15x20</option><option value="10x15">10x15</option><option value="A4">A4</option></select></div>
                     </div>
                     <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00" data-label="Lamination Cost"></div>
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
-                        <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
-                    </div>
                 </div>
             </div>
             
@@ -148,6 +144,8 @@
                 <div class="form-grid">
                     <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
                     <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Costs"></div>
+                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
+                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
                     <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
                     <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
                 </div>
@@ -187,7 +185,6 @@
         const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
         const modalContainer = document.getElementById('modal-container');
 
-
         // --- CALCULATION FUNCTIONS ---
         function calculateGrandTotal() {
             let total = 0;
@@ -212,7 +209,7 @@
             } else if (!['18X23', '18X25', '15X20'].includes(selectedSize)) {
                 cost = 1900;
                 secondRate = 500;
-            } else { // Fallback for 18x23, 18x25, 15x20
+            } else {
                 cost = 1900; 
                 secondRate = 600;
             }
@@ -247,8 +244,160 @@
             calculateGrandTotal();
         }
         
-        // --- UI & DATA POPULATION ---
-        function populateStaticGsmDropdowns() {
+        function getSummaryData() {
+            const printCost = (parseFloat(printingCostInput.value) || 0) + (parseFloat(secondCostInput.value) || 0);
+            const paperCost = parseFloat(paperCostInput.value) || 0;
+            const laminationCost = parseFloat(document.getElementById('lami-cost').value) || 0;
+            const otherCosts = 
+                (parseFloat(document.getElementById('punching-cost').value) || 0) +
+                (parseFloat(document.getElementById('clips-cost').value) || 0) +
+                (parseFloat(document.getElementById('binding-cost').value) || 0) +
+                (parseFloat(document.getElementById('other-misc-cost').value) || 0) +
+                (parseFloat(document.getElementById('env-cost').value) || 0);
+
+            const summary = {
+                jobSize: `Job Size (${jobSizeSelect.value || 'N/A'})`,
+                quantity: `Quantity (${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''})`,
+                gsm: `${printingGsmSelect.value || 'N/A'} GSM`,
+                items: []
+            };
+            
+            if (printCost > 0) summary.items.push({ label: 'Printing Cost', cost: printCost });
+            if (paperCost > 0) summary.items.push({ label: 'Paper Cost', cost: paperCost });
+            if (laminationCost > 0) summary.items.push({ label: 'Lamination', cost: laminationCost });
+            if (otherCosts > 0) summary.items.push({ label: 'Other Costs', cost: otherCosts });
+
+            return summary;
+        }
+
+        function sendToWhatsApp() {
+            const customer = customerNameInput.value || 'Customer';
+            const total = totalCostDisplay.textContent;
+            const estimateNr = 'AOP' + String(estimateCounter).padStart(2, '0');
+            const summary = getSummaryData();
+            
+            let message = `Hello ${customer},\n\nHere is your cost estimate (*${estimateNr}*):\n\n`;
+            message += `${summary.jobSize}\n`;
+            message += `${summary.quantity}\n`;
+            message += `${summary.gsm}\n\n`;
+            
+            summary.items.forEach(item => {
+                message += `*${item.label}:* ${item.cost.toFixed(2)} ₹\n`;
+            });
+
+            message += `\n*Grand Total:* ${total}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const estimateNr = 'AOP' + String(estimateCounter).padStart(2, '0');
+            
+            saveEstimate(estimateNr);
+
+            doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("Cost Estimate", 14, 22);
+            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            const today = new Date().toLocaleDateString('en-GB');
+            const customerName = customerNameInput.value || 'Valued Customer';
+            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35);
+            doc.text(`Date: ${today}`, 150, 35);
+            doc.text(`Dear ${customerName},`, 14, 50);
+
+            const summary = getSummaryData();
+            const tableBody = [];
+            let subtotal = 0;
+            
+            // Add non-cost items to table
+            tableBody.push(['', summary.jobSize, '']);
+            tableBody.push(['', summary.quantity, '']);
+            tableBody.push(['', summary.gsm, '']);
+            tableBody.push(['', '', '']); // Spacer row
+
+            // Add cost items
+            summary.items.forEach(item => {
+                tableBody.push([`•`, `${item.label}`, `${item.cost.toFixed(2)} ₹`]);
+                subtotal += item.cost;
+            });
+
+            doc.autoTable({
+                head: [['', 'Description', 'Amount']],
+                body: tableBody, startY: 57, theme: 'plain',
+                columnStyles: { 2: { halign: 'right' } }
+            });
+
+            let finalY = doc.lastAutoTable.finalY + 10;
+            const total = Math.ceil(subtotal / 50) * 50;
+            doc.setFontSize(12); doc.setFont("helvetica", "bold");
+            doc.text(`Total`, 140, finalY);
+            doc.text(`${total.toFixed(2)} ₹`, 190, finalY, { align: 'right' });
+            
+            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            doc.text("This offer is valid until " + new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB') + ".", 14, doc.internal.pageSize.height - 20);
+            doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
+            
+            doc.save(`Cost-Estimate-${estimateNr}.pdf`);
+            estimateCounter++;
+            localStorage.setItem('estimateCounter', estimateCounter);
+        }
+
+        // --- LOCAL STORAGE & MODAL ---
+        function saveEstimate(estimateNr) {
+            const estimateData = {};
+            allInputs.forEach(input => {
+                if(input.id) { // Only save elements with an ID
+                    estimateData[input.id] = (input.type === 'checkbox') ? input.checked : input.value;
+                }
+            });
+            localStorage.setItem(estimateNr, JSON.stringify(estimateData));
+        }
+
+        function loadEstimate(estimateNr) {
+            const dataString = localStorage.getItem(estimateNr);
+            if(dataString) {
+                const estimateData = JSON.parse(dataString);
+                allInputs.forEach(input => {
+                    if(input.id && estimateData[input.id] !== undefined) {
+                        if(input.type === 'checkbox') { input.checked = estimateData[input.id]; } 
+                        else { input.value = estimateData[input.id]; }
+                    }
+                });
+                calculatePrintingCosts();
+                calculatePaperCost();
+                closeModal();
+            }
+        }
+        
+        function showPreviousEstimates() {
+            const estimates = Object.keys(localStorage).filter(key => key.startsWith('AOP'));
+            let listHtml = '<ul class="estimates-list">';
+            if(estimates.length > 0) {
+                estimates.sort().forEach(key => { listHtml += `<li data-key="${key}">${key}</li>`; });
+            } else {
+                listHtml += '<li>No saved estimates found.</li>';
+            }
+            listHtml += '</ul>';
+            
+            const modalHtml = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
+            modalContainer.innerHTML = modalHtml;
+        }
+        
+        function closeModal() { modalContainer.innerHTML = ''; }
+
+        modalContainer.addEventListener('click', (e) => {
+            if(e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { closeModal(); }
+            if(e.target.tagName === 'LI' && e.target.dataset.key) { loadEstimate(e.target.dataset.key); }
+        });
+
+
+        // --- EVENT LISTENERS & INITIALIZATION ---
+        function populatePaperSizes() {
+            const uniqueSizes = [...new Set(paperData.map(item => item.size.toUpperCase()))];
+            paperSizeSelect.innerHTML = '<option value="">Select Size</option>';
+            uniqueSizes.sort().forEach(size => { paperSizeSelect.innerHTML += `<option value="${size}">${size}</option>`; });
+        }
+         function populateStaticGsmDropdowns() {
             const allGsm = [...new Set(paperData.map(item => item.gsm))];
             allGsm.sort((a, b) => {
                 const aIsString = isNaN(a); const bIsString = isNaN(b);
@@ -264,157 +413,7 @@
                 paperGsmSelect.innerHTML += option;
             });
         }
-
-        function populatePaperSizes() {
-            const uniqueSizes = [...new Set(paperData.map(item => item.size.toUpperCase()))];
-            paperSizeSelect.innerHTML = '<option value="">Select Size</option>';
-            uniqueSizes.sort().forEach(size => { paperSizeSelect.innerHTML += `<option value="${size}">${size}</option>`; });
-        }
         
-        function syncGsm(source, target) {
-            target.value = source.value;
-            calculatePrintingCosts();
-            calculatePaperCost();
-        }
-
-        // --- ACTIONS ---
-        function sendToWhatsApp() {
-            const customer = customerNameInput.value || 'Customer';
-            const total = totalCostDisplay.textContent;
-            const estimateNr = 'AOP' + String(estimateCounter).padStart(2, '0');
-            
-            let message = `Hello ${customer},\n\nHere is your cost estimate (${estimateNr}):\n\n`;
-            allCostInputs.forEach(input => {
-                const cost = parseFloat(input.value) || 0;
-                if (cost > 0) {
-                    message += `*${input.dataset.label || 'Cost'}:* ${cost.toFixed(2)} ₹\n`;
-                }
-            });
-            message += `\n*Grand Total:* ${total}`;
-
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-        }
-        
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const estimateNr = 'AOP' + String(estimateCounter).padStart(2, '0');
-            
-            // --- Save data before generating PDF ---
-            saveEstimate(estimateNr);
-
-            doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("Cost Estimate", 14, 22);
-            doc.setFontSize(11); doc.setFont("helvetica", "normal");
-            const today = new Date().toLocaleDateString('en-GB');
-            const customerName = customerNameInput.value || 'Valued Customer';
-            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35);
-            doc.text(`Date: ${today}`, 150, 35);
-            doc.text(`Dear ${customerName},`, 14, 50);
-            doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
-
-            const tableBody = [];
-            let subtotal = 0;
-            let pos = 1;
-            allCostInputs.forEach(input => {
-                const cost = parseFloat(input.value) || 0;
-                if (cost > 0) {
-                    tableBody.push([pos++, input.dataset.label || 'Cost Item', 1, 'Item', `${cost.toFixed(2)} ₹`, `${cost.toFixed(2)} ₹`]);
-                    subtotal += cost;
-                }
-            });
-
-            doc.autoTable({
-                head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']],
-                body: tableBody, startY: 65, theme: 'grid', headStyles: { fillColor: [44, 62, 80] }
-            });
-
-            let finalY = doc.lastAutoTable.finalY + 10;
-            const total = Math.ceil(subtotal / 50) * 50;
-            doc.setFontSize(12); doc.setFont("helvetica", "bold");
-            doc.text(`Total`, 140, finalY + 7);
-            doc.text(`${total.toFixed(2)} ₹`, 190, finalY + 7, { align: 'right' });
-            
-            doc.setFontSize(11); doc.setFont("helvetica", "normal");
-            doc.text("This offer is valid until " + new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB') + ".", 14, doc.internal.pageSize.height - 20);
-            doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
-            
-            doc.save(`Cost-Estimate-${estimateNr}.pdf`);
-            estimateCounter++;
-            localStorage.setItem('estimateCounter', estimateCounter);
-        }
-
-        // --- LOCAL STORAGE FUNCTIONS ---
-        function saveEstimate(estimateNr) {
-            const estimateData = {};
-            allInputs.forEach(input => {
-                if(input.type === 'checkbox') {
-                    estimateData[input.id] = input.checked;
-                } else {
-                    estimateData[input.id] = input.value;
-                }
-            });
-            localStorage.setItem(estimateNr, JSON.stringify(estimateData));
-        }
-
-        function loadEstimate(estimateNr) {
-            const dataString = localStorage.getItem(estimateNr);
-            if(dataString) {
-                const estimateData = JSON.parse(dataString);
-                allInputs.forEach(input => {
-                    if(estimateData[input.id] !== undefined) {
-                        if(input.type === 'checkbox') {
-                            input.checked = estimateData[input.id];
-                        } else {
-                            input.value = estimateData[input.id];
-                        }
-                    }
-                });
-                // Recalculate everything
-                calculatePrintingCosts();
-                calculatePaperCost();
-                closeModal();
-            }
-        }
-        
-        function showPreviousEstimates() {
-            const estimates = Object.keys(localStorage).filter(key => key.startsWith('AOP'));
-            let listHtml = '<ul class="estimates-list">';
-            if(estimates.length > 0) {
-                estimates.sort().forEach(key => {
-                    listHtml += `<li data-key="${key}">${key}</li>`;
-                });
-            } else {
-                listHtml += '<li>No saved estimates found.</li>';
-            }
-            listHtml += '</ul>';
-            
-            const modalHtml = `
-                <div class="modal-overlay active">
-                    <div class="modal-content">
-                        <button class="modal-close">&times;</button>
-                        <h2>Previous Estimates</h2>
-                        ${listHtml}
-                    </div>
-                </div>`;
-            modalContainer.innerHTML = modalHtml;
-        }
-        
-        function closeModal() {
-            modalContainer.innerHTML = '';
-        }
-
-        modalContainer.addEventListener('click', (e) => {
-            if(e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
-                closeModal();
-            }
-            if(e.target.tagName === 'LI' && e.target.dataset.key) {
-                loadEstimate(e.target.dataset.key);
-            }
-        });
-
-
-        // --- EVENT LISTENERS ---
         allCostInputs.forEach(input => { input.addEventListener('input', calculateGrandTotal); });
         [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
         quantityInput.addEventListener('input', calculatePrintingCosts);
@@ -426,7 +425,6 @@
         whatsappBtn.addEventListener('click', sendToWhatsApp);
         prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
         
-        // --- INITIALIZATION ---
         populatePaperSizes();
         populateStaticGsmDropdowns();
         calculatePrintingCosts();
