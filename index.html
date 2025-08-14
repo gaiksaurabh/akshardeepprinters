@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cost Estimation Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         html, body {
             height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f4f8;
@@ -54,10 +56,31 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .total-cost-section {
-            background-color: #1a253c; color: white; padding: 1rem 1.5rem; border-radius: 12px; text-align: center; margin-top: 1.5rem; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #1a253c;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            flex-shrink: 0;
         }
-        .total-cost-section .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; }
-        .total-cost-section .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; }
+        .total-display { text-align: right; }
+        .total-display .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; }
+        .total-display .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; }
+        #download-pdf-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #download-pdf-btn:hover { background-color: #0056b3; }
 
         @media (max-width: 1200px) { .sections-wrapper { grid-template-columns: 1fr; } }
     </style>
@@ -70,7 +93,7 @@
             <div class="section">
                 <h2 class="section-title">1. Printing</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label for="job-size">Job Size</label><select id="job-size"><option value="">Select Size</option><option value="12X18">12X18</option><option value="18X23">18X23</option><option value="15X20">15X20</option><option value="10X15">10X15</option><option value="20X28">20X28</option><option value="18X25">18X25</option></select></div>
+                    <div class="form-group"><label for="job-size">Job Size</label><select id="job-size"><option value="">Select Size</option><option value="12X18">12X18</option><option value="18X23">18X23</option><option value="15X20">15X20</option><option value="10X15">10X15</option><option value="20X28">20X28</option><option value="18X25">18X25</option><option value="19X25">19X25</option></select></div>
                     <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
                     <div class="form-group grid-col-span-2">
                         <label for="quantity">Quantity</label>
@@ -84,9 +107,9 @@
                            <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
                            <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label for="without-plate-check">Without Plate</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="printing-cost" placeholder="0.00">
+                        <input type="number" class="cost-input" id="printing-cost" placeholder="0.00" data-label="Printing Cost">
                     </div>
-                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="0.00" data-label="Second Printing"></div>
                 </div>
             </div>
 
@@ -102,7 +125,7 @@
                             <label for="paper-cost" style="margin:0;">Paper Cost (₹)</label>
                             <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Without GST</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00">
+                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00" data-label="Paper Cost">
                     </div>
                 </div>
             </div>
@@ -111,13 +134,13 @@
                 <h2 class="section-title">3. Lamination</h2>
                 <div class="form-grid form-grid-single-col">
                     <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option></select></div>
+                        <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option><option value="thermal_gloss">Thermal Gloss</option><option value="thermal_matte">Thermal Matte</option></select></div>
                         <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="11x17">11x17</option><option value="18x23">18x23</option><option value="15x20">15x20</option><option value="10x15">10x15</option><option value="A4">A4</option></select></div>
                     </div>
-                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00" data-label="Lamination Cost"></div>
                     <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
-                        <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
+                        <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
+                        <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
                     </div>
                 </div>
             </div>
@@ -125,17 +148,20 @@
             <div class="section">
                 <h2 class="section-title">4. Other Costs</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
+                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Costs"></div>
                     <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
-                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
                 </div>
             </div>
         </div>
 
         <div class="total-cost-section">
-            <h3 class="total-label">Grand Total</h3>
-            <p class="total-value" id="total-cost">₹ 0.00</p>
+            <button id="download-pdf-btn">Download PDF</button>
+            <div class="total-display">
+                <h3 class="total-label">Grand Total</h3>
+                <p class="total-value" id="total-cost">₹ 0.00</p>
+            </div>
         </div>
     </div>
 
@@ -162,6 +188,7 @@
         const paperRateInput = document.getElementById('paper-rate-input');
         const gstCheckbox = document.getElementById('gst-checkbox');
         const paperCostInput = document.getElementById('paper-cost');
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
 
         // --- CALCULATION FUNCTIONS ---
         function calculateGrandTotal() {
@@ -178,17 +205,11 @@
             const heavyGsmList = ['300', '350', 'DUPLEX'];
             
             if (isWithoutPlate) {
-                if (heavyGsmList.includes(selectedGsm)) {
-                    printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1000 : 1400;
-                } else {
-                    printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 700 : 1000;
-                }
+                if (heavyGsmList.includes(selectedGsm)) { printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1000 : 1400; } 
+                else { printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 700 : 1000; }
             } else {
-                if (heavyGsmList.includes(selectedGsm)) {
-                    printingCostInput.value = 2400;
-                } else {
-                    printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1200 : 1900;
-                }
+                if (heavyGsmList.includes(selectedGsm)) { printingCostInput.value = 2400; } 
+                else { printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1200 : 1900; }
             }
 
             const baseQuantity = parseFloat(quantityInput.value) || 0;
@@ -228,13 +249,9 @@
             const heavyGsmList = ['300', '350', 'DUPLEX'];
             let divisionFactor = 0;
 
-            if (jobSize === '20X28' && heavyGsmList.includes(paperGsm)) {
-                divisionFactor = 1;
-            } else if (jobSize === '12X18' || jobSize === '10X15') {
-                divisionFactor = (paperGsm === 'STICKER') ? 2 : 4;
-            } else if (jobSize) {
-                divisionFactor = (paperGsm === 'STICKER') ? 1 : 2;
-            }
+            if (jobSize === '20X28' && heavyGsmList.includes(paperGsm)) { divisionFactor = 1; } 
+            else if (jobSize === '12X18' || jobSize === '10X15') { divisionFactor = (paperGsm === 'STICKER') ? 2 : 4; } 
+            else if (jobSize) { divisionFactor = (paperGsm === 'STICKER') ? 1 : 2; }
 
             const sheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = sheets;
@@ -271,6 +288,78 @@
             calculateNumberOfSheets();
         }
 
+        // --- PDF GENERATION ---
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // --- Document Header ---
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.text("Cost Estimate", 14, 22);
+
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            const estimateNr = Math.floor(1000 + Math.random() * 9000);
+            const today = new Date().toLocaleDateString('en-GB');
+            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35);
+            doc.text(`Date: ${today}`, 150, 35);
+            doc.text("Customer Nr.: CUST-001", 150, 28);
+            
+            // --- Body Text ---
+            doc.text("Dear Customer,", 14, 50);
+            doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
+
+            // --- Table Data ---
+            const tableBody = [];
+            let subtotal = 0;
+            let pos = 1;
+
+            allCostInputs.forEach(input => {
+                const cost = parseFloat(input.value) || 0;
+                if (cost > 0) {
+                    const designation = input.dataset.label || 'Cost Item';
+                    tableBody.push([pos++, designation, 1, 'Item', `${cost.toFixed(2)} ₹`, `${cost.toFixed(2)} ₹`]);
+                    subtotal += cost;
+                }
+            });
+
+            // --- Table Creation ---
+            doc.autoTable({
+                head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']],
+                body: tableBody,
+                startY: 65,
+                theme: 'grid',
+                headStyles: { fillColor: [22, 160, 133] }
+            });
+
+            // --- Totals ---
+            let finalY = doc.lastAutoTable.finalY + 10;
+            const vat = subtotal * 0.12; // 12% VAT/GST example
+            const total = subtotal + vat;
+            
+            doc.setFontSize(12);
+            doc.text(`Subtotal`, 140, finalY);
+            doc.text(`${subtotal.toFixed(2)} ₹`, 190, finalY, { align: 'right' });
+            
+            doc.text(`12.00 % VAT`, 140, finalY + 7);
+            doc.text(`${vat.toFixed(2)} ₹`, 190, finalY + 7, { align: 'right' });
+            
+            doc.setFont("helvetica", "bold");
+            doc.text(`Total`, 140, finalY + 14);
+            doc.text(`${total.toFixed(2)} ₹`, 190, finalY + 14, { align: 'right' });
+            
+            // --- Footer Text ---
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.text("This offer is valid until " + new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB') + ".", 14, doc.internal.pageSize.height - 20);
+            doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
+            
+            // --- Save PDF ---
+            doc.save(`Cost-Estimate-${estimateNr}.pdf`);
+        }
+
+
         // --- EVENT LISTENERS ---
         allCostInputs.forEach(input => {
             input.addEventListener('input', calculateGrandTotal);
@@ -287,6 +376,7 @@
         paperRateInput.addEventListener('input', calculatePaperCost);
         paperSheetsInput.addEventListener('input', calculatePaperCost);
 
+        downloadPdfBtn.addEventListener('click', generatePDF);
         
         // --- INITIALIZATION ---
         populatePaperSizes();
