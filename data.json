@@ -21,7 +21,7 @@
     { "size": "25x38", "gsm": 250, "perSheetWeight": 0.1532 },
     { "size": "25x38", "gsm": 300, "perSheetWeight": 0.1839 },
     { "size": "23x36", "gsm": 58, "perSheetWeight": 0.0308 },
-    { "size": "23x36", "gsm": 70, "perSheetWeight": 0.0372 },
+    { "size": "23x36", "gsm": 70,"perSheetWeight": 0.0372 },
     { "size": "23x36", "gsm": 80, "perSheetWeight": 0.0426 },
     { "size": "25x36", "gsm": 80, "perSheetWeight": 0.0462 },
     { "size": "25x36", "gsm": 90, "perSheetWeight": 0.052 },
