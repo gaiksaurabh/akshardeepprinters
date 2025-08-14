@@ -256,6 +256,18 @@
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
         }
+function syncGsm(sourceSelect, targetSelect) {
+    // If the user selects a valid GSM in one dropdown...
+    if (sourceSelect.value) {
+        // ...update the other dropdown to match.
+        targetSelect.value = sourceSelect.value;
+        
+        // IMPORTANT: Manually trigger the 'change' event on the dropdown we just updated.
+        // This ensures that the cost calculation functions that listen for this
+        // event (like calculatePrintingCosts and calculatePaperCost) are executed.
+        targetSelect.dispatchEvent(new Event('change'));
+    }
+}
 
         function calculatePaperCost() {
             const selectedSize = paperSizeSelect.value;
