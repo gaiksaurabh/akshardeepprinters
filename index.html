@@ -91,13 +91,25 @@
             <div class="section">
                 <h2 class="section-title">1. Printing</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label for="job-size">Job Size</label><select id="job-size"><option value="">Select Size</option><option value="12X18">12X18</option><option value="18X23">18X23</option><option value="15X20">15X20</option><option value="10X15">10X15</option><option value="20X28">20X28</option><option value="18X25">18X25</option><option value="19X25">19X25</option></select></div>
-                    <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
                     <div class="form-group grid-col-span-2">
+                        <label for="job-size">Job Size</label>
+                        <select id="job-size">
+                            <option value="">Select Size</option>
+                            <option value="10X15">10X15</option>
+                            <option value="12X18">12X18</option>
+                            <option value="18X23">18X23</option>
+                            <option value="18X25">18X25</option>
+                            <option value="15X20">15X20</option>
+                            <option value="19X25">19X25</option>
+                            <option value="20X28">20X28</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
+                    <div class="form-group">
                         <label for="quantity">Quantity</label>
                         <div class="input-group-inline">
-                            <div class="form-group" style="margin:0;"><input type="number" id="quantity" placeholder="e.g., 2000"></div>
-                            <div class="inline-checkbox" style="height: 100%; padding-bottom: 0.2rem;"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
+                            <input type="number" id="quantity" placeholder="e.g., 2000" style="flex-grow:1; margin:0;">
+                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -200,18 +212,35 @@
             let cost = 0;
             let secondRate = 0;
             
-            if (selectedSize === '12X18' || selectedSize === '10X15') {
-                cost = 1200;
-                secondRate = 300;
-            } else if ((selectedSize === '19X25' || selectedSize === '20X28') && heavyGsmList.includes(selectedGsm)) {
-                cost = 2000;
-                secondRate = 600;
-            } else if (!['18X23', '18X25', '15X20'].includes(selectedSize)) {
-                cost = 1900;
-                secondRate = 500;
+            if (withoutPlateCheck.checked) {
+                const largeSizes = ['15X20', '18X23', '18X25', '19X25', '20X28'];
+                if (selectedSize === '12X18' || selectedSize === '10X15') {
+                    cost = 700;
+                    secondRate = 300;
+                } else if (largeSizes.includes(selectedSize)) {
+                    if (heavyGsmList.includes(selectedGsm)) {
+                        cost = 1400;
+                        secondRate = 600;
+                    } else {
+                        cost = 1000;
+                        secondRate = 500;
+                    }
+                }
             } else {
-                cost = 1900; 
-                secondRate = 600;
+                // Logic for when "Without Plate" is NOT checked
+                if (selectedSize === '12X18' || selectedSize === '10X15') {
+                    cost = 1200;
+                    secondRate = 300;
+                } else if ((selectedSize === '19X25' || selectedSize === '20X28') && heavyGsmList.includes(selectedGsm)) {
+                    cost = 2000;
+                    secondRate = 600;
+                } else if (!['18X23', '18X25', '15X20'].includes(selectedSize)) {
+                    cost = 1900;
+                    secondRate = 500;
+                } else {
+                    cost = 1900; 
+                    secondRate = 600;
+                }
             }
             printingCostInput.value = cost;
             
@@ -244,6 +273,25 @@
             calculateGrandTotal();
         }
         
+        function calculateNumberOfSheets() {
+            const jobSize = jobSizeSelect.value;
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const paperGsm = String(paperGsmSelect.value).toUpperCase();
+            let divisionFactor = 0;
+
+            if (jobSize === '20X28') {
+                divisionFactor = 1;
+            } else if (jobSize === '12X18' || jobSize === '10X15') {
+                divisionFactor = (paperGsm === 'STICKER') ? 2 : 4;
+            } else if (jobSize) {
+                divisionFactor = (paperGsm === 'STICKER') ? 1 : 2;
+            }
+
+            const sheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
+            paperSheetsInput.value = sheets;
+            calculatePaperCost();
+        }
+
         function getSummaryData() {
             const printCost = (parseFloat(printingCostInput.value) || 0) + (parseFloat(secondCostInput.value) || 0);
             const paperCost = parseFloat(paperCostInput.value) || 0;
@@ -281,9 +329,7 @@
             message += `${summary.quantity}\n`;
             message += `${summary.gsm}\n\n`;
             
-            summary.items.forEach(item => {
-                message += `*${item.label}:* ${item.cost.toFixed(2)} ₹\n`;
-            });
+            summary.items.forEach(item => { message += `*${item.label}:* ${item.cost.toFixed(2)} ₹\n`; });
 
             message += `\n*Grand Total:* ${total}`;
             const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -309,13 +355,11 @@
             const tableBody = [];
             let subtotal = 0;
             
-            // Add non-cost items to table
             tableBody.push(['', summary.jobSize, '']);
             tableBody.push(['', summary.quantity, '']);
             tableBody.push(['', summary.gsm, '']);
-            tableBody.push(['', '', '']); // Spacer row
+            tableBody.push(['', '', '']);
 
-            // Add cost items
             summary.items.forEach(item => {
                 tableBody.push([`•`, `${item.label}`, `${item.cost.toFixed(2)} ₹`]);
                 subtotal += item.cost;
@@ -323,8 +367,7 @@
 
             doc.autoTable({
                 head: [['', 'Description', 'Amount']],
-                body: tableBody, startY: 57, theme: 'plain',
-                columnStyles: { 2: { halign: 'right' } }
+                body: tableBody, startY: 57, theme: 'plain', columnStyles: { 2: { halign: 'right' } }
             });
 
             let finalY = doc.lastAutoTable.finalY + 10;
@@ -342,13 +385,10 @@
             localStorage.setItem('estimateCounter', estimateCounter);
         }
 
-        // --- LOCAL STORAGE & MODAL ---
         function saveEstimate(estimateNr) {
             const estimateData = {};
             allInputs.forEach(input => {
-                if(input.id) { // Only save elements with an ID
-                    estimateData[input.id] = (input.type === 'checkbox') ? input.checked : input.value;
-                }
+                if(input.id) { estimateData[input.id] = (input.type === 'checkbox') ? input.checked : input.value; }
             });
             localStorage.setItem(estimateNr, JSON.stringify(estimateData));
         }
@@ -378,20 +418,12 @@
                 listHtml += '<li>No saved estimates found.</li>';
             }
             listHtml += '</ul>';
-            
             const modalHtml = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
             modalContainer.innerHTML = modalHtml;
         }
         
         function closeModal() { modalContainer.innerHTML = ''; }
-
-        modalContainer.addEventListener('click', (e) => {
-            if(e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { closeModal(); }
-            if(e.target.tagName === 'LI' && e.target.dataset.key) { loadEstimate(e.target.dataset.key); }
-        });
-
-
-        // --- EVENT LISTENERS & INITIALIZATION ---
+        
         function populatePaperSizes() {
             const uniqueSizes = [...new Set(paperData.map(item => item.size.toUpperCase()))];
             paperSizeSelect.innerHTML = '<option value="">Select Size</option>';
@@ -413,7 +445,12 @@
                 paperGsmSelect.innerHTML += option;
             });
         }
-        
+
+        modalContainer.addEventListener('click', (e) => {
+            if(e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { closeModal(); }
+            if(e.target.tagName === 'LI' && e.target.dataset.key) { loadEstimate(e.target.dataset.key); }
+        });
+
         allCostInputs.forEach(input => { input.addEventListener('input', calculateGrandTotal); });
         [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
         quantityInput.addEventListener('input', calculatePrintingCosts);
