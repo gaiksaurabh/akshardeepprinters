@@ -19,6 +19,9 @@
         h1 {
             text-align: center; color: #1a253c; margin-bottom: 1.5rem; flex-shrink: 0;
         }
+        .customer-section {
+            background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 1.5rem;
+        }
         .sections-wrapper {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex-grow: 1;
         }
@@ -56,29 +59,13 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .total-cost-section {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #1a253c;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-top: 1.5rem;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between; background-color: #1a253c; color: white; padding: 1rem 1.5rem; border-radius: 12px; margin-top: 1.5rem; flex-shrink: 0;
         }
         .total-display { text-align: right; }
         .total-display .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; }
         .total-display .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; }
         #download-pdf-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: #007bff; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background-color 0.2s;
         }
         #download-pdf-btn:hover { background-color: #0056b3; }
 
@@ -89,6 +76,12 @@
 
     <div class="container">
         <h1>Cost Estimation</h1>
+        <div class="customer-section">
+            <div class="form-group">
+                <label for="customer-name">Customer Name</label>
+                <input type="text" id="customer-name" placeholder="Enter customer name...">
+            </div>
+        </div>
         <div class="sections-wrapper">
             <div class="section">
                 <h2 class="section-title">1. Printing</h2>
@@ -167,12 +160,15 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        let estimateCounter = 1; // Counter for estimate numbers
+
         // --- DATA ---
         const paperData = [
             { size: "18x23", gsm: "STICKER", perSheetWeight: 0.065 },{ size: "18x23", gsm: "DUPLEX", perSheetWeight: 0.190 },{ size: "18x23", gsm: 120, perSheetWeight: 0.05 },{ size: "23x36", gsm: "STICKER", perSheetWeight: 0.08 },{ size: "23x36", gsm: "DUPLEX", perSheetWeight: 0.220 },{ size: "23x36", gsm: 90, perSheetWeight: 0.048 },{ size: "23x36", gsm: 100, perSheetWeight: 0.0532 },{ size: "20x30", gsm: 90, perSheetWeight: 0.0348 },{ size: "23x36", gsm: 120, perSheetWeight: 0.064 },{ size: "23x36", gsm: 125, perSheetWeight: 0.0668 },{ size: "23x36", gsm: 250, perSheetWeight: 0.1328 },{ size: "23x36", gsm: 300, perSheetWeight: 0.16 },{ size: "23x36", gsm: 350, perSheetWeight: 0.185 },{ size: "25x36", gsm: 125, perSheetWeight: 0.0726 },{ size: "25x36", gsm: 250, perSheetWeight: 0.1448 },{ size: "25x36", gsm: 300, perSheetWeight: 0.1736 },{ size: "25x36", gsm: 350, perSheetWeight: 0.200 },{ size: "25x38", gsm: 250, perSheetWeight: 0.1532 },{ size: "25x38", gsm: 300, perSheetWeight: 0.1839 },{ size: "23x36", gsm: 58, perSheetWeight: 0.0308 },{ size: "23x36", gsm: 70, perSheetWeight: 0.0372 },{ size: "23x36", gsm: 80, perSheetWeight: 0.0426 },{ size: "25x36", gsm: 80, perSheetWeight: 0.0462 },{ size: "25x36", gsm: 90, perSheetWeight: 0.052 },{ size: "25x36", gsm: 100, perSheetWeight: 0.0578 },{ size: "20X30", gsm: 250, perSheetWeight: 0.0968 },{ size: "20X30", gsm: 300, perSheetWeight: 0.116 },{ size: "19X25", gsm: 250, perSheetWeight: 0.0766 },{ size: "19X25", gsm: 300, perSheetWeight: 0.092 }
         ];
 
         // --- ELEMENT SELECTORS ---
+        const customerNameInput = document.getElementById('customer-name');
         const allCostInputs = document.querySelectorAll('.cost-input');
         const totalCostDisplay = document.getElementById('total-cost');
         const jobSizeSelect = document.getElementById('job-size');
@@ -199,28 +195,34 @@
         }
 
         function calculatePrintingCosts() {
-            const isWithoutPlate = withoutPlateCheck.checked;
             const selectedGsm = String(printingGsmSelect.value).toUpperCase();
             const selectedSize = jobSizeSelect.value;
             const heavyGsmList = ['300', '350', 'DUPLEX'];
+            let cost = 0;
+            let secondRate = 0;
             
-            if (isWithoutPlate) {
-                if (heavyGsmList.includes(selectedGsm)) { printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1000 : 1400; } 
-                else { printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 700 : 1000; }
+            // New logic based on your rules
+            if ((selectedSize === '19X25' || selectedSize === '20X28') && heavyGsmList.includes(selectedGsm)) {
+                cost = 2000;
+                secondRate = 600;
+            } else if (!['18X23', '18X25', '15X20'].includes(selectedSize)) {
+                cost = 1900;
+                secondRate = 500;
             } else {
-                if (heavyGsmList.includes(selectedGsm)) { printingCostInput.value = 2400; } 
-                else { printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1200 : 1900; }
+                // Fallback for 18x23, 18x25, 15x20
+                cost = 1900; // Default fallback
+                secondRate = 600;
             }
-
+            printingCostInput.value = cost;
+            
             const baseQuantity = parseFloat(quantityInput.value) || 0;
             const isFbChecked = fbCheck.checked;
             const effectiveQuantity = isFbChecked ? baseQuantity * 2 : baseQuantity;
             let secondCost = 0;
             if (effectiveQuantity > 1000) {
-                const ratePer1000 = (selectedSize === '12X18' || selectedSize === '10X15') ? 300 : 600;
                 const exceedingQuantity = effectiveQuantity - 1000;
                 const blocks = Math.ceil(exceedingQuantity / 1000);
-                secondCost = blocks * ratePer1000;
+                secondCost = blocks * secondRate;
             }
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
@@ -235,29 +237,13 @@
             const paperInfo = paperData.find(d => d.size.toLowerCase() === selectedSize.toLowerCase() && String(d.gsm).toLowerCase() === selectedGsm.toLowerCase());
             const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
             const basePrice = perSheetWeight * sheets * rate;
-            const gstRate = withoutGst ? 0 : 0.12;
+            const gstRate = withoutGst ? 0.06 : 0.12;
             const finalPrice = basePrice * (1 + gstRate);
             const roundedPaperCost = Math.ceil(finalPrice / 50) * 50;
             paperCostInput.value = roundedPaperCost.toFixed(2);
             calculateGrandTotal();
         }
         
-        function calculateNumberOfSheets() {
-            const jobSize = jobSizeSelect.value;
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const paperGsm = String(paperGsmSelect.value).toUpperCase();
-            const heavyGsmList = ['300', '350', 'DUPLEX'];
-            let divisionFactor = 0;
-
-            if (jobSize === '20X28' && heavyGsmList.includes(paperGsm)) { divisionFactor = 1; } 
-            else if (jobSize === '12X18' || jobSize === '10X15') { divisionFactor = (paperGsm === 'STICKER') ? 2 : 4; } 
-            else if (jobSize) { divisionFactor = (paperGsm === 'STICKER') ? 1 : 2; }
-
-            const sheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
-            paperSheetsInput.value = sheets;
-            calculatePaperCost();
-        }
-
         // --- UI & DATA POPULATION ---
         function populateStaticGsmDropdowns() {
             const allGsm = [...new Set(paperData.map(item => item.gsm))];
@@ -285,32 +271,29 @@
         function syncGsm(source, target) {
             target.value = source.value;
             calculatePrintingCosts();
-            calculateNumberOfSheets();
+            calculatePaperCost();
         }
 
-        // --- PDF GENERATION ---
         function generatePDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // --- Document Header ---
             doc.setFontSize(22);
             doc.setFont("helvetica", "bold");
             doc.text("Cost Estimate", 14, 22);
 
             doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
-            const estimateNr = Math.floor(1000 + Math.random() * 9000);
+            const estimateNr = 'AOP' + String(estimateCounter++).padStart(2, '0');
             const today = new Date().toLocaleDateString('en-GB');
+            const customerName = customerNameInput.value || 'Valued Customer';
+
             doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35);
             doc.text(`Date: ${today}`, 150, 35);
-            doc.text("Customer Nr.: CUST-001", 150, 28);
             
-            // --- Body Text ---
-            doc.text("Dear Customer,", 14, 50);
+            doc.text(`Dear ${customerName},`, 14, 50);
             doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
 
-            // --- Table Data ---
             const tableBody = [];
             let subtotal = 0;
             let pos = 1;
@@ -324,64 +307,45 @@
                 }
             });
 
-            // --- Table Creation ---
             doc.autoTable({
                 head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']],
                 body: tableBody,
                 startY: 65,
                 theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133] }
+                headStyles: { fillColor: [44, 62, 80] } // Dark blue header
             });
 
-            // --- Totals ---
             let finalY = doc.lastAutoTable.finalY + 10;
-            const vat = subtotal * 0.12; // 12% VAT/GST example
-            const total = subtotal + vat;
+            const total = Math.ceil(subtotal / 50) * 50;
             
             doc.setFontSize(12);
-            doc.text(`Subtotal`, 140, finalY);
-            doc.text(`${subtotal.toFixed(2)} ₹`, 190, finalY, { align: 'right' });
-            
-            doc.text(`12.00 % VAT`, 140, finalY + 7);
-            doc.text(`${vat.toFixed(2)} ₹`, 190, finalY + 7, { align: 'right' });
-            
             doc.setFont("helvetica", "bold");
-            doc.text(`Total`, 140, finalY + 14);
-            doc.text(`${total.toFixed(2)} ₹`, 190, finalY + 14, { align: 'right' });
+            doc.text(`Total`, 140, finalY + 7);
+            doc.text(`${total.toFixed(2)} ₹`, 190, finalY + 7, { align: 'right' });
             
-            // --- Footer Text ---
             doc.setFontSize(11);
             doc.setFont("helvetica", "normal");
             doc.text("This offer is valid until " + new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB') + ".", 14, doc.internal.pageSize.height - 20);
             doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
             
-            // --- Save PDF ---
             doc.save(`Cost-Estimate-${estimateNr}.pdf`);
         }
 
-
         // --- EVENT LISTENERS ---
-        allCostInputs.forEach(input => {
-            input.addEventListener('input', calculateGrandTotal);
-        });
-        
-        [jobSizeSelect, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
-        quantityInput.addEventListener('input', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
-        
+        allCostInputs.forEach(input => { input.addEventListener('input', calculateGrandTotal); });
+        [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
+        quantityInput.addEventListener('input', calculatePrintingCosts);
         printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
         paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
-        
-        paperSizeSelect.addEventListener('change', calculateNumberOfSheets);
-        [paperRateInput, gstCheckbox].forEach(el => el.addEventListener('change', calculatePaperCost));
-        paperRateInput.addEventListener('input', calculatePaperCost);
-        paperSheetsInput.addEventListener('input', calculatePaperCost);
-
+        [paperSizeSelect, paperSheetsInput, paperRateInput, gstCheckbox].forEach(el => el.addEventListener('change', calculatePaperCost));
+        [paperSheetsInput, paperRateInput].forEach(el => el.addEventListener('input', calculatePaperCost));
         downloadPdfBtn.addEventListener('click', generatePDF);
         
         // --- INITIALIZATION ---
         populatePaperSizes();
         populateStaticGsmDropdowns();
-        calculateNumberOfSheets();
+        calculatePrintingCosts();
+        calculatePaperCost();
         calculateGrandTotal();
     });
     </script>
