@@ -1,0 +1,54 @@
+{
+  "paperData": [
+    { "size": "18x23", "gsm": "STICKER", "perSheetWeight": 0.065 },
+    { "size": "18x23", "gsm": "DUPLEX", "perSheetWeight": 0.190 },
+    { "size": "18x23", "gsm": 120, "perSheetWeight": 0.05 },
+    { "size": "23x36", "gsm": "STICKER", "perSheetWeight": 0.08 },
+    { "size": "23x36", "gsm": "DUPLEX", "perSheetWeight": 0.220 },
+    { "size": "23x36", "gsm": 90, "perSheetWeight": 0.048 },
+    { "size": "23x36", "gsm": 100, "perSheetWeight": 0.0532 },
+    { "size": "20x30", "gsm": 90, "perSheetWeight": 0.0348 },
+    { "size": "23x36", "gsm": 120, "perSheetWeight": 0.064 },
+    { "size": "23x36", "gsm": 125, "perSheetWeight": 0.0668 },
+    { "size": "23x36", "gsm": 250, "perSheetWeight": 0.1328 },
+    { "size": "23x36", "gsm": 300, "perSheetWeight": 0.16 },
+    { "size": "23x36", "gsm": 350, "perSheetWeight": 0.185 },
+    { "size": "25x36", "gsm": 125, "perSheetWeight": 0.0726 },
+    { "size": "25x36", "gsm": 250, "perSheetWeight": 0.1448 },
+    { "size": "25x36", "gsm": 300, "perSheetWeight": 0.1736 },
+    { "size": "25x36", "gsm": 350, "perSheetWeight": 0.200 },
+    { "size": "25x38", "gsm": 250, "perSheetWeight": 0.1532 },
+    { "size": "25x38", "gsm": 300, "perSheetWeight": 0.1839 },
+    { "size": "23x36", "gsm": 58, "perSheetWeight": 0.0308 },
+    { "size": "23x36", "gsm": 70, "perSheetWeight": 0.0372 },
+    { "size": "23x36", "gsm": 80, "perSheetWeight": 0.0426 },
+    { "size": "25x36", "gsm": 80, "perSheetWeight": 0.0462 },
+    { "size": "25x36", "gsm": 90, "perSheetWeight": 0.052 },
+    { "size": "25x36", "gsm": 100, "perSheetWeight": 0.0578 },
+    { "size": "20X30", "gsm": 250, "perSheetWeight": 0.0968 },
+    { "size": "20X30", "gsm": 300, "perSheetWeight": 0.116 },
+    { "size": "19X25", "gsm": 250, "perSheetWeight": 0.0766 },
+    { "size": "19X25", "gsm": 300, "perSheetWeight": 0.092 }
+  ],
+  "laminationData": {
+    "12x18": { "gloss": 3.0, "matte": 3.5, "thermal_gloss": 5.0, "thermal_matte": 5.5 },
+    "11x17": { "gloss": 2.8, "matte": 3.3, "thermal_gloss": 4.8, "thermal_matte": 5.3 },
+    "18x23": { "gloss": 5.0, "matte": 5.5, "thermal_gloss": 8.0, "thermal_matte": 8.5 },
+    "15x20": { "gloss": 4.5, "matte": 5.0, "thermal_gloss": 7.0, "thermal_matte": 7.5 },
+    "10x15": { "gloss": 2.5, "matte": 3.0, "thermal_gloss": 4.0, "thermal_matte": 4.5 },
+    "A4":    { "gloss": 2.0, "matte": 2.5, "thermal_gloss": 3.5, "thermal_matte": 4.0 }
+  },
+  "printingRates": {
+    "withPlate": {
+      "small":      { "cost": 1200, "secondRate": 300 },
+      "medium":     { "cost": 1900, "secondRate": 600 },
+      "large":      { "cost": 1900, "secondRate": 500 },
+      "largeHeavy": { "cost": 2000, "secondRate": 600 }
+    },
+    "withoutPlate": {
+      "small":      { "cost": 700,  "secondRate": 300 },
+      "large":      { "cost": 1000, "secondRate": 500 },
+      "largeHeavy": { "cost": 1400, "secondRate": 600 }
+    }
+  }
+}
