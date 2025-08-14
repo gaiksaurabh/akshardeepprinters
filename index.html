@@ -26,37 +26,37 @@
         .section-title {
             font-size: 1.3rem; color: #0066cc; margin-top: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;
         }
-        .printing-grid, .form-grid {
+        .form-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem;
         }
-        .printing-grid { grid-template-columns: repeat(3, 1fr); }
         .grid-col-span-2 { grid-column: span 2; }
-        .grid-col-span-3 { grid-column: span 3; }
         .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
-        .form-group label {
+        .form-group label, .label-with-checkbox {
             margin-bottom: 0.5rem; font-weight: 500; color: #495057; font-size: 0.9rem;
         }
         .form-group select,
         .form-group input {
             width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background-color: #f8f9fa;
         }
+        .input-group-inline {
+            display: flex; align-items: flex-end; gap: 0.5rem;
+        }
+        .input-group-inline .form-group { flex-grow: 1; }
         .inline-checkbox {
-             display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0;
+             display: flex; align-items: center; gap: 0.5rem;
         }
         .inline-checkbox input { width: auto; }
-        .inline-checkbox label { margin: 0; }
+        .inline-checkbox label { margin: 0; font-weight: normal; }
+        .label-with-checkbox {
+            display: flex; justify-content: space-between; align-items: center;
+        }
         .total-cost-section {
             background-color: #1a253c; color: white; padding: 1rem 1.5rem; border-radius: 12px; text-align: center; margin-top: 1.5rem; flex-shrink: 0;
         }
-        .total-cost-section .total-label {
-            font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9;
-        }
-        .total-cost-section .total-value {
-            font-size: 2.2rem; font-weight: bold; margin: 0;
-        }
-        @media (max-width: 1200px) {
-            .sections-wrapper { grid-template-columns: 1fr; }
-        }
+        .total-cost-section .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; }
+        .total-cost-section .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; }
+
+        @media (max-width: 1200px) { .sections-wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -66,13 +66,24 @@
         <div class="sections-wrapper">
             <div class="section">
                 <h2 class="section-title">1. Printing</h2>
-                <div class="printing-grid">
+                <div class="form-grid">
                     <div class="form-group"><label for="job-size">Job Size</label><select id="job-size"><option value="">Select Size</option><option value="12X18">12X18</option><option value="18X23">18X23</option><option value="15X20">15X20</option><option value="10X15">10X15</option><option value="20X28">20X28</option><option value="18X25">18X25</option></select></div>
                     <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
-                    <div class="form-group"><label for="quantity">Quantity</label><input type="number" id="quantity" placeholder="e.g., 2000"></div>
-                    <div class="form-group"><label for="printing-cost">Printing Cost (₹)</label><input type="number" class="cost-input" id="printing-cost" readonly></div>
+                    <div class="form-group grid-col-span-2">
+                        <label for="quantity">Quantity</label>
+                        <div class="input-group-inline">
+                            <div class="form-group" style="margin:0;"><input type="number" id="quantity" placeholder="e.g., 2000"></div>
+                            <div class="inline-checkbox" style="height: 100%; padding-bottom: 0.2rem;"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="label-with-checkbox">
+                           <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
+                           <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label for="without-plate-check">Without Plate</label></div>
+                        </div>
+                        <input type="number" class="cost-input" id="printing-cost" readonly>
+                    </div>
                     <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" readonly></div>
-                    <div class="form-group inline-checkbox" style="justify-content: center;"><input type="checkbox" id="fb-check" style="width: 18px; height: 18px;"><label for="fb-check">F/B</label></div>
                 </div>
             </div>
 
@@ -83,8 +94,13 @@
                     <div class="form-group"><label for="paper-gsm-select">Paper GSM</label><select id="paper-gsm-select"></select></div>
                     <div class="form-group"><label for="paper-sheets-input">No. of Sheets</label><input type="number" id="paper-sheets-input" readonly></div>
                     <div class="form-group"><label for="paper-rate-input">Rate per kg (₹)</label><input type="number" id="paper-rate-input" placeholder="e.g., 85"></div>
-                    <div class="form-group grid-col-span-2 inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Calculate Without GST</label></div>
-                    <div class="form-group grid-col-span-2"><label for="paper-cost">Paper Cost (₹)</label><input type="number" class="cost-input" id="paper-cost" readonly></div>
+                    <div class="form-group grid-col-span-2">
+                        <div class="label-with-checkbox">
+                            <label for="paper-cost" style="margin:0;">Paper Cost (₹)</label>
+                            <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Without GST</label></div>
+                        </div>
+                        <input type="number" class="cost-input" id="paper-cost" readonly>
+                    </div>
                 </div>
             </div>
 
@@ -93,15 +109,20 @@
                 <div class="form-grid">
                     <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option></select></div>
                     <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="11x17">11x17</option><option value="18x23">18x23</option><option value="15x20">15x20</option><option value="10x15">10x15</option><option value="A4">A4</option></select></div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
-                    <div class="form-group grid-col-span-2"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00"></div>
+                    <div class="form-group grid-col-span-2">
+                        <label for="lami-cost">Lamination Cost (₹)</label>
+                        <input type="number" class="cost-input" id="lami-cost" placeholder="0.00">
+                    </div>
                 </div>
             </div>
             
             <div class="section">
-                <h2 class="section-title">4. Envelope</h2>
+                <h2 class="section-title">4. Other Costs</h2>
                 <div class="form-grid">
+                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
+                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
                     <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00"></div>
                 </div>
@@ -127,6 +148,7 @@
         const jobSizeSelect = document.getElementById('job-size');
         const quantityInput = document.getElementById('quantity');
         const fbCheck = document.getElementById('fb-check');
+        const withoutPlateCheck = document.getElementById('without-plate-check');
         const printingCostInput = document.getElementById('printing-cost');
         const secondCostInput = document.getElementById('second-cost');
         const printingGsmSelect = document.getElementById('printing-gsm-select');
@@ -141,23 +163,36 @@
         function calculateGrandTotal() {
             let total = 0;
             allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
-            totalCostDisplay.textContent = `₹ ${total.toFixed(2)}`;
+            
+            // Round up to the next 50
+            const roundedTotal = Math.ceil(total / 50) * 50;
+            
+            totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
         function calculatePrintingCosts() {
+            const isWithoutPlate = withoutPlateCheck.checked;
             const selectedGsm = String(printingGsmSelect.value).toUpperCase();
             const selectedSize = jobSizeSelect.value;
+            const heavyGsmList = ['300', '350', 'DUPLEX'];
+            
+            if (isWithoutPlate) {
+                if (heavyGsmList.includes(selectedGsm)) {
+                    printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1000 : 1400;
+                } else {
+                    printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 700 : 1000;
+                }
+            } else {
+                if (heavyGsmList.includes(selectedGsm)) {
+                    printingCostInput.value = 2400;
+                } else {
+                    printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1200 : 1900;
+                }
+            }
+
             const baseQuantity = parseFloat(quantityInput.value) || 0;
             const isFbChecked = fbCheck.checked;
             const effectiveQuantity = isFbChecked ? baseQuantity * 2 : baseQuantity;
-            
-            // New GSM-based printing cost rule
-            if (['300', '350', 'DUPLEX'].includes(selectedGsm)) {
-                printingCostInput.value = 2400;
-            } else {
-                printingCostInput.value = (selectedSize === '12X18' || selectedSize === '10X15') ? 1200 : 1900;
-            }
-
             let secondCost = 0;
             if (effectiveQuantity > 1000) {
                 const ratePer1000 = (selectedSize === '12X18' || selectedSize === '10X15') ? 300 : 600;
@@ -175,14 +210,11 @@
             const sheets = parseFloat(paperSheetsInput.value) || 0;
             const rate = parseFloat(paperRateInput.value) || 0;
             const withoutGst = gstCheckbox.checked;
-
             const paperInfo = paperData.find(d => d.size.toLowerCase() === selectedSize.toLowerCase() && String(d.gsm).toLowerCase() === selectedGsm.toLowerCase());
             const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
-            
             const basePrice = perSheetWeight * sheets * rate;
-            const gstRate = withoutGst ? 0 : 0.12; // 12% GST
+            const gstRate = withoutGst ? 0 : 0.12;
             const finalPrice = basePrice * (1 + gstRate);
-
             paperCostInput.value = finalPrice.toFixed(2);
             calculateGrandTotal();
         }
@@ -206,17 +238,13 @@
         function populateStaticGsmDropdowns() {
             const allGsm = [...new Set(paperData.map(item => item.gsm))];
             allGsm.sort((a, b) => {
-                const aIsString = isNaN(a);
-                const bIsString = isNaN(b);
-                if (aIsString && !bIsString) return -1;
-                if (!aIsString && bIsString) return 1;
+                const aIsString = isNaN(a); const bIsString = isNaN(b);
+                if (aIsString && !bIsString) return -1; if (!aIsString && bIsString) return 1;
                 if (aIsString && bIsString) return a.localeCompare(b);
                 return a - b;
             });
-
             printingGsmSelect.innerHTML = '<option value="">Select GSM</option>';
             paperGsmSelect.innerHTML = '<option value="">Select GSM</option>';
-
             allGsm.forEach(gsm => {
                 const option = `<option value="${gsm}">${gsm}</option>`;
                 printingGsmSelect.innerHTML += option;
@@ -241,9 +269,8 @@
             if (!input.readOnly) { input.addEventListener('input', calculateGrandTotal); }
         });
         
-        jobSizeSelect.addEventListener('change', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
-        quantityInput.addEventListener('input', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
-        fbCheck.addEventListener('change', calculatePrintingCosts);
+        [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck].forEach(el => el.addEventListener('change', calculatePrintingCosts));
+        quantityInput.addEventListener('input', calculatePrintingCosts);
 
         printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
         paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
