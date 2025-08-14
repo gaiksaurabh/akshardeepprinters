@@ -31,12 +31,8 @@
     { "size": "19X25", "gsm": 300, "perSheetWeight": 0.092 }
   ],
   "laminationData": {
-    "12x18": { "gloss": 3.0, "matte": 3.5, "thermal_gloss": 5.0, "thermal_matte": 5.5 },
-    "11x17": { "gloss": 2.8, "matte": 3.3, "thermal_gloss": 4.8, "thermal_matte": 5.3 },
-    "18x23": { "gloss": 5.0, "matte": 5.5, "thermal_gloss": 8.0, "thermal_matte": 8.5 },
-    "15x20": { "gloss": 4.5, "matte": 5.0, "thermal_gloss": 7.0, "thermal_matte": 7.5 },
-    "10x15": { "gloss": 2.5, "matte": 3.0, "thermal_gloss": 4.0, "thermal_matte": 4.5 },
-    "A4":    { "gloss": 2.0, "matte": 2.5, "thermal_gloss": 3.5, "thermal_matte": 4.0 }
+    "12x18": { "gloss": 3.0, "matte": 3.5 },
+    "20x28": { "gloss": 5.0, "matte": 5.5 }
   },
   "printingRates": {
     "withPlate": {
