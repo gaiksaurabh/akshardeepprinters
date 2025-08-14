@@ -1,436 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Cost Estimation</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <title>Printing Estimate Tool</title>
     <style>
-        html, body {
-            height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f4f8;
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        select, input, button { padding: 6px; margin: 5px; }
+        .modal {
+            display: none; position: fixed; z-index: 999; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0,0,0,0.5);
         }
-        body {
-            display: flex; flex-direction: column; padding: 1.5rem; box-sizing: border-box; align-items: center;
+        .modal-content {
+            background: #fff; margin: 15% auto; padding: 20px;
+            border-radius: 5px; width: 300px;
         }
-        .container {
-            width: 100%; max-width: 1300px; flex-grow: 1; display: flex; flex-direction: column;
-        }
-        h1 {
-            text-align: center; color: #1a253c; margin-bottom: 1.5rem; flex-shrink: 0; font-size: 2rem;
-        }
-        .top-bar {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
-            background-color: #ffffff; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 1.5rem;
-        }
-        .top-bar .form-group { flex-grow: 1; min-width: 200px; }
-        .total-display-top { text-align: right; min-width: 180px; }
-        .total-display-top .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; color: #495057; font-weight: 500;}
-        .total-display-top .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; color: #1a253c; }
-        .icon-btn {
-            background: #f0f4f8; border: 1px solid #ced4da; border-radius: 8px; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; padding: 0;
-        }
-        .icon-btn:hover { background: #e2e6ea; }
-        .icon-btn svg { width: 22px; height: 22px; }
-        .sections-wrapper {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex-grow: 1;
-        }
-        .section {
-            background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); display: flex; flex-direction: column;
-        }
-        .section-title {
-            font-size: 1.3rem; color: #0066cc; margin-top: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem;
-        }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; }
-        .form-grid-single-col { grid-template-columns: 1fr; }
-        .grid-col-span-2 { grid-column: span 2; }
-        .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
-        .form-group label, .label-with-checkbox { margin-bottom: 0.5rem; font-weight: 500; color: #495057; font-size: 0.9rem; }
-        .form-group select, .form-group input { width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background-color: #f8f9fa; }
-        .input-group-inline { display: flex; align-items: flex-end; gap: 0.5rem; }
-        .input-group-inline .form-group { flex-grow: 1; }
-        .inline-checkbox { display: flex; align-items: center; gap: 0.5rem; }
-        .inline-checkbox input { width: auto; }
-        .inline-checkbox label { margin: 0; font-weight: normal; }
-        .label-with-checkbox { display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Modal Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
-        .estimates-list { list-style: none; padding: 0; margin: 0; }
-        .estimates-list li { padding: 0.8rem; border-bottom: 1px solid #e9ecef; cursor: pointer; transition: background-color 0.2s; }
-        .estimates-list li:hover { background-color: #f8f9fa; }
-        .estimates-list li:last-child { border-bottom: none; }
-        
-        @media (max-width: 1200px) { .sections-wrapper { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .top-bar { flex-direction: column; align-items: stretch; } }
+        .modal-content button { display: block; margin: 5px 0; }
     </style>
 </head>
 <body>
-    <div id="modal-container"></div>
-    <div class="container">
-        <h1>Akshardeep Cost Estimation</h1>
-        <div class="top-bar">
-            <div class="form-group">
-                <label for="customer-name">Customer Name</label>
-                <input type="text" id="customer-name" placeholder="Enter customer name...">
-            </div>
-             <div class="total-display-top">
-                <h3 class="total-label">Grand Total</h3>
-                <p class="total-value" id="total-cost">₹ 0.00</p>
-            </div>
-            <button id="download-pdf-btn" class="icon-btn" title="Download PDF"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16.586l-4.293-4.293-1.414 1.414L12 19.414l5.707-5.707-1.414-1.414L12 16.586zM12 4a1 1 0 0 1 1 1v9h-2V5a1 1 0 0 1 1-1z"/></svg></button>
-            <button id="whatsapp-btn" class="icon-btn" title="Send to WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#25D366"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-26.7l-7-4.1-72.5 19.1 19.4-70.5-4.5-7.3c-18.4-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></button>
-            <button id="prev-estimates-btn" class="icon-btn" title="Past Estimates"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm1-12h-2v5l4.5 2.684.993-1.726L13 12.333V8z"/></svg></button>
-        </div>
-        <div class="sections-wrapper">
-            <div class="section">
-                <h2 class="section-title">1. Printing</h2>
-                <div class="form-grid">
-                    <div class="form-group grid-col-span-2">
-                        <label for="job-size">Job Size</label>
-                        <select id="job-size">
-                            <option value="">Select Size</option>
-                            <option value="10X15">10X15</option>
-                            <option value="12X18">12X18</option>
-                            <option value="18X23">18X23</option>
-                            <option value="18X25">18X25</option>
-                            <option value="15X20">15X20</option>
-                            <option value="19X25">19X25</option>
-                            <option value="20X28">20X28</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
-                    <div class="form-group">
-                        <label for="quantity">Quantity</label>
-                        <div class="input-group-inline">
-                            <input type="number" id="quantity" placeholder="e.g., 2000" style="flex-grow:1; margin:0;">
-                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="label-with-checkbox">
-                           <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
-                           <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label for="without-plate-check">Without Plate</label></div>
-                        </div>
-                        <input type="number" class="cost-input" id="printing-cost" placeholder="0.00" data-label="Printing Cost">
-                    </div>
-                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="0.00" data-label="Second Printing"></div>
-                </div>
-            </div>
 
-            <div class="section">
-                <h2 class="section-title">2. Paper</h2>
-                <div class="form-grid">
-                    <div class="form-group"><label for="paper-size-select">Paper Size</label><select id="paper-size-select"></select></div>
-                    <div class="form-group"><label for="paper-gsm-select">Paper GSM</label><select id="paper-gsm-select"></select></div>
-                    <div class="form-group"><label for="paper-sheets-input">No. of Sheets</label><input type="number" id="paper-sheets-input" placeholder="0" readonly></div>
-                    <div class="form-group"><label for="paper-rate-input">Rate per kg (₹)</label><input type="number" id="paper-rate-input" placeholder="e.g., 85"></div>
-                    <div class="form-group grid-col-span-2">
-                        <div class="label-with-checkbox">
-                            <label for="paper-cost" style="margin:0;">Paper Cost (₹)</label>
-                            <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Without GST</label></div>
-                        </div>
-                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00" data-label="Paper Cost">
-                    </div>
-                </div>
-            </div>
+<h2>Printing Estimate Tool</h2>
 
-            <div class="section">
-                <h2 class="section-title">3. Lamination</h2>
-                <div class="form-grid form-grid-single-col">
-                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                        <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option><option value="thermal_gloss">Thermal Gloss</option><option value="thermal_matte">Thermal Matte</option></select></div>
-                        <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="11x17">11x17</option><option value="18x23">18x23</option><option value="15x20">15x20</option><option value="10x15">10x15</option><option value="A4">A4</option></select></div>
-                    </div>
-                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00" data-label="Lamination Cost"></div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h2 class="section-title">4. Other Costs</h2>
-                <div class="form-grid">
-                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
-                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Costs"></div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
-                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
-                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
-                </div>
-            </div>
-        </div>
+<label>Paper Size:</label>
+<select id="paper-size-select"></select>
+
+<label>Printing GSM:</label>
+<select id="printing-gsm-select"></select>
+
+<label>Paper GSM:</label>
+<select id="paper-gsm-select"></select>
+
+<br>
+<button id="prev-estimates-btn">Past Estimates</button>
+
+<!-- Past Estimates Modal -->
+<div id="past-estimates-modal" class="modal">
+    <div class="modal-content">
+        <h3>Past Estimates</h3>
+        <div id="past-estimates-list"></div>
+        <button onclick="closePastEstimates()">Close</button>
     </div>
+</div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        let estimateCounter = parseInt(localStorage.getItem('estimateCounter')) || 1;
+<script>
+    // Sample paper data
+    const paperData = [
+        { size: "A4", gsm: 70, rate: 1.2 },
+        { size: "A4", gsm: 80, rate: 1.4 },
+        { size: "A4", gsm: 100, rate: 1.8 },
+        { size: "A3", gsm: 80, rate: 2.5 },
+        { size: "A3", gsm: 100, rate: 3.0 }
+    ];
 
-        // --- DATA ---
-        const paperData = [
-            { size: "18x23", gsm: "STICKER", perSheetWeight: 0.065 },{ size: "18x23", gsm: "DUPLEX", perSheetWeight: 0.190 },{ size: "18x23", gsm: 120, perSheetWeight: 0.05 },{ size: "23x36", gsm: "STICKER", perSheetWeight: 0.08 },{ size: "23x36", gsm: "DUPLEX", perSheetWeight: 0.220 },{ size: "23x36", gsm: 90, perSheetWeight: 0.048 },{ size: "23x36", gsm: 100, perSheetWeight: 0.0532 },{ size: "20x30", gsm: 90, perSheetWeight: 0.0348 },{ size: "23x36", gsm: 120, perSheetWeight: 0.064 },{ size: "23x36", gsm: 125, perSheetWeight: 0.0668 },{ size: "23x36", gsm: 250, perSheetWeight: 0.1328 },{ size: "23x36", gsm: 300, perSheetWeight: 0.16 },{ size: "23x36", gsm: 350, perSheetWeight: 0.185 },{ size: "25x36", gsm: 125, perSheetWeight: 0.0726 },{ size: "25x36", gsm: 250, perSheetWeight: 0.1448 },{ size: "25x36", gsm: 300, perSheetWeight: 0.1736 },{ size: "25x36", gsm: 350, perSheetWeight: 0.200 },{ size: "25x38", gsm: 250, perSheetWeight: 0.1532 },{ size: "25x38", gsm: 300, perSheetWeight: 0.1839 },{ size: "23x36", gsm: 58, perSheetWeight: 0.0308 },{ size: "23x36", gsm: 70, perSheetWeight: 0.0372 },{ size: "23x36", gsm: 80, perSheetWeight: 0.0426 },{ size: "25x36", gsm: 80, perSheetWeight: 0.0462 },{ size: "25x36", gsm: 90, perSheetWeight: 0.052 },{ size: "25x36", gsm: 100, perSheetWeight: 0.0578 },{ size: "20X30", gsm: 250, perSheetWeight: 0.0968 },{ size: "20X30", gsm: 300, perSheetWeight: 0.116 },{ size: "19X25", gsm: 250, perSheetWeight: 0.0766 },{ size: "19X25", gsm: 300, perSheetWeight: 0.092 }
-        ];
+    const paperSizeSelect = document.getElementById("paper-size-select");
+    const printingGsmSelect = document.getElementById("printing-gsm-select");
+    const paperGsmSelect = document.getElementById("paper-gsm-select");
 
-        // --- ELEMENT SELECTORS ---
-        const allInputs = document.querySelectorAll('input, select');
-        const customerNameInput = document.getElementById('customer-name');
-        const allCostInputs = document.querySelectorAll('.cost-input');
-        const totalCostDisplay = document.getElementById('total-cost');
-        const jobSizeSelect = document.getElementById('job-size');
-        const quantityInput = document.getElementById('quantity');
-        const fbCheck = document.getElementById('fb-check');
-        const withoutPlateCheck = document.getElementById('without-plate-check');
-        const printingCostInput = document.getElementById('printing-cost');
-        const secondCostInput = document.getElementById('second-cost');
-        const printingGsmSelect = document.getElementById('printing-gsm-select');
-        const paperGsmSelect = document.getElementById('paper-gsm-select');
-        const paperSizeSelect = document.getElementById('paper-size-select');
-        const paperSheetsInput = document.getElementById('paper-sheets-input');
-        const paperRateInput = document.getElementById('paper-rate-input');
-        const gstCheckbox = document.getElementById('gst-checkbox');
-        const paperCostInput = document.getElementById('paper-cost');
-        const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        const whatsappBtn = document.getElementById('whatsapp-btn');
-        const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
-        const modalContainer = document.getElementById('modal-container');
-
-        // --- CALCULATION FUNCTIONS ---
-        function calculateGrandTotal() {
-            let total = 0;
-            allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
-            const roundedTotal = Math.ceil(total / 50) * 50;
-            totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
-        }
-
-        function calculatePrintingCosts() {
-            const selectedGsm = String(printingGsmSelect.value).toUpperCase();
-            const selectedSize = jobSizeSelect.value;
-            const heavyGsmList = ['300', '350', 'DUPLEX'];
-            let cost = 0;
-            let secondRate = 0;
-            
-            if (withoutPlateCheck.checked) {
-                const largeSizes = ['15X20', '18X23', '18X25', '19X25', '20X28'];
-                if (selectedSize === '12X18' || selectedSize === '10X15') {
-                    cost = 700;
-                    secondRate = 300;
-                } else if (largeSizes.includes(selectedSize)) {
-                    if (heavyGsmList.includes(selectedGsm)) {
-                        cost = 1400;
-                        secondRate = 600;
-                    } else {
-                        cost = 1000;
-                        secondRate = 500;
-                    }
-                }
-            } else {
-                if (selectedSize === '12X18' || selectedSize === '10X15') {
-                    cost = 1200;
-                    secondRate = 300;
-                } else if ((selectedSize === '19X25' || selectedSize === '20X28') && heavyGsmList.includes(selectedGsm)) {
-                    cost = 2000;
-                    secondRate = 600;
-                } else if (!['18X23', '18X25', '15X20'].includes(selectedSize)) {
-                    cost = 1900;
-                    secondRate = 500;
-                } else {
-                    cost = 1900; 
-                    secondRate = 600;
-                }
-            }
-            printingCostInput.value = cost;
-            
-            const baseQuantity = parseFloat(quantityInput.value) || 0;
-            const isFbChecked = fbCheck.checked;
-            const effectiveQuantity = isFbChecked ? baseQuantity * 2 : baseQuantity;
-            let secondCost = 0;
-            if (effectiveQuantity > 1000) {
-                const exceedingQuantity = effectiveQuantity - 1000;
-                const blocks = Math.ceil(exceedingQuantity / 1000);
-                secondCost = blocks * secondRate;
-            }
-            secondCostInput.value = secondCost.toFixed(2);
-            calculateGrandTotal();
-        }
-
-        function calculatePaperCost() {
-            const selectedSize = paperSizeSelect.value;
-            const selectedGsm = paperGsmSelect.value;
-            const sheets = parseFloat(paperSheetsInput.value) || 0;
-            const rate = parseFloat(paperRateInput.value) || 0;
-            const withoutGst = gstCheckbox.checked;
-            const paperInfo = paperData.find(d => d.size.toLowerCase() === selectedSize.toLowerCase() && String(d.gsm).toLowerCase() === selectedGsm.toLowerCase());
-            const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
-            const basePrice = perSheetWeight * sheets * rate;
-            const gstRate = withoutGst ? 0.06 : 0.12;
-            const finalPrice = basePrice * (1 + gstRate);
-            const roundedPaperCost = Math.ceil(finalPrice / 50) * 50;
-            paperCostInput.value = roundedPaperCost.toFixed(2);
-            calculateGrandTotal();
-        }
-        
-        function calculateNumberOfSheets() {
-            const jobSize = jobSizeSelect.value;
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const paperGsm = String(paperGsmSelect.value).toUpperCase();
-            let divisionFactor = 0;
-            if (jobSize === '20X28') {
-                divisionFactor = 1;
-            } else if (jobSize === '12X18' || jobSize === '10X15') {
-                divisionFactor = (paperGsm === 'STICKER') ? 2 : 4;
-            } else if (jobSize) {
-                divisionFactor = (paperGsm === 'STICKER') ? 1 : 2;
-            }
-            const sheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
-            paperSheetsInput.value = sheets;
-            calculatePaperCost();
-        }
-
-        function getSummaryData() {
-            const description = `${jobSizeSelect.value || 'N/A'}-${printingGsmSelect.value || 'N/A'} GSM-${quantityInput.value || '0'}${fbCheck.checked ? ' F/B' : ''}`;
-            const summary = { description: description, items: [] };
-            allCostInputs.forEach(input => {
-                const cost = parseFloat(input.value) || 0;
-                if (cost > 0) {
-                    summary.items.push({ 
-                        label: input.dataset.label || 'Cost Item', 
-                        cost: cost 
-                    });
-                }
-            });
-            return summary;
-        }
-
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const estimateNr = 'AOP' + String(estimateCounter).padStart(2, '0');
-            saveEstimate(estimateNr);
-
-            doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("Cost Estimate", 14, 22);
-            doc.setFontSize(11); doc.setFont("helvetica", "normal");
-            const today = new Date().toLocaleDateString('en-GB');
-            const customerName = customerNameInput.value || 'Valued Customer';
-            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35);
-            doc.text(`Date: ${today}`, 150, 35);
-            doc.text(`Dear ${customerName},`, 14, 50);
-            doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
-            const summary = getSummaryData();
-            doc.setFont("helvetica", "bold");
-            doc.text(summary.description, 14, 67);
-            const tableBody = [];
-            let subtotal = 0;
-            let pos = 1;
-            summary.items.forEach(item => {
-                tableBody.push([pos++, item.label, '1', 'Item', `${item.cost.toFixed(2)} ₹`, `${item.cost.toFixed(2)} ₹`]);
-                subtotal += item.cost;
-            });
-
-            doc.autoTable({
-                head: [['Pos.', 'Designation', 'Quantity', 'Unit', 'Single price', 'Total price']],
-                body: tableBody, startY: 75, theme: 'grid', headStyles: { fillColor: [44, 62, 80] }
-            });
-
-            let finalY = doc.lastAutoTable.finalY + 10;
-            const total = Math.ceil(subtotal / 50) * 50;
-            doc.setFontSize(12); doc.setFont("helvetica", "bold");
-            doc.text(`Total`, 140, finalY);
-            doc.text(`${total.toFixed(2)} ₹`, 190, finalY, { align: 'right' });
-            
-            doc.setFontSize(11); doc.setFont("helvetica", "normal");
-            doc.text("This offer is valid until " + new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB') + ".", 14, doc.internal.pageSize.height - 20);
-            doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
-            
-            doc.save(`Cost-Estimate-${estimateNr}.pdf`);
-            estimateCounter++;
-            localStorage.setItem('estimateCounter', estimateCounter);
-        }
-        
-        // --- LOCAL STORAGE & MODAL ---
-        function saveEstimate(estimateNr) {
-            const estimateData = {};
-            allInputs.forEach(input => { if(input.id) { estimateData[input.id] = (input.type === 'checkbox') ? input.checked : input.value; } });
-            localStorage.setItem(estimateNr, JSON.stringify(estimateData));
-        }
-        function loadEstimate(estimateNr) {
-            const dataString = localStorage.getItem(estimateNr);
-            if(dataString) {
-                const estimateData = JSON.parse(dataString);
-                allInputs.forEach(input => {
-                    if(input.id && estimateData[input.id] !== undefined) {
-                        if(input.type === 'checkbox') { input.checked = estimateData[input.id]; } 
-                        else { input.value = estimateData[input.id]; }
-                    }
-                });
-                calculatePrintingCosts();
-                calculateNumberOfSheets();
-                closeModal();
-            }
-        }
-        function showPreviousEstimates() {
-            const estimates = Object.keys(localStorage).filter(key => key.startsWith('AOP'));
-            let listHtml = '<ul class="estimates-list">';
-            if(estimates.length > 0) {
-                estimates.sort().forEach(key => { listHtml += `<li data-key="${key}">${key}</li>`; });
-            } else { listHtml += '<li>No saved estimates found.</li>'; }
-            listHtml += '</ul>';
-            const modalHtml = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
-            modalContainer.innerHTML = modalHtml;
-        }
-        function closeModal() { modalContainer.innerHTML = ''; }
-
-        // --- UI & DATA POPULATION ---
-        function populatePaperSizes() {
-            const uniqueSizes = [...new Set(paperData.map(item => item.size.toUpperCase()))];
-            paperSizeSelect.innerHTML = '<option value="">Select Size</option>';
-            uniqueSizes.sort().forEach(size => { paperSizeSelect.innerHTML += `<option value="${size}">${size}</option>`; });
-        }
-         function populateStaticGsmDropdowns() {
-            const allGsm = [...new Set(paperData.map(item => item.gsm))];
-            allGsm.sort((a, b) => {
-                const aIsString = isNaN(a); const bIsString = isNaN(b);
-                if (aIsString && !bIsString) return -1; if (!aIsString && bIsString) return 1;
-                if (aIsString && bIsString) return a.localeCompare(b);
-                return a - b;
-            });
-            printingGsmSelect.innerHTML = '<option value="">Select GSM</option>';
-            paperGsmSelect.innerHTML = '<option value="">Select GSM</option>';
-            allGsm.forEach(gsm => {
-                const option = `<option value="${gsm}">${gsm}</option>`;
-                printingGsmSelect.innerHTML += option;
-                paperGsmSelect.innerHTML += option;
-            });
-        }
-        function syncGsm(source, target) {
-            target.value = source.value;
-            calculatePrintingCosts();
-            calculateNumberOfSheets();
-        }
-
-        // --- EVENT LISTENERS ---
-        modalContainer.addEventListener('click', (e) => {
-            if(e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { closeModal(); }
-            if(e.target.tagName === 'LI' && e.target.dataset.key) { loadEstimate(e.target.dataset.key); }
+    // Populate Paper Size dropdown
+    function populatePaperSizes() {
+        const sizes = [...new Set(paperData.map(p => p.size))];
+        paperSizeSelect.innerHTML = "";
+        sizes.forEach(size => {
+            const option = document.createElement("option");
+            option.value = size;
+            option.textContent = size;
+            paperSizeSelect.appendChild(option);
         });
-        allCostInputs.forEach(input => { input.addEventListener('input', calculateGrandTotal); });
-        jobSizeSelect.addEventListener('change', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
-        quantityInput.addEventListener('input', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
-        fbCheck.addEventListener('change', () => { calculatePrintingCosts(); calculateNumberOfSheets(); });
-        withoutPlateCheck.addEventListener('change', calculatePrintingCosts);
-        printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
-        paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
-        paperSizeSelect.addEventListener('change', calculateNumberOfSheets);
-        [paperRateInput, gstCheckbox].forEach(el => el.addEventListener('change', calculatePaperCost));
-        paperRateInput.addEventListener('input', calculatePaperCost);
-        downloadPdfBtn.addEventListener('click', generatePDF);
-        whatsappBtn.addEventListener('click', sendToWhatsApp);
-        prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
-        
-        // --- INITIALIZATION ---
-        populatePaperSizes();
-        populateStaticGsmDropdowns();
+    }
+
+    // Populate GSM dropdowns based on selected paper size
+    function populateGsmOptions(size) {
+        const gsmOptions = [...new Set(paperData.filter(p => p.size === size).map(p => p.gsm))];
+        printingGsmSelect.innerHTML = "";
+        paperGsmSelect.innerHTML = "";
+        gsmOptions.forEach(gsm => {
+            const opt1 = document.createElement("option");
+            opt1.value = gsm;
+            opt1.textContent = gsm;
+            printingGsmSelect.appendChild(opt1);
+
+            const opt2 = document.createElement("option");
+            opt2.value = gsm;
+            opt2.textContent = gsm;
+            paperGsmSelect.appendChild(opt2);
+        });
+    }
+
+    // Event listener to update GSM when paper size changes
+    paperSizeSelect.addEventListener("change", () => {
+        populateGsmOptions(paperSizeSelect.value);
     });
-    </script>
+
+    // Populate on load
+    populatePaperSizes();
+    populateGsmOptions(paperSizeSelect.value);
+
+    // --- Past Estimates Handling ---
+    document.getElementById("prev-estimates-btn").addEventListener("click", () => {
+        const modal = document.getElementById("past-estimates-modal");
+        const list = document.getElementById("past-estimates-list");
+        list.innerHTML = "";
+
+        let savedEstimates = JSON.parse(localStorage.getItem("estimates")) || [];
+        if (savedEstimates.length === 0) {
+            list.innerHTML = "<p>No past estimates found.</p>";
+        } else {
+            savedEstimates.forEach((est, index) => {
+                const btn = document.createElement("button");
+                btn.textContent = `Estimate ${index + 1} - ${est.size}, ${est.gsm}gsm`;
+                btn.addEventListener("click", () => loadEstimate(est));
+                list.appendChild(btn);
+            });
+        }
+
+        modal.style.display = "block";
+    });
+
+    function closePastEstimates() {
+        document.getElementById("past-estimates-modal").style.display = "none";
+    }
+
+    // Example load function
+    function loadEstimate(data) {
+        paperSizeSelect.value = data.size;
+        populateGsmOptions(data.size);
+        printingGsmSelect.value = data.gsm;
+        paperGsmSelect.value = data.gsm;
+        closePastEstimates();
+        alert("Estimate loaded!");
+    }
+
+    // Example save (you can trigger this wherever needed)
+    function saveEstimate(size, gsm) {
+        let estimates = JSON.parse(localStorage.getItem("estimates")) || [];
+        estimates.push({ size, gsm });
+        localStorage.setItem("estimates", JSON.stringify(estimates));
+    }
+
+    // Example pre-save some estimates for testing
+    if (!localStorage.getItem("estimates")) {
+        saveEstimate("A4", 80);
+        saveEstimate("A3", 100);
+    }
+</script>
+
 </body>
 </html>
