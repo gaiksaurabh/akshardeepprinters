@@ -29,6 +29,9 @@
         .form-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem;
         }
+        .form-grid-single-col {
+             grid-template-columns: 1fr;
+        }
         .grid-col-span-2 { grid-column: span 2; }
         .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
         .form-group label, .label-with-checkbox {
@@ -106,12 +109,15 @@
 
             <div class="section">
                 <h2 class="section-title">3. Lamination</h2>
-                <div class="form-grid">
-                    <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option></select></div>
-                    <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="11x17">11x17</option><option value="18x23">18x23</option><option value="15x20">15x20</option><option value="10x15">10x15</option><option value="A4">A4</option></select></div>
-                    <div class="form-group grid-col-span-2">
-                        <label for="lami-cost">Lamination Cost (₹)</label>
-                        <input type="number" class="cost-input" id="lami-cost" placeholder="0.00">
+                <div class="form-grid form-grid-single-col">
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group"><label for="lamination-type">Lamination</label><select id="lamination-type"><option value="">None</option><option value="gloss">Gloss</option><option value="matte">Matte</option></select></div>
+                        <div class="form-group"><label for="lami-size">Lamination Size</label><select id="lami-size"><option value="">Select Size</option><option value="12x18">12x18</option><option value="11x17">11x17</option><option value="18x23">18x23</option><option value="15x20">15x20</option><option value="10x15">10x15</option><option value="A4">A4</option></select></div>
+                    </div>
+                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00"></div>
+                    <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
+                        <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                     </div>
                 </div>
             </div>
@@ -121,8 +127,6 @@
                 <div class="form-grid">
                     <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00"></div>
                     <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="6x11">6x11</option></select></div>
                     <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00"></div>
                 </div>
@@ -220,13 +224,18 @@
         function calculateNumberOfSheets() {
             const jobSize = jobSizeSelect.value;
             const quantity = parseFloat(quantityInput.value) || 0;
-            const paperGsm = paperGsmSelect.value;
+            const paperGsm = String(paperGsmSelect.value).toUpperCase();
+            const heavyGsmList = ['300', '350', 'DUPLEX'];
             let divisionFactor = 0;
-            if (jobSize === '12X18' || jobSize === '10X15') {
-                divisionFactor = (String(paperGsm).toUpperCase() === 'STICKER') ? 2 : 4;
+
+            if (jobSize === '20X28' && heavyGsmList.includes(paperGsm)) {
+                divisionFactor = 1;
+            } else if (jobSize === '12X18' || jobSize === '10X15') {
+                divisionFactor = (paperGsm === 'STICKER') ? 2 : 4;
             } else if (jobSize) {
-                divisionFactor = (String(paperGsm).toUpperCase() === 'STICKER') ? 1 : 2;
+                divisionFactor = (paperGsm === 'STICKER') ? 1 : 2;
             }
+
             const sheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = sheets;
             calculatePaperCost();
@@ -276,12 +285,14 @@
         paperSizeSelect.addEventListener('change', calculateNumberOfSheets);
         [paperRateInput, gstCheckbox].forEach(el => el.addEventListener('change', calculatePaperCost));
         paperRateInput.addEventListener('input', calculatePaperCost);
+        paperSheetsInput.addEventListener('input', calculatePaperCost);
 
+        
         // --- INITIALIZATION ---
         populatePaperSizes();
         populateStaticGsmDropdowns();
-        calculatePrintingCosts();
         calculateNumberOfSheets();
+        calculateGrandTotal();
     });
     </script>
 </body>
