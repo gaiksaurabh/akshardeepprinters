@@ -290,8 +290,6 @@
             // --- Updated Cost Logic ---
             switch(selectedSize) {
                 case '10X15':
-                    baseCost = isWithoutPlate ? 500 : 700;
-                    break;
                 case '12X18': // Updated as per request
                     baseCost = isWithoutPlate ? 700 : 1200;
                     break;
@@ -315,12 +313,12 @@
             let secondRate = 0;
             switch(selectedSize) {
                 case '10X15':
+                case '12X18':
                     secondRate = 300;
                     break;
                 case '20X28':
-                    secondRate = 600;
+                    secondRate = 500;
                     break;
-                case '12X18':
                 case '15X20':
                 case '18X23':
                 case '18X25':
