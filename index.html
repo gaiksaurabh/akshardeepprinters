@@ -7,7 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- 1. Poppins Font Import -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,19 +14,28 @@
     <style>
         html, body {
             height: 100%; margin: 0; 
-            /* 1. Poppins Font Applied */
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f0f4f8;
         }
         body {
-            display: flex; flex-direction: column; padding: 1.5rem; box-sizing: border-box; align-items: center;
+            display: flex; flex-direction: column; 
+            /* 1. Layout: Use padding for consistent spacing */
+            padding: 1.5rem; 
+            box-sizing: border-box; 
+            /* 1. Layout: Removed align-items: center */
         }
         .container {
-            width: 100%; max-width: 1300px; flex-grow: 1; display: flex; flex-direction: column;
+            width: 100%; 
+            max-width: 1300px; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column;
+            /* 1. Layout: Add margin: auto to center the container */
+            margin: 0 auto;
         }
         h1 {
             text-align: center; color: #1a253c; margin-bottom: 1rem; flex-shrink: 0;
-            font-size: 1.6rem; /* Slightly larger for Poppins */
+            font-size: 1.6rem;
             font-weight: 700;
         }
         .top-bar {
@@ -63,7 +71,7 @@
             background: #e7f5ff; border: 1px solid #99cfff; color: #0066cc;
             font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 20px;
             cursor: pointer; transition: all 0.2s ease;
-            font-family: 'Poppins', sans-serif; /* Ensure font */
+            font-family: 'Poppins', sans-serif;
         }
         .utility-btn:hover { background: #d0ebff; border-color: #66b3ff; }
 
@@ -75,9 +83,8 @@
         .form-group select, .form-group input { 
             width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; 
             box-sizing: border-box; background-color: #f8f9fa;
-            font-family: 'Poppins', sans-serif; /* Ensure font */
+            font-family: 'Poppins', sans-serif;
         }
-        /* Styling for optgroup */
         select optgroup {
             font-weight: 600;
             color: #333;
@@ -165,7 +172,6 @@
                 <div class="form-grid">
                     <div class="form-group grid-col-span-2">
                         <label for="job-size">Job Size</label>
-                        <!-- 2. Job Size Dropdown Updated -->
                         <select id="job-size">
                             <!-- Options will be populated by JS -->
                         </select>
@@ -432,6 +438,7 @@
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
+        // 2. Removed logic for common sizes
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -452,9 +459,6 @@
 
             const standardLargeSizes = ['18X23', '18X25', '15X20', '19X25', '20X28'];
             const smallSizes = ['10X15', '12X18'];
-            // 2. Add new common sizes to logic if needed, or they can default
-            // For now, new sizes will default to 0 unless added to a group
-            const commonSizes = ['A3 (11.7x16.5)', 'A4 (8.3x11.7)', 'A5 (5.8x8.3)', 'B4 (9.8x13.9)', 'B5 (6.9x9.8)'];
 
             if (isHeavyGsm) {
                 // Rule 1: Heavy GSM (applies to all sizes)
@@ -464,14 +468,9 @@
                 // Rule 2: Standard Large Sizes (and not heavy)
                 baseCost = 1900;
                 secondRate = 500;
-            } else if (smallSizes.includes(selectedSize) || selectedSize === 'A3 (11.7x16.5)' || selectedSize === 'B4 (9.8x13.9)') {
+            } else if (smallSizes.includes(selectedSize)) {
                 // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
-                // Added A3 and B4 to this group as they are similar to 12x18
                 baseCost = isWithoutPlate ? 700 : 1200;
-                secondRate = 300;
-            } else if (selectedSize === 'A4 (8.3x11.7)' || selectedSize === 'A5 (5.8x8.3)' || selectedSize === 'B5 (6.9x9.8)') {
-                // Rule 4: New rule for smaller common sizes
-                baseCost = isWithoutPlate ? 500 : 700; // Assuming same as 10x15
                 secondRate = 300;
             } else {
                 baseCost = 0;
@@ -508,7 +507,6 @@
             
             const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
             
-            // Fallback if paper data is missing for a combo
             const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
             if (perSheetWeight === 0) {
                  console.warn(`Missing paper data for: ${paperSizeSelect.value} @ ${paperGsmSelect.value} GSM`);
@@ -522,7 +520,7 @@
             paperCostInput.dispatchEvent(new Event('input'));
         }
 
-
+        // 2. Removed logic for common sizes
         function calculateNumberOfSheets() {
             const quantity = parseFloat(quantityInput.value) || 0;
             const paperGsm = paperGsmSelect.value;
@@ -530,19 +528,15 @@
             
             const gsmIsSticker = String(paperGsm).toUpperCase() === 'STICKER';
 
-            // Updated logic to handle more sizes
             const size = jobSizeSelect.value;
             if (size === '20X28') { 
                 divisionFactor = 1; 
             } else if (['18X23', '18X25', '15X20', '19X25'].includes(size)) {
                 divisionFactor = gsmIsSticker ? 1 : 2;
-            } else if (['12X18', '10X15', 'A3 (11.7x16.5)', 'B4 (9.8x13.9)'].includes(size)) { 
+            } else if (['12X18', '10X15'].includes(size)) { 
                 divisionFactor = gsmIsSticker ? 2 : 4; 
-            } else if (['A4 (8.3x11.7)', 'B5 (6.9x9.8)'].includes(size)) {
-                divisionFactor = gsmIsSticker ? 4 : 8;
-            } else if (size === 'A5 (5.8x8.3)') {
-                divisionFactor = gsmIsSticker ? 8 : 16;
             }
+            // All other sizes will default to 0
             
             const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
@@ -617,22 +611,23 @@
             const today = new Date().toLocaleDateString('en-GB');
 
             // Set font for PDF
-            doc.addFont('Poppins-Regular.ttf', 'Poppins', 'normal');
-            doc.addFont('Poppins-Bold.ttf', 'Poppins', 'bold');
-            doc.setFont('Poppins', 'bold');
+            // Note: jsPDF needs fonts to be added. Using standard fonts as Poppins isn't loaded by default.
+            // For Poppins, it would require embedding the .ttf file, which is complex in a single HTML file.
+            // Sticking to standard helvetica for reliability in jsPDF.
+            doc.setFont("helvetica", "bold");
 
             doc.setFontSize(20); doc.text("Cost Estimate", 105, 20, { align: 'center' });
             
-            doc.setFont('Poppins', 'normal');
+            doc.setFont("helvetica", "normal");
             doc.setFontSize(11);
             doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35); doc.text(`Date: ${today}`, 148, 35);
             doc.text(`Dear ${customerName},`, 14, 50);
             doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
 
             const dynamicDescription = getDynamicDescription();
-            doc.setFont('Poppins', 'bold');
+            doc.setFont("helvetica", "bold");
             doc.text(dynamicDescription, 14, 67);
-            doc.setFont('Poppins', 'normal');
+            doc.setFont("helvetica", "normal");
 
             const tableBody = [];
             let subtotal = 0;
@@ -671,11 +666,11 @@
                 body: tableBody, 
                 foot: footRows,
                 startY: 75, theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center', font: 'Poppins', fontStyle: 'bold' },
-                footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], font: 'Poppins', fontStyle: 'bold', halign: 'right' },
-                columnStyles: { 0: { halign: 'center', cellWidth: 15, font: 'Poppins' }, 1: { halign: 'left', font: 'Poppins' }, 2: { halign: 'right', font: 'Poppins' } },
+                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center', font: 'helvetica', fontStyle: 'bold' },
+                footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], font: 'helvetica', fontStyle: 'bold', halign: 'right' },
+                columnStyles: { 0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' } },
                 didDrawPage: (data) => {
-                    doc.setFont('Poppins', 'normal');
+                    doc.setFont("helvetica", "normal");
                     doc.setFontSize(10); 
                     const validUntil = new Date(); validUntil.setDate(validUntil.getDate() + 15);
                     doc.text(`This offer is valid until ${validUntil.toLocaleDateString('en-GB')}.`, 14, doc.internal.pageSize.height - 20);
@@ -791,6 +786,7 @@
         
         function closeModal() { modalContainer.innerHTML = ''; }
         
+        // 2. Job Size Dropdown logic updated
         function populateDropdowns() {
             if (!appData.paperData) return;
             
@@ -811,23 +807,11 @@
             printingGsmSelect.innerHTML = gsmOptions;
             paperGsmSelect.innerHTML = gsmOptions;
 
-            // --- 2. Job Size Dropdown (Updated) ---
+            // --- Job Size Dropdown (Simplified) ---
             const currentJobSizes = ["10X15", "12X18", "18X23", "18X25", "15X20", "19X25", "20X28"];
-            const commonJobSizes = [
-                "A3 (11.7x16.5)",
-                "A4 (8.3x11.7)",
-                "A5 (5.8x8.3)",
-                "B4 (9.8x13.9)",
-                "B5 (6.9x9.8)"
-            ];
-
+            
             let jobSizeHTML = '<option value="">Select Size</option>';
-            jobSizeHTML += '<optgroup label="Current Sizes">';
             jobSizeHTML += currentJobSizes.map(s => `<option value="${s}">${s}</option>`).join('');
-            jobSizeHTML += '</optgroup>';
-            jobSizeHTML += '<optgroup label="Common Sizes (in)">';
-            jobSizeHTML += commonJobSizes.map(s => `<option value="${s}">${s}</option>`).join('');
-            jobSizeHTML += '</optgroup>';
             
             jobSizeSelect.innerHTML = jobSizeHTML;
         }
