@@ -1,19 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Cost Estimation</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <style>
+<style>
         html, body {
-            height: 100%; margin: 0; 
+            /* 1. Layout: Use min-height for body to allow content to expand */
+            min-height: 100%; 
+            height: auto; /* Remove fixed height */
+            margin: 0; 
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f0f4f8;
         }
@@ -27,7 +17,8 @@
         .container {
             width: 100%; 
             max-width: 1300px; 
-            flex-grow: 1; 
+            /* 1. Layout: Remove flex-grow, let container be natural height */
+            /* flex-grow: 1; */
             display: flex; 
             flex-direction: column;
             /* 1. Layout: Add margin: auto to center the container */
@@ -55,7 +46,9 @@
         .icon-btn svg { width: 22px; height: 22px; }
         .icon-group { display: flex; gap: 1rem; }
         .sections-wrapper {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex-grow: 1;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; 
+            /* 1. Layout: Remove flex-grow, let grid be natural height */
+            /* flex-grow: 1; */
         }
         .section {
             background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); display: flex; flex-direction: column;
