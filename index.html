@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 1. Title Updated -->
     <title>Akshardeep Cost Estimation</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- 1. Poppins Font Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         html, body {
-            height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f4f8;
+            height: 100%; margin: 0; 
+            /* 1. Poppins Font Applied */
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f0f4f8;
         }
         body {
             display: flex; flex-direction: column; padding: 1.5rem; box-sizing: border-box; align-items: center;
@@ -19,8 +27,7 @@
         }
         h1 {
             text-align: center; color: #1a253c; margin-bottom: 1rem; flex-shrink: 0;
-            /* 1. Title Updated */
-            font-size: 1.5rem;
+            font-size: 1.6rem; /* Slightly larger for Poppins */
             font-weight: 700;
         }
         .top-bar {
@@ -28,12 +35,11 @@
             background-color: #ffffff; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 1.5rem;
         }
         .top-bar .form-group { flex-grow: 1; min-width: 180px; margin-bottom: 0; }
-        /* 5. Style for Multiple Jobs input */
         .top-bar .form-group.small-input { flex-grow: 0; min-width: 120px; width: 120px; }
 
         .total-display-top { text-align: right; min-width: 180px; margin-left: auto; }
         .total-display-top .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; color: #495057; font-weight: 500;}
-        .total-display-top .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; color: #1a253c; }
+        .total-display-top .total-value { font-size: 2.2rem; font-weight: 700; margin: 0; color: #1a253c; }
         .icon-btn {
             background: #f0f4f8; border: 1px solid #ced4da; border-radius: 8px; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s, transform 0.08s;
         }
@@ -51,12 +57,13 @@
              border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem; margin-bottom: 1.5rem;
         }
         .section-title {
-            font-size: 1.3rem; color: #0066cc; margin: 0;
+            font-size: 1.3rem; color: #0066cc; margin: 0; font-weight: 600;
         }
         .utility-btn {
             background: #e7f5ff; border: 1px solid #99cfff; color: #0066cc;
             font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 20px;
             cursor: pointer; transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif; /* Ensure font */
         }
         .utility-btn:hover { background: #d0ebff; border-color: #66b3ff; }
 
@@ -65,15 +72,24 @@
         .grid-col-span-2 { grid-column: span 2; }
         .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
         .form-group label, .label-with-checkbox { margin-bottom: 0.5rem; font-weight: 500; color: #495057; font-size: 0.9rem; }
-        .form-group select, .form-group input { width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background-color: #f8f9fa; }
+        .form-group select, .form-group input { 
+            width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; 
+            box-sizing: border-box; background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif; /* Ensure font */
+        }
+        /* Styling for optgroup */
+        select optgroup {
+            font-weight: 600;
+            color: #333;
+            background: #eee;
+        }
         
-        /* 2. Styles for stacked checkboxes */
         .input-with-checkboxes { display: flex; align-items: flex-end; gap: 0.5rem; }
-        .checkbox-stack { display: flex; flex-direction: column; gap: 0.3rem; padding-bottom: 0.2rem; }
+        .checkbox-stack { display: flex; flex-direction: column; gap: 0.3rem; padding-bottom: 0.4rem; }
 
         .inline-checkbox { display: flex; align-items: center; gap: 0.5rem; }
         .inline-checkbox input { width: auto; }
-        .inline-checkbox label { margin: 0; font-weight: normal; font-size: 0.9rem; }
+        .inline-checkbox label { margin: 0; font-weight: 400; font-size: 0.9rem; }
         .label-with-checkbox { display: flex; justify-content: space-between; align-items: center; }
         
         /* Modal Styles */
@@ -82,13 +98,13 @@
         .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
         .modal-close:hover { color: #333; }
-        .modal-content h2 { margin-top: 0; color: #1a253c; }
+        .modal-content h2 { margin-top: 0; color: #1a253c; font-weight: 600; }
 
         .estimates-list { list-style: none; padding: 0; margin: 0; }
         .estimates-list li { padding: 0.6rem 0.4rem; border-bottom: 1px solid #e9ecef; cursor: pointer; transition: background-color 0.2s; display:flex; align-items:center; justify-content:space-between; gap: 0.5rem; }
         .estimates-list li:hover { background-color: #f8f9fa; }
         .estimates-list li:last-child { border-bottom: none; }
-        .estimate-name { flex-grow: 1; padding-right: 0.5rem; text-transform: none; color: #1a253c; font-weight: 600; }
+        .estimate-name { flex-grow: 1; padding-right: 0.5rem; text-transform: none; color: #1a253c; font-weight: 500; }
         .delete-estimate-btn { background: transparent; border: none; color: #d9534f; font-size: 1.2rem; cursor: pointer; padding: 6px 8px; border-radius: 6px; }
         .delete-estimate-btn:hover { background: rgba(217,83,79,0.08); }
         
@@ -102,7 +118,7 @@
         }
         #weight-calculator-result p { margin: 0; }
         #weight-calculator-result .result-label { font-size: 0.9rem; color: #495057; }
-        #weight-calculator-result .result-value { font-size: 1.8rem; font-weight: bold; color: #1a253c; }
+        #weight-calculator-result .result-value { font-size: 1.8rem; font-weight: 700; color: #1a253c; }
 
         @media (max-width: 1200px) { .sections-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
@@ -115,14 +131,12 @@
 <body>
     <div id="modal-container"></div>
     <div class="container">
-        <!-- 1. Title Updated -->
         <h1>Akshardeep Cost Estimation</h1>
         <div class="top-bar">
             <div class="form-group">
                 <label for="customer-name">Customer Name</label>
                 <input type="text" id="customer-name" placeholder="Enter customer name...">
             </div>
-            <!-- 5. Multiple Jobs Input Added -->
             <div class="form-group small-input">
                 <label for="multiple-jobs-input">Multiple Jobs</label>
                 <input type="number" id="multiple-jobs-input" value="1" min="1">
@@ -151,14 +165,14 @@
                 <div class="form-grid">
                     <div class="form-group grid-col-span-2">
                         <label for="job-size">Job Size</label>
+                        <!-- 2. Job Size Dropdown Updated -->
                         <select id="job-size">
-                            <option value="">Select Size</option><option value="10X15">10X15</option><option value="12X18">12X18</option><option value="18X23">18X23</option><option value="18X25">18X25</option><option value="15X20">15X20</option><option value="19X25">19X25</option><option value="20X28">20X28</option>
+                            <!-- Options will be populated by JS -->
                         </select>
                     </div>
                     <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
                     <div class="form-group">
                         <label for="quantity">Quantity</label>
-                        <!-- 2. Checkbox HTML Updated -->
                         <div class="input-with-checkboxes">
                             <input type="number" id="quantity" placeholder="e.g., 2000" style="flex-grow:1; margin:0;">
                             <div class="checkbox-stack">
@@ -226,32 +240,150 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- DATA STORE ---
-        // For this self-contained example, data is embedded here.
         const appData = {
           "paperData": [
-            {"size": "23X36", "gsm": 90, "perSheetWeight": 0.04808},
-            {"size": "23X36", "gsm": 100, "perSheetWeight": 0.05342},
-            {"size": "23X36", "gsm": 130, "perSheetWeight": 0.06945},
-            {"size": "23X36", "gsm": 170, "perSheetWeight": 0.09082},
-            {"size": "25X38", "gsm": 90, "perSheetWeight": 0.05514},
-            {"size": "25X38", "gsm": 100, "perSheetWeight": 0.06127},
-            {"size": "19X25", "gsm": "STICKER", "perSheetWeight": 0.045}
-            // You can add more paper data here
-            // e.g. {"size": "23X36", "gsm": 300, "perSheetWeight": 0.1602}
+            {"size": "10X15", "gsm": 60, "perSheetWeight": 0.00581},
+            {"size": "10X15", "gsm": 70, "perSheetWeight": 0.00677},
+            {"size": "10X15", "gsm": 80, "perSheetWeight": 0.00774},
+            {"size": "10X15", "gsm": 90, "perSheetWeight": 0.00871},
+            {"size": "10X15", "gsm": 100, "perSheetWeight": 0.00968},
+            {"size": "10X15", "gsm": 130, "perSheetWeight": 0.01258},
+            {"size": "10X15", "gsm": 170, "perSheetWeight": 0.01645},
+            {"size": "10X15", "gsm": 210, "perSheetWeight": 0.02032},
+            {"size": "10X15", "gsm": 250, "perSheetWeight": 0.02419},
+            {"size": "10X15", "gsm": 300, "perSheetWeight": 0.02903},
+            {"size": "10X15", "gsm": 350, "perSheetWeight": 0.03387},
+            {"size": "10X15", "gsm": "STICKER", "perSheetWeight": 0.01452},
+            {"size": "10X15", "gsm": "DUPLEX", "perSheetWeight": 0.02903},
+            {"size": "12X18", "gsm": 60, "perSheetWeight": 0.00836},
+            {"size": "12X18", "gsm": 70, "perSheetWeight": 0.00976},
+            {"size": "12X18", "gsm": 80, "perSheetWeight": 0.01115},
+            {"size": "12X18", "gsm": 90, "perSheetWeight": 0.01254},
+            {"size": "12X18", "gsm": 100, "perSheetWeight": 0.01394},
+            {"size": "12X18", "gsm": 130, "perSheetWeight": 0.01812},
+            {"size": "12X18", "gsm": 170, "perSheetWeight": 0.02370},
+            {"size": "12X18", "gsm": 210, "perSheetWeight": 0.02927},
+            {"size": "12X18", "gsm": 250, "perSheetWeight": 0.03484},
+            {"size": "12X18", "gsm": 300, "perSheetWeight": 0.04181},
+            {"size": "12X18", "gsm": 350, "perSheetWeight": 0.04878},
+            {"size": "12X18", "gsm": "STICKER", "perSheetWeight": 0.02091},
+            {"size": "12X18", "gsm": "DUPLEX", "perSheetWeight": 0.04181},
+            {"size": "18X23", "gsm": 60, "perSheetWeight": 0.01603},
+            {"size": "18X23", "gsm": 70, "perSheetWeight": 0.01870},
+            {"size": "18X23", "gsm": 80, "perSheetWeight": 0.02137},
+            {"size": "18X23", "gsm": 90, "perSheetWeight": 0.02404},
+            {"size": "18X23", "gsm": 100, "perSheetWeight": 0.02672},
+            {"size": "18X23", "gsm": 130, "perSheetWeight": 0.03473},
+            {"size": "18X23", "gsm": 170, "perSheetWeight": 0.04542},
+            {"size": "18X23", "gsm": 210, "perSheetWeight": 0.05610},
+            {"size": "18X23", "gsm": 250, "perSheetWeight": 0.06679},
+            {"size": "18X23", "gsm": 300, "perSheetWeight": 0.08015},
+            {"size": "18X23", "gsm": 350, "perSheetWeight": 0.09351},
+            {"size": "18X23", "gsm": "STICKER", "perSheetWeight": 0.04007},
+            {"size": "18X23", "gsm": "DUPLEX", "perSheetWeight": 0.08015},
+            {"size": "18X25", "gsm": 60, "perSheetWeight": 0.01742},
+            {"size": "18X25", "gsm": 70, "perSheetWeight": 0.02032},
+            {"size": "18X25", "gsm": 80, "perSheetWeight": 0.02323},
+            {"size": "18X25", "gsm": 90, "perSheetWeight": 0.02613},
+            {"size": "18X25", "gsm": 100, "perSheetWeight": 0.02903},
+            {"size": "18X25", "gsm": 130, "perSheetWeight": 0.03774},
+            {"size": "18X25", "gsm": 170, "perSheetWeight": 0.04935},
+            {"size": "18X25", "gsm": 210, "perSheetWeight": 0.06097},
+            {"size": "18X25", "gsm": 250, "perSheetWeight": 0.07258},
+            {"size": "18X25", "gsm": 300, "perSheetWeight": 0.08710},
+            {"size": "18X25", "gsm": 350, "perSheetWeight": 0.10161},
+            {"size": "18X25", "gsm": "STICKER", "perSheetWeight": 0.04355},
+            {"size": "18X25", "gsm": "DUPLEX", "perSheetWeight": 0.08710},
+            {"size": "15X20", "gsm": 60, "perSheetWeight": 0.01161},
+            {"size": "15X20", "gsm": 70, "perSheetWeight": 0.01355},
+            {"size": "15X20", "gsm": 80, "perSheetWeight": 0.01548},
+            {"size": "15X20", "gsm": 90, "perSheetWeight": 0.01742},
+            {"size": "15X20", "gsm": 100, "perSheetWeight": 0.01935},
+            {"size": "15X20", "gsm": 130, "perSheetWeight": 0.02516},
+            {"size": "15X20", "gsm": 170, "perSheetWeight": 0.03290},
+            {"size": "15X20", "gsm": 210, "perSheetWeight": 0.04064},
+            {"size": "15X20", "gsm": 250, "perSheetWeight": 0.04839},
+            {"size": "15X20", "gsm": 300, "perSheetWeight": 0.05806},
+            {"size": "15X20", "gsm": 350, "perSheetWeight": 0.06774},
+            {"size": "15X20", "gsm": "STICKER", "perSheetWeight": 0.02903},
+            {"size": "15X20", "gsm": "DUPLEX", "perSheetWeight": 0.05806},
+            {"size": "19X25", "gsm": 60, "perSheetWeight": 0.01839},
+            {"size": "19X25", "gsm": 70, "perSheetWeight": 0.02146},
+            {"size": "19X25", "gsm": 80, "perSheetWeight": 0.02452},
+            {"size": "19X25", "gsm": 90, "perSheetWeight": 0.02759},
+            {"size": "19X25", "gsm": 100, "perSheetWeight": 0.03066},
+            {"size": "19X25", "gsm": 130, "perSheetWeight": 0.03985},
+            {"size": "19X25", "gsm": 170, "perSheetWeight": 0.05212},
+            {"size": "19X25", "gsm": 210, "perSheetWeight": 0.06438},
+            {"size": "19X25", "gsm": 250, "perSheetWeight": 0.07665},
+            {"size": "19X25", "gsm": 300, "perSheetWeight": 0.09198},
+            {"size": "19X25", "gsm": 350, "perSheetWeight": 0.10731},
+            {"size": "19X25", "gsm": "STICKER", "perSheetWeight": 0.04599},
+            {"size": "19X25", "gsm": "DUPLEX", "perSheetWeight": 0.09198},
+            {"size": "20X28", "gsm": 60, "perSheetWeight": 0.02165},
+            {"size": "20X28", "gsm": 70, "perSheetWeight": 0.02526},
+            {"size": "20X28", "gsm": 80, "perSheetWeight": 0.02887},
+            {"size": "20X28", "gsm": 90, "perSheetWeight": 0.03248},
+            {"size": "20X28", "gsm": 100, "perSheetWeight": 0.03609},
+            {"size": "20X28", "gsm": 130, "perSheetWeight": 0.04692},
+            {"size": "20X28", "gsm": 170, "perSheetWeight": 0.06135},
+            {"size": "20X28", "gsm": 210, "perSheetWeight": 0.07579},
+            {"size": "20X28", "gsm": 250, "perSheetWeight": 0.09023},
+            {"size": "20X28", "gsm": 300, "perSheetWeight": 0.10828},
+            {"size": "20X28", "gsm": 350, "perSheetWeight": 0.12632},
+            {"size": "20X28", "gsm": "STICKER", "perSheetWeight": 0.05414},
+            {"size": "20X28", "gsm": "DUPLEX", "perSheetWeight": 0.10828},
+            {"size": "20X30", "gsm": 60, "perSheetWeight": 0.02323},
+            {"size": "20X30", "gsm": 70, "perSheetWeight": 0.02710},
+            {"size": "20X30", "gsm": 80, "perSheetWeight": 0.03097},
+            {"size": "20X30", "gsm": 90, "perSheetWeight": 0.03484},
+            {"size": "20X30", "gsm": 100, "perSheetWeight": 0.03871},
+            {"size": "20X30", "gsm": 130, "perSheetWeight": 0.05032},
+            {"size": "20X30", "gsm": 170, "perSheetWeight": 0.06581},
+            {"size": "20X30", "gsm": 210, "perSheetWeight": 0.08129},
+            {"size": "20X30", "gsm": 250, "perSheetWeight": 0.09677},
+            {"size": "20X30", "gsm": 300, "perSheetWeight": 0.11613},
+            {"size": "20X30", "gsm": 350, "perSheetWeight": 0.13548},
+            {"size": "20X30", "gsm": "STICKER", "perSheetWeight": 0.05806},
+            {"size": "20X30", "gsm": "DUPLEX", "perSheetWeight": 0.11613},
+            {"size": "23X36", "gsm": 60, "perSheetWeight": 0.03206},
+            {"size": "23X36", "gsm": 70, "perSheetWeight": 0.03740},
+            {"size": "23X36", "gsm": 80, "perSheetWeight": 0.04275},
+            {"size": "23X36", "gsm": 90, "perSheetWeight": 0.04809},
+            {"size": "23X36", "gsm": 100, "perSheetWeight": 0.05343},
+            {"size": "23X36", "gsm": 130, "perSheetWeight": 0.06946},
+            {"size": "23X36", "gsm": 170, "perSheetWeight": 0.09084},
+            {"size": "23X36", "gsm": 210, "perSheetWeight": 0.11221},
+            {"size": "23X36", "gsm": 250, "perSheetWeight": 0.13358},
+            {"size": "23X36", "gsm": 300, "perSheetWeight": 0.16030},
+            {"size": "23X36", "gsm": 350, "perSheetWeight": 0.18701},
+            {"size": "23X36", "gsm": "STICKER", "perSheetWeight": 0.08015},
+            {"size": "23X36", "gsm": "DUPLEX", "perSheetWeight": 0.16030},
+            {"size": "25X38", "gsm": 60, "perSheetWeight": 0.03677},
+            {"size": "25X38", "gsm": 70, "perSheetWeight": 0.04290},
+            {"size": "25X38", "gsm": 80, "perSheetWeight": 0.04903},
+            {"size": "25X38", "gsm": 90, "perSheetWeight": 0.05516},
+            {"size": "25X38", "gsm": 100, "perSheetWeight": 0.06129},
+            {"size": "25X38", "gsm": 130, "perSheetWeight": 0.07968},
+            {"size": "25X38", "gsm": 170, "perSheetWeight": 0.10420},
+            {"size": "25X38", "gsm": 210, "perSheetWeight": 0.12871},
+            {"size": "25X38", "gsm": 250, "perSheetWeight": 0.15323},
+            {"size": "25X38", "gsm": 300, "perSheetWeight": 0.18387},
+            {"size": "25X38", "gsm": 350, "perSheetWeight": 0.21452},
+            {"size": "25X38", "gsm": "STICKER", "perSheetWeight": 0.09194},
+            {"size": "25X38", "gsm": "DUPLEX", "perSheetWeight": 0.18387}
           ]
         };
 
         // --- ELEMENT SELECTORS ---
         const allInputs = document.querySelectorAll('input, select');
         const customerNameInput = document.getElementById('customer-name');
-        // 5. Multiple Jobs Input selector
         const multipleJobsInput = document.getElementById('multiple-jobs-input');
         const allCostInputs = document.querySelectorAll('.cost-input');
         const totalCostDisplay = document.getElementById('total-cost');
         const jobSizeSelect = document.getElementById('job-size');
         const quantityInput = document.getElementById('quantity');
         const fbCheck = document.getElementById('fb-check');
-        // 2. Form Checkbox selector
         const formCheck = document.getElementById('form-check');
         const withoutPlateCheck = document.getElementById('without-plate-check');
         const printingCostInput = document.getElementById('printing-cost');
@@ -289,21 +421,17 @@
         }
 
         // --- CALCULATION FUNCTIONS ---
-        // 6. Grand Total Logic Updated
         function calculateGrandTotal() {
             let total = 0;
             allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
             
-            // Get multiplier
             const multiplier = parseFloat(multipleJobsInput.value) || 1;
             const multipliedTotal = total * multiplier;
 
-            // Round the final multiplied total
             const roundedTotal = Math.ceil(multipliedTotal / 50) * 50;
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
-        // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -316,14 +444,17 @@
             }
 
             const isWithoutPlate = withoutPlateCheck.checked;
-            const isFormChecked = formCheck.checked; // 3. Get Form checkbox status
-            const isHeavyGsm = ['300', '350', 'DUPLEX'].includes(selectedGsm.toUpperCase());
+            const isFormChecked = formCheck.checked;
+            const isHeavyGsm = ['300', '350', 'DUPLEX'].includes(String(selectedGsm).toUpperCase());
             
             let baseCost = 0;
             let secondRate = 0;
 
             const standardLargeSizes = ['18X23', '18X25', '15X20', '19X25', '20X28'];
             const smallSizes = ['10X15', '12X18'];
+            // 2. Add new common sizes to logic if needed, or they can default
+            // For now, new sizes will default to 0 unless added to a group
+            const commonSizes = ['A3 (11.7x16.5)', 'A4 (8.3x11.7)', 'A5 (5.8x8.3)', 'B4 (9.8x13.9)', 'B5 (6.9x9.8)'];
 
             if (isHeavyGsm) {
                 // Rule 1: Heavy GSM (applies to all sizes)
@@ -333,38 +464,37 @@
                 // Rule 2: Standard Large Sizes (and not heavy)
                 baseCost = 1900;
                 secondRate = 500;
-            } else if (smallSizes.includes(selectedSize)) {
+            } else if (smallSizes.includes(selectedSize) || selectedSize === 'A3 (11.7x16.5)' || selectedSize === 'B4 (9.8x13.9)') {
                 // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
+                // Added A3 and B4 to this group as they are similar to 12x18
                 baseCost = isWithoutPlate ? 700 : 1200;
                 secondRate = 300;
+            } else if (selectedSize === 'A4 (8.3x11.7)' || selectedSize === 'A5 (5.8x8.3)' || selectedSize === 'B5 (6.9x9.8)') {
+                // Rule 4: New rule for smaller common sizes
+                baseCost = isWithoutPlate ? 500 : 700; // Assuming same as 10x15
+                secondRate = 300;
             } else {
-                // Default case
                 baseCost = 0;
                 secondRate = 0;
             }
 
-            // 3. Apply "Form" checkbox logic to double the cost
             if (isFormChecked) {
                 baseCost *= 2;
             }
             
             printingCostInput.value = baseCost.toFixed(2);
             
-            // 4. Apply "Form" logic to second printing threshold
             const threshold = isFormChecked ? 2000 : 1000;
             
             let secondCost = 0;
             const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
             
-            // Use the new threshold
             if (effectiveQuantity > threshold) {
                 secondCost = Math.ceil((effectiveQuantity - threshold) / 1000) * secondRate;
             }
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
         }
-        // --- END OF UPDATED FUNCTION ---
-
 
         function calculatePaperCost() {
             const sheets = parseFloat(paperSheetsInput.value) || 0;
@@ -378,7 +508,13 @@
             
             const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
             
-            const basePrice = (paperInfo?.perSheetWeight || 0) * sheets * rate;
+            // Fallback if paper data is missing for a combo
+            const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
+            if (perSheetWeight === 0) {
+                 console.warn(`Missing paper data for: ${paperSizeSelect.value} @ ${paperGsmSelect.value} GSM`);
+            }
+
+            const basePrice = perSheetWeight * sheets * rate;
             const taxRate = gstCheckbox.checked ? 0 : 0.12;
             const finalPrice = basePrice * (1 + taxRate);
             
@@ -389,11 +525,24 @@
 
         function calculateNumberOfSheets() {
             const quantity = parseFloat(quantityInput.value) || 0;
-            const paperGsm = paperGsmSelect.value.toUpperCase();
+            const paperGsm = paperGsmSelect.value;
             let divisionFactor = 0;
-            if (jobSizeSelect.value === '20X28') { divisionFactor = 1; } 
-            else if (['12X18', '10X15'].includes(jobSizeSelect.value)) { divisionFactor = (paperGsm === 'STICKER') ? 2 : 4; } 
-            else if (jobSizeSelect.value) { divisionFactor = (paperGsm === 'STICKER') ? 1 : 2; }
+            
+            const gsmIsSticker = String(paperGsm).toUpperCase() === 'STICKER';
+
+            // Updated logic to handle more sizes
+            const size = jobSizeSelect.value;
+            if (size === '20X28') { 
+                divisionFactor = 1; 
+            } else if (['18X23', '18X25', '15X20', '19X25'].includes(size)) {
+                divisionFactor = gsmIsSticker ? 1 : 2;
+            } else if (['12X18', '10X15', 'A3 (11.7x16.5)', 'B4 (9.8x13.9)'].includes(size)) { 
+                divisionFactor = gsmIsSticker ? 2 : 4; 
+            } else if (['A4 (8.3x11.7)', 'B5 (6.9x9.8)'].includes(size)) {
+                divisionFactor = gsmIsSticker ? 4 : 8;
+            } else if (size === 'A5 (5.8x8.3)') {
+                divisionFactor = gsmIsSticker ? 8 : 16;
+            }
             
             const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
@@ -410,7 +559,7 @@
         function getDynamicDescription() {
             let desc = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}`;
             if (fbCheck.checked) { desc += ' F/B'; }
-            if (formCheck.checked) { desc += ' (Form)'; } // 2. Add Form to description
+            if (formCheck.checked) { desc += ' (Form)'; }
             const lamiType = laminationTypeSelect.value;
             if (lamiType) {
                 const lamiSize = laminationSizeSelect.value;
@@ -429,7 +578,6 @@
             }
         }
 
-        // 7. WhatsApp Logic Updated
         function sendToWhatsApp() {
             const customer = customerNameInput.value || 'Customer';
             const total = totalCostDisplay.textContent;
@@ -446,7 +594,6 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        // 7. PDF Logic Updated
         function generatePDF() {
             const customerName = customerNameInput.value.trim();
             if (!customerName) {
@@ -469,14 +616,23 @@
             const doc = new jsPDF();
             const today = new Date().toLocaleDateString('en-GB');
 
-            doc.setFontSize(20); doc.setFont("helvetica", "bold"); doc.text("Cost Estimate", 105, 20, { align: 'center' });
-            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            // Set font for PDF
+            doc.addFont('Poppins-Regular.ttf', 'Poppins', 'normal');
+            doc.addFont('Poppins-Bold.ttf', 'Poppins', 'bold');
+            doc.setFont('Poppins', 'bold');
+
+            doc.setFontSize(20); doc.text("Cost Estimate", 105, 20, { align: 'center' });
+            
+            doc.setFont('Poppins', 'normal');
+            doc.setFontSize(11);
             doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35); doc.text(`Date: ${today}`, 148, 35);
             doc.text(`Dear ${customerName},`, 14, 50);
             doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
 
             const dynamicDescription = getDynamicDescription();
-            doc.setFont("helvetica", "bold"); doc.text(dynamicDescription, 14, 67); doc.setFont("helvetica", "normal");
+            doc.setFont('Poppins', 'bold');
+            doc.text(dynamicDescription, 14, 67);
+            doc.setFont('Poppins', 'normal');
 
             const tableBody = [];
             let subtotal = 0;
@@ -499,7 +655,6 @@
                 }
             });
             
-            // PDF Footer logic with multiplier
             const multiplier = parseFloat(multipleJobsInput.value) || 1;
             const multipliedSubtotal = subtotal * multiplier;
             const total = Math.ceil(multipliedSubtotal / 50) * 50;
@@ -514,13 +669,14 @@
             doc.autoTable({
                 head: [['Pos.', 'Description', 'Price']], 
                 body: tableBody, 
-                foot: footRows, // Use the new footRows
+                foot: footRows,
                 startY: 75, theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center' },
-                footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'right' },
-                columnStyles: { 0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' } },
+                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center', font: 'Poppins', fontStyle: 'bold' },
+                footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], font: 'Poppins', fontStyle: 'bold', halign: 'right' },
+                columnStyles: { 0: { halign: 'center', cellWidth: 15, font: 'Poppins' }, 1: { halign: 'left', font: 'Poppins' }, 2: { halign: 'right', font: 'Poppins' } },
                 didDrawPage: (data) => {
-                    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+                    doc.setFont('Poppins', 'normal');
+                    doc.setFontSize(10); 
                     const validUntil = new Date(); validUntil.setDate(validUntil.getDate() + 15);
                     doc.text(`This offer is valid until ${validUntil.toLocaleDateString('en-GB')}.`, 14, doc.internal.pageSize.height - 20);
                     doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
@@ -542,7 +698,6 @@
                             if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
                         }
                     });
-                    // 8. Ensure multiple jobs input is loaded, or defaults to 1
                     if (!multipleJobsInput.value) { multipleJobsInput.value = '1'; }
                     calculateGrandTotal(); 
                     closeModal();
@@ -638,26 +793,43 @@
         
         function populateDropdowns() {
             if (!appData.paperData) return;
-            const hardcodedGsms = [170, 300, 350, 'DUPLEX'];
+            
+            // --- Paper Dropdowns ---
             let allGsm = [...new Set(appData.paperData.map(item => item.gsm))];
-            
-            hardcodedGsms.forEach(gsm => {
-                if (!allGsm.includes(gsm)) {
-                    allGsm.push(gsm);
-                }
-            });
-            
+            let allSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))];
+
             allGsm.sort((a,b) => {
                 const aIsStr = isNaN(a), bIsStr = isNaN(b);
-                if (aIsStr !== bIsStr) return aIsStr ? -1 : 1;
-                return aIsStr ? a.localeCompare(b) : a - b;
+                if (aIsStr !== bIsStr) return aIsStr ? 1 : -1;
+                return aIsStr ? String(a).localeCompare(String(b)) : a - b;
             });
+            allSizes.sort();
             
-            const uniqueSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))].sort();
-            paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + uniqueSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+            paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + allSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+            
             const gsmOptions = '<option value="">Select GSM</option>' + allGsm.map(g => `<option value="${g}">${g}</option>`).join('');
             printingGsmSelect.innerHTML = gsmOptions;
             paperGsmSelect.innerHTML = gsmOptions;
+
+            // --- 2. Job Size Dropdown (Updated) ---
+            const currentJobSizes = ["10X15", "12X18", "18X23", "18X25", "15X20", "19X25", "20X28"];
+            const commonJobSizes = [
+                "A3 (11.7x16.5)",
+                "A4 (8.3x11.7)",
+                "A5 (5.8x8.3)",
+                "B4 (9.8x13.9)",
+                "B5 (6.9x9.8)"
+            ];
+
+            let jobSizeHTML = '<option value="">Select Size</option>';
+            jobSizeHTML += '<optgroup label="Current Sizes">';
+            jobSizeHTML += currentJobSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+            jobSizeHTML += '</optgroup>';
+            jobSizeHTML += '<optgroup label="Common Sizes (in)">';
+            jobSizeHTML += commonJobSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+            jobSizeHTML += '</optgroup>';
+            
+            jobSizeSelect.innerHTML = jobSizeHTML;
         }
         
         function setupEventListeners() {
@@ -675,24 +847,19 @@
             prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
             openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
 
-            // Grand total listeners (all cost inputs + multiplier)
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
             multipleJobsInput.addEventListener('input', calculateGrandTotal);
             
-            // Listeners that trigger main calculations
-            // 2. Added formCheck to this list
             [jobSizeSelect, quantityInput, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
                 el.addEventListener('change', calculateAllCosts);
                 el.addEventListener('input', calculateAllCosts);
             });
             
-            // Listeners that *only* trigger paper cost calculation
             [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox, paperSheetsInput].forEach(el => {
                 el.addEventListener('change', calculatePaperCost);
                 el.addEventListener('input', calculatePaperCost);
             });
 
-            // GSM syncing
             printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
             paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
         }
