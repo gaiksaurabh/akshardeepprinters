@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Cost & Paper Weight Calculator</title>
+    <title>Akshardeep Cost Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -61,10 +61,10 @@
         .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
         .form-group label, .label-with-checkbox { margin-bottom: 0.5rem; font-weight: 500; color: #495057; font-size: 0.9rem; }
         .form-group select, .form-group input { width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background-color: #f8f9fa; }
-        .input-group-inline { display: flex; align-items: flex-end; gap: 0.5rem; }
-        .inline-checkbox { display: flex; align-items: center; gap: 0.5rem; }
-        .inline-checkbox input { width: auto; }
-        .inline-checkbox label { margin: 0; font-weight: normal; }
+        .input-group-inline { display: flex; align-items: flex-end; gap: 1rem; } /* Increased gap slightly */
+        .inline-checkbox { display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+        .inline-checkbox input { width: auto; transform: scale(1.1); cursor: pointer; }
+        .inline-checkbox label { margin: 0; font-weight: normal; cursor: pointer; }
         .label-with-checkbox { display: flex; justify-content: space-between; align-items: center; }
         
         /* Modal Styles */
@@ -143,7 +143,12 @@
                         <label for="quantity">Quantity</label>
                         <div class="input-group-inline">
                             <input type="number" id="quantity" placeholder="e.g., 2000" style="flex-grow:1; margin:0;">
-                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
+                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;">
+                                <input type="checkbox" id="fb-check"><label for="fb-check">F/B</label>
+                            </div>
+                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;">
+                                <input type="checkbox" id="form-check"><label for="form-check">Form</label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -215,8 +220,6 @@
             {"size": "25X38", "gsm": 90, "perSheetWeight": 0.05514},
             {"size": "25X38", "gsm": 100, "perSheetWeight": 0.06127},
             {"size": "19X25", "gsm": "STICKER", "perSheetWeight": 0.045}
-            // You can add more paper data here
-            // e.g. {"size": "23X36", "gsm": 300, "perSheetWeight": 0.1602}
           ]
         };
 
@@ -228,6 +231,7 @@
         const jobSizeSelect = document.getElementById('job-size');
         const quantityInput = document.getElementById('quantity');
         const fbCheck = document.getElementById('fb-check');
+        const formCheck = document.getElementById('form-check'); // NEW CHECKBOX
         const withoutPlateCheck = document.getElementById('without-plate-check');
         const printingCostInput = document.getElementById('printing-cost');
         const secondCostInput = document.getElementById('second-cost');
@@ -271,7 +275,7 @@
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
-        // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
+        // --- UPDATED PRINTING COST FUNCTION ---
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -293,36 +297,37 @@
             const smallSizes = ['10X15', '12X18'];
 
             if (isHeavyGsm) {
-                // Rule 1: Heavy GSM (applies to all sizes)
                 baseCost = 2400;
                 secondRate = 600;
             } else if (standardLargeSizes.includes(selectedSize)) {
-                // Rule 2: Standard Large Sizes (and not heavy)
                 baseCost = 1900;
                 secondRate = 500;
             } else if (smallSizes.includes(selectedSize)) {
-                // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
                 baseCost = isWithoutPlate ? 700 : 1200;
                 secondRate = 300;
             } else {
-                // Default case (shouldn't be hit if a size is selected)
                 baseCost = 0;
                 secondRate = 0;
             }
             
             printingCostInput.value = baseCost.toFixed(2);
             
-            // --- Second Cost Calculation (unchanged logic) ---
-            let secondCost = 0;
-            const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
-            if (effectiveQuantity > 1000) {
-                secondCost = Math.ceil((effectiveQuantity - 1000) / 1000) * secondRate;
+            // --- Second Cost Logic (Updated for Form Checkbox) ---
+            if (formCheck.checked) {
+                // If "Form" is checked, second cost equals printing cost
+                secondCostInput.value = baseCost.toFixed(2);
+            } else {
+                // Standard Logic
+                let secondCost = 0;
+                const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
+                if (effectiveQuantity > 1000) {
+                    secondCost = Math.ceil((effectiveQuantity - 1000) / 1000) * secondRate;
+                }
+                secondCostInput.value = secondCost.toFixed(2);
             }
-            secondCostInput.value = secondCost.toFixed(2);
+            
             calculateGrandTotal();
         }
-        // --- END OF UPDATED FUNCTION ---
-
 
         function calculatePaperCost() {
             const sheets = parseFloat(paperSheetsInput.value) || 0;
@@ -330,7 +335,6 @@
 
             if (!paperSizeSelect.value || !paperGsmSelect.value || !sheets || !rate) {
                 paperCostInput.value = "0.00";
-                // Trigger an input event to update the grand total
                 paperCostInput.dispatchEvent(new Event('input'));
                 return;
             }
@@ -338,18 +342,12 @@
             const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
             
             const basePrice = (paperInfo?.perSheetWeight || 0) * sheets * rate;
-            
-            // --- FIXED GST LOGIC ---
-            // If "Without GST" is checked, taxRate is 0.
-            // If it is unchecked, taxRate is 0.12 (12%).
             const taxRate = gstCheckbox.checked ? 0 : 0.12;
             const finalPrice = basePrice * (1 + taxRate);
             
             paperCostInput.value = (Math.ceil(finalPrice / 50) * 50).toFixed(2);
-            // Trigger an input event to update the grand total
             paperCostInput.dispatchEvent(new Event('input'));
         }
-
 
         function calculateNumberOfSheets() {
             const quantity = parseFloat(quantityInput.value) || 0;
@@ -361,14 +359,10 @@
             
             const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
-            
-            // After calculating sheets, recalculate paper cost
             calculatePaperCost();
         }
         
         function calculateAllCosts() {
-            // This function now correctly calculates sheets (which in turn calculates paper cost)
-            // and then calculates printing costs.
             calculateNumberOfSheets();
             calculatePrintingCosts();
         }
@@ -377,6 +371,7 @@
         function getDynamicDescription() {
             let desc = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}`;
             if (fbCheck.checked) { desc += ' F/B'; }
+            if (formCheck.checked) { desc += ' (Form)'; } // Add Form to description
             const lamiType = laminationTypeSelect.value;
             if (lamiType) {
                 const lamiSize = laminationSizeSelect.value;
@@ -486,7 +481,6 @@
                             if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
                         }
                     });
-                    // This now correctly loads saved values and recalculates the total
                     calculateGrandTotal(); 
                     closeModal();
                     alert(`Loaded estimate for "${estimateData['customer-name'] || estimateKey}"`);
@@ -498,7 +492,7 @@
             if (confirm(`Are you sure you want to delete estimate ${estimateKey}?`)) {
                 localStorage.removeItem(estimateKey);
                 alert("Estimate deleted successfully.");
-                showPreviousEstimates(); // Refresh the list
+                showPreviousEstimates(); 
             }
         }
         
@@ -581,7 +575,6 @@
         
         function populateDropdowns() {
             if (!appData.paperData) return;
-            // Add more GSMs that are in the cost logic but not in paper data
             const hardcodedGsms = [170, 300, 350, 'DUPLEX'];
             let allGsm = [...new Set(appData.paperData.map(item => item.gsm))];
             
@@ -619,22 +612,18 @@
             prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
             openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
 
-            // Grand total listener
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
             
-            // Listeners that trigger main calculations
-            [jobSizeSelect, quantityInput, fbCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
+            [jobSizeSelect, quantityInput, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
                 el.addEventListener('change', calculateAllCosts);
                 el.addEventListener('input', calculateAllCosts);
             });
             
-            // Listeners that *only* trigger paper cost calculation
             [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox, paperSheetsInput].forEach(el => {
                 el.addEventListener('change', calculatePaperCost);
                 el.addEventListener('input', calculatePaperCost);
             });
 
-            // GSM syncing
             printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
             paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
         }
