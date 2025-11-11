@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Cost Calculator</title>
+    <title>Akshardeep Cost & Paper Weight Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -271,6 +271,7 @@
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
+        // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -286,52 +287,32 @@
             const isHeavyGsm = ['300', '350', 'DUPLEX'].includes(selectedGsm.toUpperCase());
             
             let baseCost = 0;
+            let secondRate = 0;
 
-            // --- Updated Cost Logic ---
-            switch(selectedSize) {
-                case '10X15':
-                case '12X18': 
-                    baseCost = isWithoutPlate ? 700 : 1200;
-                    break;
-                case '15X20':
-                case '18X23':
-                case '18X25':
-                    baseCost = isHeavyGsm ? (isWithoutPlate ? 1000 : 1500) : (isWithoutPlate ? 700 : 1000);
-                    break;
-                case '19X25':
-                case '20X28':
-                    baseCost = isHeavyGsm ? (isWithoutPlate ? 1000 : 1500) : (isWithoutPlate ? 700 : 1200);
-                    break;
-                default:
-                    baseCost = 0;
-                    break;
+            const standardLargeSizes = ['18X23', '18X25', '15X20', '19X25', '20X28'];
+            const smallSizes = ['10X15', '12X18'];
+
+            if (isHeavyGsm) {
+                // Rule 1: Heavy GSM (applies to all sizes)
+                baseCost = 2400;
+                secondRate = 600;
+            } else if (standardLargeSizes.includes(selectedSize)) {
+                // Rule 2: Standard Large Sizes (and not heavy)
+                baseCost = 1900;
+                secondRate = 500;
+            } else if (smallSizes.includes(selectedSize)) {
+                // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
+                baseCost = isWithoutPlate ? 700 : 1200;
+                secondRate = 300;
+            } else {
+                // Default case (shouldn't be hit if a size is selected)
+                baseCost = 0;
+                secondRate = 0;
             }
             
             printingCostInput.value = baseCost.toFixed(2);
             
-            // --- Second Cost Logic (Refined for clarity) ---
-            let secondRate = 0;
-            switch(selectedSize) {
-                case '10X15':
-                    secondRate = 300;
-                    break;
-                case '12X18': // Updated as per user request
-                    secondRate = 300;
-                    break;
-                case '20X28':
-                    secondRate = 600;
-                    break;
-                case '15X20':
-                case '18X23':
-                case '18X25':
-                case '19X25':
-                    secondRate = isHeavyGsm ? 600 : 500;
-                    break;
-                default:
-                    secondRate = 0;
-                    break;
-            }
-
+            // --- Second Cost Calculation (unchanged logic) ---
             let secondCost = 0;
             const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
             if (effectiveQuantity > 1000) {
@@ -340,6 +321,7 @@
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
         }
+        // --- END OF UPDATED FUNCTION ---
 
 
         function calculatePaperCost() {
