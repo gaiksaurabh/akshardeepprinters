@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Cost Calculator</title>
+    <!-- 1. Title Updated -->
+    <title>Akshardeep Cost Estimation</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -18,15 +19,19 @@
         }
         h1 {
             text-align: center; color: #1a253c; margin-bottom: 1rem; flex-shrink: 0;
-            font-size: 1.5rem; /* Increased size */
-            font-weight: 700; /* Bolder */
+            /* 1. Title Updated */
+            font-size: 1.5rem;
+            font-weight: 700;
         }
         .top-bar {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 1rem;
+            display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;
             background-color: #ffffff; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 1.5rem;
         }
-        .top-bar .form-group { flex-grow: 1; min-width: 200px; }
-        .total-display-top { text-align: right; min-width: 180px; }
+        .top-bar .form-group { flex-grow: 1; min-width: 180px; margin-bottom: 0; }
+        /* 5. Style for Multiple Jobs input */
+        .top-bar .form-group.small-input { flex-grow: 0; min-width: 120px; width: 120px; }
+
+        .total-display-top { text-align: right; min-width: 180px; margin-left: auto; }
         .total-display-top .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; color: #495057; font-weight: 500;}
         .total-display-top .total-value { font-size: 2.2rem; font-weight: bold; margin: 0; color: #1a253c; }
         .icon-btn {
@@ -34,7 +39,7 @@
         }
         .icon-btn:hover { background: #e2e6ea; transform: translateY(-1px); }
         .icon-btn svg { width: 22px; height: 22px; }
-        .icon-group { display: flex; gap: 1rem; margin-left: auto; }
+        .icon-group { display: flex; gap: 1rem; }
         .sections-wrapper {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex-grow: 1;
         }
@@ -61,10 +66,14 @@
         .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
         .form-group label, .label-with-checkbox { margin-bottom: 0.5rem; font-weight: 500; color: #495057; font-size: 0.9rem; }
         .form-group select, .form-group input { width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background-color: #f8f9fa; }
-        .input-group-inline { display: flex; align-items: flex-end; gap: 1rem; } /* Increased gap slightly */
-        .inline-checkbox { display: flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
-        .inline-checkbox input { width: auto; transform: scale(1.1); cursor: pointer; }
-        .inline-checkbox label { margin: 0; font-weight: normal; cursor: pointer; }
+        
+        /* 2. Styles for stacked checkboxes */
+        .input-with-checkboxes { display: flex; align-items: flex-end; gap: 0.5rem; }
+        .checkbox-stack { display: flex; flex-direction: column; gap: 0.3rem; padding-bottom: 0.2rem; }
+
+        .inline-checkbox { display: flex; align-items: center; gap: 0.5rem; }
+        .inline-checkbox input { width: auto; }
+        .inline-checkbox label { margin: 0; font-weight: normal; font-size: 0.9rem; }
         .label-with-checkbox { display: flex; justify-content: space-between; align-items: center; }
         
         /* Modal Styles */
@@ -98,6 +107,7 @@
         @media (max-width: 1200px) { .sections-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 768px) {
             .top-bar { flex-direction: column; align-items: stretch; }
+            .total-display-top { margin-left: 0; text-align: left; margin-top: 0.5rem; }
             .icon-group { justify-content: center; margin-left: 0; padding-top: 0.5rem; }
         }
     </style>
@@ -105,12 +115,19 @@
 <body>
     <div id="modal-container"></div>
     <div class="container">
-        <h1>Akshardeep Cost Estimation Tool</h1>
+        <!-- 1. Title Updated -->
+        <h1>Akshardeep Cost Estimation</h1>
         <div class="top-bar">
             <div class="form-group">
                 <label for="customer-name">Customer Name</label>
                 <input type="text" id="customer-name" placeholder="Enter customer name...">
             </div>
+            <!-- 5. Multiple Jobs Input Added -->
+            <div class="form-group small-input">
+                <label for="multiple-jobs-input">Multiple Jobs</label>
+                <input type="number" id="multiple-jobs-input" value="1" min="1">
+            </div>
+
             <div class="total-display-top">
                 <h3 class="total-label">Total</h3>
                 <p class="total-value" id="total-cost">₹ 0.00</p>
@@ -141,13 +158,12 @@
                     <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
                     <div class="form-group">
                         <label for="quantity">Quantity</label>
-                        <div class="input-group-inline">
+                        <!-- 2. Checkbox HTML Updated -->
+                        <div class="input-with-checkboxes">
                             <input type="number" id="quantity" placeholder="e.g., 2000" style="flex-grow:1; margin:0;">
-                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;">
-                                <input type="checkbox" id="fb-check"><label for="fb-check">F/B</label>
-                            </div>
-                            <div class="inline-checkbox" style="padding-bottom: 0.2rem;">
-                                <input type="checkbox" id="form-check"><label for="form-check">Form</label>
+                            <div class="checkbox-stack">
+                                <div class="inline-checkbox"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
+                                <div class="inline-checkbox"><input type="checkbox" id="form-check"><label for="form-check">Form</label></div>
                             </div>
                         </div>
                     </div>
@@ -220,18 +236,23 @@
             {"size": "25X38", "gsm": 90, "perSheetWeight": 0.05514},
             {"size": "25X38", "gsm": 100, "perSheetWeight": 0.06127},
             {"size": "19X25", "gsm": "STICKER", "perSheetWeight": 0.045}
+            // You can add more paper data here
+            // e.g. {"size": "23X36", "gsm": 300, "perSheetWeight": 0.1602}
           ]
         };
 
         // --- ELEMENT SELECTORS ---
         const allInputs = document.querySelectorAll('input, select');
         const customerNameInput = document.getElementById('customer-name');
+        // 5. Multiple Jobs Input selector
+        const multipleJobsInput = document.getElementById('multiple-jobs-input');
         const allCostInputs = document.querySelectorAll('.cost-input');
         const totalCostDisplay = document.getElementById('total-cost');
         const jobSizeSelect = document.getElementById('job-size');
         const quantityInput = document.getElementById('quantity');
         const fbCheck = document.getElementById('fb-check');
-        const formCheck = document.getElementById('form-check'); // NEW CHECKBOX
+        // 2. Form Checkbox selector
+        const formCheck = document.getElementById('form-check');
         const withoutPlateCheck = document.getElementById('without-plate-check');
         const printingCostInput = document.getElementById('printing-cost');
         const secondCostInput = document.getElementById('second-cost');
@@ -268,14 +289,21 @@
         }
 
         // --- CALCULATION FUNCTIONS ---
+        // 6. Grand Total Logic Updated
         function calculateGrandTotal() {
             let total = 0;
             allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
-            const roundedTotal = Math.ceil(total / 50) * 50;
+            
+            // Get multiplier
+            const multiplier = parseFloat(multipleJobsInput.value) || 1;
+            const multipliedTotal = total * multiplier;
+
+            // Round the final multiplied total
+            const roundedTotal = Math.ceil(multipliedTotal / 50) * 50;
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
-        // --- UPDATED PRINTING COST FUNCTION ---
+        // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -288,6 +316,7 @@
             }
 
             const isWithoutPlate = withoutPlateCheck.checked;
+            const isFormChecked = formCheck.checked; // 3. Get Form checkbox status
             const isHeavyGsm = ['300', '350', 'DUPLEX'].includes(selectedGsm.toUpperCase());
             
             let baseCost = 0;
@@ -297,37 +326,45 @@
             const smallSizes = ['10X15', '12X18'];
 
             if (isHeavyGsm) {
+                // Rule 1: Heavy GSM (applies to all sizes)
                 baseCost = 2400;
                 secondRate = 600;
             } else if (standardLargeSizes.includes(selectedSize)) {
+                // Rule 2: Standard Large Sizes (and not heavy)
                 baseCost = 1900;
                 secondRate = 500;
             } else if (smallSizes.includes(selectedSize)) {
+                // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
                 baseCost = isWithoutPlate ? 700 : 1200;
                 secondRate = 300;
             } else {
+                // Default case
                 baseCost = 0;
                 secondRate = 0;
+            }
+
+            // 3. Apply "Form" checkbox logic to double the cost
+            if (isFormChecked) {
+                baseCost *= 2;
             }
             
             printingCostInput.value = baseCost.toFixed(2);
             
-            // --- Second Cost Logic (Updated for Form Checkbox) ---
-            if (formCheck.checked) {
-                // If "Form" is checked, second cost equals printing cost
-                secondCostInput.value = baseCost.toFixed(2);
-            } else {
-                // Standard Logic
-                let secondCost = 0;
-                const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
-                if (effectiveQuantity > 1000) {
-                    secondCost = Math.ceil((effectiveQuantity - 1000) / 1000) * secondRate;
-                }
-                secondCostInput.value = secondCost.toFixed(2);
-            }
+            // 4. Apply "Form" logic to second printing threshold
+            const threshold = isFormChecked ? 2000 : 1000;
             
+            let secondCost = 0;
+            const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
+            
+            // Use the new threshold
+            if (effectiveQuantity > threshold) {
+                secondCost = Math.ceil((effectiveQuantity - threshold) / 1000) * secondRate;
+            }
+            secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
         }
+        // --- END OF UPDATED FUNCTION ---
+
 
         function calculatePaperCost() {
             const sheets = parseFloat(paperSheetsInput.value) || 0;
@@ -349,6 +386,7 @@
             paperCostInput.dispatchEvent(new Event('input'));
         }
 
+
         function calculateNumberOfSheets() {
             const quantity = parseFloat(quantityInput.value) || 0;
             const paperGsm = paperGsmSelect.value.toUpperCase();
@@ -359,6 +397,7 @@
             
             const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
+            
             calculatePaperCost();
         }
         
@@ -371,7 +410,7 @@
         function getDynamicDescription() {
             let desc = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}`;
             if (fbCheck.checked) { desc += ' F/B'; }
-            if (formCheck.checked) { desc += ' (Form)'; } // Add Form to description
+            if (formCheck.checked) { desc += ' (Form)'; } // 2. Add Form to description
             const lamiType = laminationTypeSelect.value;
             if (lamiType) {
                 const lamiSize = laminationSizeSelect.value;
@@ -390,14 +429,24 @@
             }
         }
 
+        // 7. WhatsApp Logic Updated
         function sendToWhatsApp() {
             const customer = customerNameInput.value || 'Customer';
             const total = totalCostDisplay.textContent;
             const dynamicDescription = getDynamicDescription();
-            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${dynamicDescription}*\n\n*Total:* ${total}`;
+            const multiplier = parseFloat(multipleJobsInput.value) || 1;
+
+            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${dynamicDescription}*`;
+            
+            if (multiplier > 1) {
+                message += `\n\n*Jobs:* ${multiplier}`;
+            }
+
+            message += `\n\n*Total:* ${total}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
+        // 7. PDF Logic Updated
         function generatePDF() {
             const customerName = customerNameInput.value.trim();
             if (!customerName) {
@@ -450,10 +499,22 @@
                 }
             });
             
-            const total = Math.ceil(subtotal / 50) * 50;
+            // PDF Footer logic with multiplier
+            const multiplier = parseFloat(multipleJobsInput.value) || 1;
+            const multipliedSubtotal = subtotal * multiplier;
+            const total = Math.ceil(multipliedSubtotal / 50) * 50;
+            
+            const footRows = [];
+            if (multiplier > 1) {
+                footRows.push(['', 'Subtotal', `₹ ${subtotal.toFixed(2)}`]);
+                footRows.push(['', `Multiplier (x ${multiplier} Jobs)`, `₹ ${multipliedSubtotal.toFixed(2)}`]);
+            }
+            footRows.push(['', 'Total', `₹ ${total.toFixed(2)}`]);
 
             doc.autoTable({
-                head: [['Pos.', 'Description', 'Price']], body: tableBody, foot: [['', 'Total', `₹ ${total.toFixed(2)}`]],
+                head: [['Pos.', 'Description', 'Price']], 
+                body: tableBody, 
+                foot: footRows, // Use the new footRows
                 startY: 75, theme: 'grid',
                 headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center' },
                 footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'right' },
@@ -481,6 +542,8 @@
                             if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
                         }
                     });
+                    // 8. Ensure multiple jobs input is loaded, or defaults to 1
+                    if (!multipleJobsInput.value) { multipleJobsInput.value = '1'; }
                     calculateGrandTotal(); 
                     closeModal();
                     alert(`Loaded estimate for "${estimateData['customer-name'] || estimateKey}"`);
@@ -492,7 +555,7 @@
             if (confirm(`Are you sure you want to delete estimate ${estimateKey}?`)) {
                 localStorage.removeItem(estimateKey);
                 alert("Estimate deleted successfully.");
-                showPreviousEstimates(); 
+                showPreviousEstimates(); // Refresh the list
             }
         }
         
@@ -612,18 +675,24 @@
             prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
             openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
 
+            // Grand total listeners (all cost inputs + multiplier)
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
+            multipleJobsInput.addEventListener('input', calculateGrandTotal);
             
+            // Listeners that trigger main calculations
+            // 2. Added formCheck to this list
             [jobSizeSelect, quantityInput, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
                 el.addEventListener('change', calculateAllCosts);
                 el.addEventListener('input', calculateAllCosts);
             });
             
+            // Listeners that *only* trigger paper cost calculation
             [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox, paperSheetsInput].forEach(el => {
                 el.addEventListener('change', calculatePaperCost);
                 el.addEventListener('input', calculatePaperCost);
             });
 
+            // GSM syncing
             printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
             paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
         }
