@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akshardeep Cost & Paper Weight Calculator</title>
+    <title>Akshardeep Cost Calculator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -290,8 +290,6 @@
             // --- Updated Cost Logic ---
             switch(selectedSize) {
                 case '10X15':
-                    baseCost = isWithoutPlate ? 500 : 700;
-                    break;
                 case '12X18': 
                     baseCost = isWithoutPlate ? 700 : 1200;
                     break;
