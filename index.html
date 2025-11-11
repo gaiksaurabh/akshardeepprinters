@@ -1,4 +1,17 @@
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akshardeep Cost Estimation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
         html, body {
             /* 1. Layout: Use min-height for body to allow content to expand */
             min-height: 100%; 
@@ -12,7 +25,6 @@
             /* 1. Layout: Use padding for consistent spacing */
             padding: 1.5rem; 
             box-sizing: border-box; 
-            /* 1. Layout: Removed align-items: center */
         }
         .container {
             width: 100%; 
@@ -431,7 +443,6 @@
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
-        // 2. Removed logic for common sizes
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -513,7 +524,6 @@
             paperCostInput.dispatchEvent(new Event('input'));
         }
 
-        // 2. Removed logic for common sizes
         function calculateNumberOfSheets() {
             const quantity = parseFloat(quantityInput.value) || 0;
             const paperGsm = paperGsmSelect.value;
@@ -529,7 +539,6 @@
             } else if (['12X18', '10X15'].includes(size)) { 
                 divisionFactor = gsmIsSticker ? 2 : 4; 
             }
-            // All other sizes will default to 0
             
             const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
             paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
@@ -602,13 +611,9 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const today = new Date().toLocaleDateString('en-GB');
-
-            // Set font for PDF
-            // Note: jsPDF needs fonts to be added. Using standard fonts as Poppins isn't loaded by default.
-            // For Poppins, it would require embedding the .ttf file, which is complex in a single HTML file.
-            // Sticking to standard helvetica for reliability in jsPDF.
+            
+            // Using standard helvetica for reliability in jsPDF.
             doc.setFont("helvetica", "bold");
-
             doc.setFontSize(20); doc.text("Cost Estimate", 105, 20, { align: 'center' });
             
             doc.setFont("helvetica", "normal");
@@ -779,7 +784,6 @@
         
         function closeModal() { modalContainer.innerHTML = ''; }
         
-        // 2. Job Size Dropdown logic updated
         function populateDropdowns() {
             if (!appData.paperData) return;
             
