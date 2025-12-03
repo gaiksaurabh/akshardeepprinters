@@ -13,27 +13,22 @@
 
     <style>
         html, body {
-            /* 1. Layout: Use min-height for body to allow content to expand */
             min-height: 100%; 
-            height: auto; /* Remove fixed height */
+            height: auto; 
             margin: 0; 
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             background-color: #f0f4f8;
         }
         body {
             display: flex; flex-direction: column; 
-            /* 1. Layout: Use padding for consistent spacing */
             padding: 1.5rem; 
             box-sizing: border-box; 
         }
         .container {
             width: 100%; 
             max-width: 1300px; 
-            /* 1. Layout: Remove flex-grow, let container be natural height */
-            /* flex-grow: 1; */
             display: flex; 
             flex-direction: column;
-            /* 1. Layout: Add margin: auto to center the container */
             margin: 0 auto;
         }
         h1 {
@@ -59,8 +54,6 @@
         .icon-group { display: flex; gap: 1rem; }
         .sections-wrapper {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; 
-            /* 1. Layout: Remove flex-grow, let grid be natural height */
-            /* flex-grow: 1; */
         }
         .section {
             background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); display: flex; flex-direction: column;
@@ -439,7 +432,7 @@
             const multiplier = parseFloat(multipleJobsInput.value) || 1;
             const multipliedTotal = total * multiplier;
 
-            const roundedTotal = Math.ceil(multipliedTotal / 50) * 50;
+            const roundedTotal = Math.round(multipliedTotal);
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
@@ -470,7 +463,7 @@
                 secondRate = 600;
             } else if (standardLargeSizes.includes(selectedSize)) {
                 // Rule 2: Standard Large Sizes (and not heavy)
-                baseCost = 2000;
+                baseCost = 1900;
                 secondRate = 500;
             } else if (smallSizes.includes(selectedSize)) {
                 // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
@@ -517,10 +510,10 @@
             }
 
             const basePrice = perSheetWeight * sheets * rate;
-            const taxRate = gstCheckbox.checked ? 0 : 0.12;
+            const taxRate = gstCheckbox.checked ? 0.09 : 0.18;
             const finalPrice = basePrice * (1 + taxRate);
             
-            paperCostInput.value = (Math.ceil(finalPrice / 50) * 50).toFixed(2);
+            paperCostInput.value = Math.round(finalPrice).toFixed(2);
             paperCostInput.dispatchEvent(new Event('input'));
         }
 
@@ -611,8 +604,7 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const today = new Date().toLocaleDateString('en-GB');
-            
-            // Using standard helvetica for reliability in jsPDF.
+
             doc.setFont("helvetica", "bold");
             doc.setFontSize(20); doc.text("Cost Estimate", 105, 20, { align: 'center' });
             
@@ -650,7 +642,7 @@
             
             const multiplier = parseFloat(multipleJobsInput.value) || 1;
             const multipliedSubtotal = subtotal * multiplier;
-            const total = Math.ceil(multipliedSubtotal / 50) * 50;
+            const total = Math.round(multipliedSubtotal);
             
             const footRows = [];
             if (multiplier > 1) {
