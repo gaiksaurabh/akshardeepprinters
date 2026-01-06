@@ -251,7 +251,13 @@
             </div>
             
             <div class="section">
-                <div class="section-title-container"><h2 class="section-title">4. Other Costs</h2></div>
+                <div class="section-title-container">
+                    <h2 class="section-title">4. Other Costs</h2>
+                    <div class="inline-checkbox">
+                        <input type="checkbox" id="multiply-other-costs-check">
+                        <label for="multiply-other-costs-check">Multiply for Jobs</label>
+                    </div>
+                </div>
                 <div class="form-grid">
                     <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
                     <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Cost"></div>
@@ -349,7 +355,7 @@
         const jobSizeSelect = document.getElementById('job-size');
         const quantityInput = document.getElementById('quantity');
         const fbCheck = document.getElementById('fb-check');
-        const formCheck = document.getElementById('form-check');
+        const formCheck = document.getElementById('form-check'); // NEW ELEMENT
         const withoutPlateCheck = document.getElementById('without-plate-check');
         const printingCostInput = document.getElementById('printing-cost');
         const secondCostInput = document.getElementById('second-cost');
@@ -365,6 +371,10 @@
         const lamiSheetsInput = document.getElementById('lami-sheets');
         const lamiRateInput = document.getElementById('lami-rate');
         const lamiCostInput = document.getElementById('lami-cost');
+        
+        // 2. Select new checkbox
+        const multiplyOtherCostsCheck = document.getElementById('multiply-other-costs-check');
+        
         const bindingCostInput = document.getElementById('binding-cost');
         const otherMiscCostInput = document.getElementById('other-misc-cost');
         const punchingCostInput = document.getElementById('punching-cost');
@@ -388,17 +398,40 @@
         }
 
         // --- CALCULATION FUNCTIONS ---
+        // 2. Updated Grand Total Calculation Logic
         function calculateGrandTotal() {
-            let total = 0;
-            allCostInputs.forEach(input => { total += parseFloat(input.value) || 0; });
-            
-            const multiplier = parseFloat(multipleJobsInput.value) || 1;
-            const multipliedTotal = total * multiplier;
+            // Group A: Always Multiplied (Printing, Paper, Lamination)
+            const printing = parseFloat(printingCostInput.value) || 0;
+            const second = parseFloat(secondCostInput.value) || 0;
+            const paper = parseFloat(paperCostInput.value) || 0;
+            const lami = parseFloat(lamiCostInput.value) || 0;
+            const subtotalMultipliable = printing + second + paper + lami;
 
-            const roundedTotal = Math.round(multipliedTotal);
+            // Group B: Conditionally Multiplied (Other Costs)
+            const binding = parseFloat(bindingCostInput.value) || 0;
+            const other = parseFloat(otherMiscCostInput.value) || 0;
+            const punching = parseFloat(punchingCostInput.value) || 0;
+            const clips = parseFloat(clipsCostInput.value) || 0;
+            const env = parseFloat(envCostInput.value) || 0;
+            const subtotalOther = binding + other + punching + clips + env;
+
+            const multiplier = parseFloat(multipleJobsInput.value) || 1;
+            const shouldMultiplyOther = multiplyOtherCostsCheck.checked;
+
+            let finalTotal = 0;
+            if (shouldMultiplyOther) {
+                // If checkbox checked, multiply everything
+                finalTotal = (subtotalMultipliable + subtotalOther) * multiplier;
+            } else {
+                // If unchecked, multiply only Group A, add Group B once
+                finalTotal = (subtotalMultipliable * multiplier) + subtotalOther;
+            }
+
+            const roundedTotal = Math.round(finalTotal);
             totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
         }
 
+        // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
         function calculatePrintingCosts() {
             const selectedGsm = printingGsmSelect.value;
             const selectedSize = jobSizeSelect.value;
@@ -419,32 +452,32 @@
 
             const smallSizes = ['10X15', '12X18'];
 
-            if (isHeavyGsm) {
-                // Rule 1: Heavy GSM (applies to all sizes)
-                baseCost = 2400;
-                secondRate = 600;
-            } else if (isWithoutPlate) {
-                // Rule 2: Without Plate Logic (New Request)
-                if (smallSizes.includes(selectedSize)) {
-                    baseCost = 700;
-                } else {
-                    baseCost = 1000;
-                }
-                // Second rate for without plate is generally standard unless specified
-                secondRate = (smallSizes.includes(selectedSize)) ? 300 : 500;
+            // 1. DETERMINE BASE COST AND RATE
+            if (smallSizes.includes(selectedSize)) {
+                // SMALL SIZES: Base is always 1200 regardless of GSM
+                baseCost = 1200;
+                secondRate = 300;
             } else {
-                // Rule 3: With Plate (Standard Logic)
-                const standardLargeSizes = ['18X23', '18X25', '15X20', '19X25', '20X28'];
-                
-                if (standardLargeSizes.includes(selectedSize)) {
+                // LARGE SIZES
+                if (isHeavyGsm) {
+                    baseCost = 2400;
+                    secondRate = 600;
+                } else {
                     baseCost = 1900;
                     secondRate = 500;
-                } else if (smallSizes.includes(selectedSize)) {
-                    baseCost = 1200;
-                    secondRate = 300;
                 }
             }
 
+            // 2. APPLY "WITHOUT PLATE" REDUCTION
+            if (isWithoutPlate) {
+                if (smallSizes.includes(selectedSize)) {
+                    baseCost = 700; // Explicit set to 700 (1200 - 500)
+                } else {
+                    baseCost -= 1000; // Reduce by 1000 for large sizes
+                }
+            }
+
+            // 3. APPLY "FORM" MULTIPLIER
             if (isFormChecked) {
                 baseCost *= 2;
             }
@@ -462,21 +495,8 @@
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
         }
+        // --- END OF UPDATED FUNCTION ---
 
-        function calculateLaminationCost() {
-            const sheets = parseFloat(lamiSheetsInput.value) || 0;
-            const rate = parseFloat(lamiRateInput.value) || 0;
-            
-            if (sheets > 0 && rate > 0) {
-                // Simple calculation based on manual input
-                lamiCostInput.value = (sheets * rate).toFixed(2);
-            } else {
-                // If manual inputs are empty, we could potentially auto-calculate here if we had base rates
-                // For now, if no manual input, default to 0 or leave as is if user is editing total directly
-                if (!lamiCostInput.value) lamiCostInput.value = "0.00";
-            }
-            calculateGrandTotal();
-        }
 
         function calculatePaperCost() {
             const sheets = parseFloat(paperSheetsInput.value) || 0;
@@ -484,6 +504,7 @@
 
             if (!paperSizeSelect.value || !paperGsmSelect.value || !sheets || !rate) {
                 paperCostInput.value = "0.00";
+                // Trigger an input event to update the grand total
                 paperCostInput.dispatchEvent(new Event('input'));
                 return;
             }
@@ -496,12 +517,18 @@
             }
 
             const basePrice = perSheetWeight * sheets * rate;
+            
+            // --- FIXED GST LOGIC ---
+            // If "Without GST" is checked, taxRate is 0.09 (9%).
+            // If it is unchecked, taxRate is 0.18 (18%).
             const taxRate = gstCheckbox.checked ? 0.09 : 0.18;
             const finalPrice = basePrice * (1 + taxRate);
             
             paperCostInput.value = Math.round(finalPrice).toFixed(2);
+            // Trigger an input event to update the grand total
             paperCostInput.dispatchEvent(new Event('input'));
         }
+
 
         function calculateNumberOfSheets() {
             const quantity = parseFloat(quantityInput.value) || 0;
@@ -526,6 +553,8 @@
         }
         
         function calculateAllCosts() {
+            // This function now correctly calculates sheets (which in turn calculates paper cost)
+            // and then calculates printing costs.
             calculateNumberOfSheets();
             calculatePrintingCosts();
             calculateLaminationCost(); // Ensure lami cost updates if dependent inputs change
@@ -535,7 +564,7 @@
         function getDynamicDescription() {
             let desc = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}`;
             if (fbCheck.checked) { desc += ' F/B'; }
-            if (formCheck.checked) { desc += ' (Form)'; }
+            if (formCheck.checked) { desc += ' (Form)'; } // Added "Form" to description
             const lamiType = laminationTypeSelect.value;
             if (lamiType) {
                 const lamiSize = laminationSizeSelect.value;
@@ -610,14 +639,13 @@
             const tableBody = [];
             let subtotal = 0;
             
-            // --- NEW PDF LOGIC START ---
-            // Combined printing cost logic
-            const printingCost = parseFloat(printingCostInput.value) || 0;
-            const secondPrintingCost = parseFloat(secondCostInput.value) || 0;
-            const totalPrintingCost = printingCost + secondPrintingCost;
+            // 3. New PDF Logic for Total Calculation matches calculateGrandTotal
+            const printing = parseFloat(printingCostInput.value) || 0;
+            const second = parseFloat(secondCostInput.value) || 0;
+            const totalPrintingCost = printing + second;
 
             const costItems = [
-                { label: 'Printing Cost', value: totalPrintingCost }, // Combined
+                { label: 'Printing Cost', value: totalPrintingCost }, 
                 { label: 'Paper Cost', value: parseFloat(paperCostInput.value) || 0 }, 
                 { label: 'Lamination Cost', value: parseFloat(lamiCostInput.value) || 0 }, 
                 { label: 'Binding Cost', value: parseFloat(bindingCostInput.value) || 0 }, 
@@ -626,7 +654,6 @@
                 { label: 'Envelope Cost', value: parseFloat(envCostInput.value) || 0 },
                 { label: 'Other Costs', value: parseFloat(otherMiscCostInput.value) || 0 }
             ];
-            // --- NEW PDF LOGIC END ---
 
             costItems.forEach((item) => {
                 if (item.value > 0) {
@@ -635,16 +662,29 @@
                 }
             });
             
+            // Re-calculate Total for PDF Footer accurately
             const multiplier = parseFloat(multipleJobsInput.value) || 1;
-            const multipliedSubtotal = subtotal * multiplier;
-            const total = Math.round(multipliedSubtotal);
+            const shouldMultiplyOther = multiplyOtherCostsCheck.checked;
+
+            // Recalculate based on groups like calculateGrandTotal
+            const subtotalMultipliable = totalPrintingCost + (parseFloat(paperCostInput.value) || 0) + (parseFloat(lamiCostInput.value) || 0);
+            const subtotalOther = (parseFloat(bindingCostInput.value) || 0) + (parseFloat(punchingCostInput.value) || 0) + (parseFloat(clipsCostInput.value) || 0) + (parseFloat(envCostInput.value) || 0) + (parseFloat(otherMiscCostInput.value) || 0);
+
+            let finalTotal = 0;
+            if (shouldMultiplyOther) {
+                finalTotal = (subtotalMultipliable + subtotalOther) * multiplier;
+            } else {
+                finalTotal = (subtotalMultipliable * multiplier) + subtotalOther;
+            }
+            const total = Math.round(finalTotal);
             
             const footRows = [];
+            // Simplified Footer
             if (multiplier > 1) {
-                footRows.push(['', 'Subtotal', `₹ ${subtotal.toFixed(2)}`]);
-                footRows.push(['', `Multiplier (x ${multiplier} Jobs)`, `₹ ${multipliedSubtotal.toFixed(2)}`]);
+                 footRows.push(['', `Total (x ${multiplier} Jobs)`, `₹ ${total.toFixed(2)}`]);
+            } else {
+                 footRows.push(['', 'Total', `₹ ${total.toFixed(2)}`]);
             }
-            footRows.push(['', 'Total', `₹ ${total.toFixed(2)}`]);
 
             doc.autoTable({
                 head: [['Pos.', 'Description', 'Price']], 
@@ -740,7 +780,7 @@
                                 <label for="calc-sheets">Sheets per Ream</label>
                                 <input type="number" id="calc-sheets" value="500" required>
                             </div>
-                            <button type="submit" class="utility-btn" style="width: 100%; padding: 0.8rem; border-radius: 8px; font-size: 1rem;">Calculate</button>
+                            <button type="submit" class.utility-btn" style="width: 100%; padding: 0.8rem; border-radius: 8px; font-size: 1rem; background: #0066cc; color: white; border: none; cursor: pointer;">Calculate</button>
                         </form>
                         <div id="weight-calculator-result" style="display: none;"></div>
                     </div>
@@ -773,20 +813,24 @@
         
         function populateDropdowns() {
             if (!appData.paperData) return;
-            
-            // --- Paper Dropdowns ---
+            // Add more GSMs that are in the cost logic but not in paper data
+            const hardcodedGsms = [170, 300, 350, 'DUPLEX'];
             let allGsm = [...new Set(appData.paperData.map(item => item.gsm))];
-            let allSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))];
-
+            
+            hardcodedGsms.forEach(gsm => {
+                if (!allGsm.includes(gsm)) {
+                    allGsm.push(gsm);
+                }
+            });
+            
             allGsm.sort((a,b) => {
                 const aIsStr = isNaN(a), bIsStr = isNaN(b);
-                if (aIsStr !== bIsStr) return aIsStr ? 1 : -1;
-                return aIsStr ? String(a).localeCompare(String(b)) : a - b;
+                if (aIsStr !== bIsStr) return aIsStr ? -1 : 1;
+                return aIsStr ? a.localeCompare(b) : a - b;
             });
-            allSizes.sort();
             
-            paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + allSizes.map(s => `<option value="${s}">${s}</option>`).join('');
-            
+            const uniqueSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))].sort();
+            paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + uniqueSizes.map(s => `<option value="${s}">${s}</option>`).join('');
             const gsmOptions = '<option value="">Select GSM</option>' + allGsm.map(g => `<option value="${g}">${g}</option>`).join('');
             printingGsmSelect.innerHTML = gsmOptions;
             paperGsmSelect.innerHTML = gsmOptions;
@@ -815,14 +859,17 @@
             prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
             openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
 
+            // Grand total listener
             allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
-            multipleJobsInput.addEventListener('input', calculateGrandTotal);
             
+            // Listeners that trigger main calculations
+            // ADDED formCheck to this list
             [jobSizeSelect, quantityInput, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
                 el.addEventListener('change', calculateAllCosts);
                 el.addEventListener('input', calculateAllCosts);
             });
             
+            // Listeners that *only* trigger paper cost calculation
             [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox, paperSheetsInput].forEach(el => {
                 el.addEventListener('change', calculatePaperCost);
                 el.addEventListener('input', calculatePaperCost);
