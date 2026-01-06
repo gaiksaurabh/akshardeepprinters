@@ -246,18 +246,14 @@
         // --- DATA STORE ---
         const appData = {
           "paperData": [
-            // Removed 10X15
-            // Removed 12X18
-            // Removed 18X23
-            // Removed 18X25
-            // Removed 15X20
-            // Removed 19X25
-            // Removed 20X28
+            // Standard GSMs
             {"size": "20X30", "gsm": 60, "perSheetWeight": 0.02323},
             {"size": "20X30", "gsm": 70, "perSheetWeight": 0.02710},
             {"size": "20X30", "gsm": 80, "perSheetWeight": 0.03097},
             {"size": "20X30", "gsm": 90, "perSheetWeight": 0.03484},
             {"size": "20X30", "gsm": 100, "perSheetWeight": 0.03871},
+            {"size": "20X30", "gsm": 120, "perSheetWeight": 0.04645}, // Added
+            {"size": "20X30", "gsm": 125, "perSheetWeight": 0.04839}, // Added
             {"size": "20X30", "gsm": 130, "perSheetWeight": 0.05032},
             {"size": "20X30", "gsm": 170, "perSheetWeight": 0.06581},
             {"size": "20X30", "gsm": 210, "perSheetWeight": 0.08129},
@@ -266,11 +262,14 @@
             {"size": "20X30", "gsm": 350, "perSheetWeight": 0.13548},
             {"size": "20X30", "gsm": "STICKER", "perSheetWeight": 0.05806},
             {"size": "20X30", "gsm": "DUPLEX", "perSheetWeight": 0.11613},
+            
             {"size": "23X36", "gsm": 60, "perSheetWeight": 0.03206},
             {"size": "23X36", "gsm": 70, "perSheetWeight": 0.03740},
             {"size": "23X36", "gsm": 80, "perSheetWeight": 0.04275},
             {"size": "23X36", "gsm": 90, "perSheetWeight": 0.04809},
             {"size": "23X36", "gsm": 100, "perSheetWeight": 0.05343},
+            {"size": "23X36", "gsm": 120, "perSheetWeight": 0.06412}, // Added
+            {"size": "23X36", "gsm": 125, "perSheetWeight": 0.06679}, // Added
             {"size": "23X36", "gsm": 130, "perSheetWeight": 0.06946},
             {"size": "23X36", "gsm": 170, "perSheetWeight": 0.09084},
             {"size": "23X36", "gsm": 210, "perSheetWeight": 0.11221},
@@ -279,11 +278,14 @@
             {"size": "23X36", "gsm": 350, "perSheetWeight": 0.18701},
             {"size": "23X36", "gsm": "STICKER", "perSheetWeight": 0.08015},
             {"size": "23X36", "gsm": "DUPLEX", "perSheetWeight": 0.16030},
+            
             {"size": "25X36", "gsm": 60, "perSheetWeight": 0.03484},
             {"size": "25X36", "gsm": 70, "perSheetWeight": 0.04065},
             {"size": "25X36", "gsm": 80, "perSheetWeight": 0.04645},
             {"size": "25X36", "gsm": 90, "perSheetWeight": 0.05226},
             {"size": "25X36", "gsm": 100, "perSheetWeight": 0.05806},
+            {"size": "25X36", "gsm": 120, "perSheetWeight": 0.06968}, // Added
+            {"size": "25X36", "gsm": 125, "perSheetWeight": 0.07258}, // Added
             {"size": "25X36", "gsm": 130, "perSheetWeight": 0.07548},
             {"size": "25X36", "gsm": 170, "perSheetWeight": 0.09871},
             {"size": "25X36", "gsm": 210, "perSheetWeight": 0.12194},
@@ -292,11 +294,14 @@
             {"size": "25X36", "gsm": 350, "perSheetWeight": 0.20323},
             {"size": "25X36", "gsm": "STICKER", "perSheetWeight": 0.08710},
             {"size": "25X36", "gsm": "DUPLEX", "perSheetWeight": 0.17419},
+            
             {"size": "25X38", "gsm": 60, "perSheetWeight": 0.03677},
             {"size": "25X38", "gsm": 70, "perSheetWeight": 0.04290},
             {"size": "25X38", "gsm": 80, "perSheetWeight": 0.04903},
             {"size": "25X38", "gsm": 90, "perSheetWeight": 0.05516},
             {"size": "25X38", "gsm": 100, "perSheetWeight": 0.06129},
+            {"size": "25X38", "gsm": 120, "perSheetWeight": 0.07355}, // Added
+            {"size": "25X38", "gsm": 125, "perSheetWeight": 0.07661}, // Added
             {"size": "25X38", "gsm": 130, "perSheetWeight": 0.07968},
             {"size": "25X38", "gsm": 170, "perSheetWeight": 0.10420},
             {"size": "25X38", "gsm": 210, "perSheetWeight": 0.12871},
@@ -305,7 +310,12 @@
             {"size": "25X38", "gsm": 350, "perSheetWeight": 0.21452},
             {"size": "25X38", "gsm": "STICKER", "perSheetWeight": 0.09194},
             {"size": "25X38", "gsm": "DUPLEX", "perSheetWeight": 0.18387}
-          ]
+          ],
+          // --- LAMINATION RATES (Placeholder rates - adjust as needed) ---
+          "laminationRates": {
+              "gloss": { "12x18": 3.50, "20x28": 7.00 }, // Rate per sheet
+              "matte": { "12x18": 4.50, "20x28": 9.00 }
+          }
         };
 
         // --- ELEMENT SELECTORS ---
@@ -383,24 +393,32 @@
             let baseCost = 0;
             let secondRate = 0;
 
-            const standardLargeSizes = ['18X23', '18X25', '15X20', '19X25', '20X28'];
             const smallSizes = ['10X15', '12X18'];
 
             if (isHeavyGsm) {
                 // Rule 1: Heavy GSM (applies to all sizes)
                 baseCost = 2400;
                 secondRate = 600;
-            } else if (standardLargeSizes.includes(selectedSize)) {
-                // Rule 2: Standard Large Sizes (and not heavy)
-                baseCost = 1900;
-                secondRate = 500;
-            } else if (smallSizes.includes(selectedSize)) {
-                // Rule 3: Small Sizes (and not heavy) - 10x15 and 12x18 are now the same
-                baseCost = isWithoutPlate ? 700 : 1200;
-                secondRate = 300;
+            } else if (isWithoutPlate) {
+                // Rule 2: Without Plate Logic (New Request)
+                if (smallSizes.includes(selectedSize)) {
+                    baseCost = 700;
+                } else {
+                    baseCost = 1000;
+                }
+                // Second rate for without plate is generally standard unless specified
+                secondRate = (smallSizes.includes(selectedSize)) ? 300 : 500;
             } else {
-                baseCost = 0;
-                secondRate = 0;
+                // Rule 3: With Plate (Standard Logic)
+                const standardLargeSizes = ['18X23', '18X25', '15X20', '19X25', '20X28'];
+                
+                if (standardLargeSizes.includes(selectedSize)) {
+                    baseCost = 1900;
+                    secondRate = 500;
+                } else if (smallSizes.includes(selectedSize)) {
+                    baseCost = 1200;
+                    secondRate = 300;
+                }
             }
 
             if (isFormChecked) {
@@ -419,6 +437,31 @@
             }
             secondCostInput.value = secondCost.toFixed(2);
             calculateGrandTotal();
+        }
+
+        function calculateLaminationCost() {
+            const type = laminationTypeSelect.value;
+            const size = laminationSizeSelect.value;
+            const quantity = parseFloat(quantityInput.value) || 0;
+            
+            if (!type || !size || !quantity) {
+                // Don't clear manual input if logic fails, unless desired. 
+                // But for auto-calc we typically overwrite.
+                // lamiCostInput.value = "0.00"; 
+                return;
+            }
+
+            // Check if rate exists
+            const rate = appData.laminationRates[type]?.[size];
+            if (rate) {
+                // Total Lami Cost = Rate per sheet * Quantity
+                // Note: If F/B is checked, usually lamination is also doubled? 
+                // Let's assume lamination follows printing quantity logic
+                const multiplier = fbCheck.checked ? 2 : 1;
+                const totalLamiCost = rate * quantity * multiplier;
+                lamiCostInput.value = totalLamiCost.toFixed(2);
+                calculateGrandTotal();
+            }
         }
 
         function calculatePaperCost() {
@@ -471,6 +514,7 @@
         function calculateAllCosts() {
             calculateNumberOfSheets();
             calculatePrintingCosts();
+            calculateLaminationCost(); // Trigger lamination calc
         }
 
         // --- UI & HELPER FUNCTIONS ---
@@ -760,6 +804,11 @@
             [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox, paperSheetsInput].forEach(el => {
                 el.addEventListener('change', calculatePaperCost);
                 el.addEventListener('input', calculatePaperCost);
+            });
+            
+            // Add listeners for lamination inputs
+            [laminationTypeSelect, laminationSizeSelect].forEach(el => {
+                el.addEventListener('change', calculateAllCosts);
             });
 
             printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
