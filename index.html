@@ -58,16 +58,30 @@
             margin-bottom: 1.5rem;
         }
 
-        .top-bar .form-group {
+        .customer-info-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            flex-grow: 1;
+        }
+
+        .customer-info-bar .form-group {
             flex-grow: 1;
             min-width: 180px;
             margin-bottom: 0;
         }
 
-        .top-bar .form-group.small-input {
+        .customer-info-bar .form-group.small-input {
             flex-grow: 0;
             min-width: 120px;
             width: 120px;
+        }
+
+        .action-total-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5rem;
+            margin-left: auto;
         }
 
         .total-display-top {
@@ -395,28 +409,56 @@
             }
 
             .top-bar {
+                display: flex;
+                flex-direction: column;
+                gap: 0.8rem;
+                background-color: transparent;
+                padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+                margin-bottom: 0.8rem;
+            }
+
+            .customer-info-bar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+                background-color: #ffffff;
+                padding: 1rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .customer-info-bar .form-group {
+                grid-column: span 2;
+            }
+
+            .customer-info-bar .form-group.small-input {
+                grid-column: span 2;
+            }
+
+            .action-total-bar {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 0.8rem;
                 padding: 1rem;
+                background-color: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
                 position: sticky;
                 top: 0.5rem;
                 z-index: 100;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            }
-
-            .top-bar .form-group {
-                grid-column: span 2;
-            }
-
-            .top-bar .form-group.small-input {
-                grid-column: span 1;
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid #e2e8f0;
             }
 
             .total-display-top {
                 grid-column: span 1;
                 margin-left: 0;
-                text-align: right;
+                text-align: left;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -427,16 +469,17 @@
             }
 
             .icon-group {
-                grid-column: span 2;
+                grid-column: span 1;
                 display: flex;
-                justify-content: space-between;
+                justify-content: flex-end;
+                align-items: center;
                 gap: 0.5rem;
-                padding-top: 0.2rem;
             }
 
             .icon-btn {
-                flex: 1;
-                height: 48px;
+                width: 44px;
+                height: 44px;
+                flex: none;
             }
 
             .modal-content {
@@ -465,45 +508,49 @@
     <div class="container">
         <h1>Akshardeep Cost Estimation</h1>
         <div class="top-bar">
-            <div class="form-group">
-                <label for="customer-name">Customer Name</label>
-                <input type="text" id="customer-name" placeholder="Enter customer name...">
-            </div>
-            <div class="form-group small-input">
-                <label for="multiple-jobs-input">Multiple Jobs</label>
-                <input type="number" id="multiple-jobs-input" value="1" min="1">
-            </div>
-
-            <div class="total-display-top">
-                <h3 class="total-label">Total</h3>
-                <p class="total-value" id="total-cost">₹ 0.00</p>
+            <div class="customer-info-bar">
+                <div class="form-group">
+                    <label for="customer-name">Customer Name</label>
+                    <input type="text" id="customer-name" placeholder="Enter customer name...">
+                </div>
+                <div class="form-group small-input">
+                    <label for="multiple-jobs-input">Multiple Jobs</label>
+                    <input type="number" id="multiple-jobs-input" value="1" min="1">
+                </div>
             </div>
 
-            <div class="icon-group">
-                <button id="download-pdf-btn" class="icon-btn" title="Download PDF & Save Estimate">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-                    </svg>
-                </button>
-                <button id="copy-quotation-btn" class="icon-btn" title="Copy Quotation to Clipboard">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                </button>
-                <button id="whatsapp-btn" class="icon-btn" title="Send to WhatsApp">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#25D366">
-                        <path
-                            d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-26.7l-7-4.1-72.5 19.1 19.4-70.5-4.5-7.3c-18.4-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
-                    </svg>
-                </button>
-                <button id="prev-estimates-btn" class="icon-btn" title="Past Estimates">
-                    <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <g>
-                            <rect fill="none" height="24" width="24" />
+            <div class="action-total-bar">
+                <div class="total-display-top">
+                    <h3 class="total-label">Total</h3>
+                    <p class="total-value" id="total-cost">₹ 0.00</p>
+                </div>
+
+                <div class="icon-group">
+                    <button id="download-pdf-btn" class="icon-btn" title="Download PDF & Save Estimate">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                    </button>
+                    <button id="copy-quotation-btn" class="icon-btn" title="Copy Quotation to Clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    </button>
+                    <button id="whatsapp-btn" class="icon-btn" title="Send to WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#25D366">
                             <path
-                                d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8 s8,3.59,8,8S16.41,20,12,20z M12.5,7H11v6l5.25,3.15l0.75-1.23l-4.5-2.67V7z" />
-                        </g>
-                    </svg>
-                </button>
+                                d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-26.7l-7-4.1-72.5 19.1 19.4-70.5-4.5-7.3c-18.4-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
+                        </svg>
+                    </button>
+                    <button id="prev-estimates-btn" class="icon-btn" title="Past Estimates">
+                        <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <g>
+                                <rect fill="none" height="24" width="24" />
+                                <path
+                                    d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8 s8,3.59,8,8S16.41,20,12,20z M12.5,7H11v6l5.25,3.15l0.75-1.23l-4.5-2.67V7z" />
+                            </g>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="sections-wrapper">
@@ -1398,51 +1445,4 @@
                 copyQuotationBtn.addEventListener('click', copyQuotation);
                 whatsappBtn.addEventListener('click', sendToWhatsApp);
                 prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
-                openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
-
-                // Grand total listener
-                allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
-
-                // Listeners that trigger main calculations
-                [plateSizeSelect, jobSizeSelect, actualQuantityInput, quantityInput, fbActualCheck, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect].forEach(el => {
-                    el.addEventListener('change', calculateAllCosts);
-                    el.addEventListener('input', calculateAllCosts);
-                });
-
-                // Listeners that *only* trigger paper cost calculation
-                [paperRateInput, paperReamRateInput, gstCheckbox].forEach(el => {
-                    el.addEventListener('change', calculatePaperCost);
-                    el.addEventListener('input', calculatePaperCost);
-                });
-
-                // Add listeners for new lamination inputs
-                [laminationTypeSelect, laminationSizeSelect, lamiSheetsInput, lamiRateInput].forEach(el => {
-                    el.addEventListener('change', calculateLaminationCost); // Specific calc first
-                    el.addEventListener('input', calculateLaminationCost);
-                });
-
-                // Specific event listeners for bidirectional rate syncing
-                paperRateInput.addEventListener('input', () => syncPaperRates('kg'));
-                paperRateInput.addEventListener('change', () => syncPaperRates('kg'));
-                paperReamRateInput.addEventListener('input', () => syncPaperRates('ream'));
-                paperReamRateInput.addEventListener('change', () => syncPaperRates('ream'));
-
-                // Sync ream rates when paper specs change
-                [paperSizeSelect, paperGsmSelect].forEach(el => {
-                    el.addEventListener('change', () => syncPaperRates('kg'));
-                });
-
-                // Bidirectional sync for F/B checkboxes (Smart Defaulting)
-                fbActualCheck.addEventListener('change', () => {
-                    fbCheck.checked = fbActualCheck.checked;
-                    calculateAllCosts();
-                });
-
-                printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
-                paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
-            }
-        });
-    </script>
-</body>
-
-</html>
+       
