@@ -1,118 +1,355 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akshardeep Cost Estimation</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        html, body {
-            min-height: 100%; 
-            height: auto; 
-            margin: 0; 
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        html,
+        body {
+            min-height: 100%;
+            height: auto;
+            margin: 0;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f0f4f8;
         }
+
         body {
-            display: flex; flex-direction: column; 
-            padding: 1.5rem; 
-            box-sizing: border-box; 
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            box-sizing: border-box;
         }
+
         .container {
-            width: 100%; 
-            max-width: 1300px; 
-            display: flex; 
+            width: 100%;
+            max-width: 1300px;
+            display: flex;
             flex-direction: column;
             margin: 0 auto;
         }
+
         h1 {
-            text-align: center; color: #1a253c; margin-bottom: 1rem; flex-shrink: 0;
+            text-align: center;
+            color: #1a253c;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
             font-size: 1.6rem;
             font-weight: 700;
         }
+
         .top-bar {
-            display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem;
-            background-color: #ffffff; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1rem;
+            background-color: #ffffff;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            margin-bottom: 1.5rem;
         }
-        .top-bar .form-group { flex-grow: 1; min-width: 180px; margin-bottom: 0; }
-        .top-bar .form-group.small-input { flex-grow: 0; min-width: 120px; width: 120px; }
 
-        .total-display-top { text-align: right; min-width: 180px; margin-left: auto; }
-        .total-display-top .total-label { font-size: 1rem; margin: 0 0 0.25rem 0; opacity: 0.9; color: #495057; font-weight: 500;}
-        .total-display-top .total-value { font-size: 2.2rem; font-weight: 700; margin: 0; color: #1a253c; }
+        .top-bar .form-group {
+            flex-grow: 1;
+            min-width: 180px;
+            margin-bottom: 0;
+        }
+
+        .top-bar .form-group.small-input {
+            flex-grow: 0;
+            min-width: 120px;
+            width: 120px;
+        }
+
+        .total-display-top {
+            text-align: right;
+            min-width: 180px;
+            margin-left: auto;
+        }
+
+        .total-display-top .total-label {
+            font-size: 1rem;
+            margin: 0 0 0.25rem 0;
+            opacity: 0.9;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .total-display-top .total-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #1a253c;
+        }
+
         .icon-btn {
-            background: #f0f4f8; border: 1px solid #ced4da; border-radius: 8px; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.15s, transform 0.08s;
+            background: #f0f4f8;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.15s, transform 0.08s;
         }
-        .icon-btn:hover { background: #e2e6ea; transform: translateY(-1px); }
-        .icon-btn svg { width: 22px; height: 22px; }
-        .icon-group { display: flex; gap: 1rem; }
-        .sections-wrapper {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; 
-        }
-        .section {
-            background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); display: flex; flex-direction: column;
-        }
-        .section-title-container {
-             display: flex; justify-content: space-between; align-items: center;
-             border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem; margin-bottom: 1.5rem;
-        }
-        .section-title {
-            font-size: 1.3rem; color: #0066cc; margin: 0; font-weight: 600;
-        }
-        .utility-btn {
-            background: #e7f5ff; border: 1px solid #99cfff; color: #0066cc;
-            font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 20px;
-            cursor: pointer; transition: all 0.2s ease;
-            font-family: 'Poppins', sans-serif;
-        }
-        .utility-btn:hover { background: #d0ebff; border-color: #66b3ff; }
 
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; }
-        .form-grid-single-col { grid-template-columns: 1fr; }
-        .grid-col-span-2 { grid-column: span 2; }
-        .form-group { display: flex; flex-direction: column; justify-content: flex-end; }
-        .form-group label, .label-with-checkbox { margin-bottom: 0.5rem; font-weight: 500; color: #495057; font-size: 0.9rem; }
-        .form-group select, .form-group input { 
-            width: 100%; padding: 0.65rem; border: 1px solid #ced4da; border-radius: 8px; font-size: 0.95rem; 
-            box-sizing: border-box; background-color: #f8f9fa;
+        .icon-btn:hover {
+            background: #e2e6ea;
+            transform: translateY(-1px);
+        }
+
+        .icon-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .icon-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .sections-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .section {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #0066cc;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .utility-btn {
+            background: #e7f5ff;
+            border: 1px solid #99cfff;
+            color: #0066cc;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             font-family: 'Poppins', sans-serif;
         }
+
+        .utility-btn:hover {
+            background: #d0ebff;
+            border-color: #66b3ff;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem 1.5rem;
+        }
+
+        .form-grid-single-col {
+            grid-template-columns: 1fr;
+        }
+
+        .grid-col-span-2 {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .form-group label,
+        .label-with-checkbox {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.65rem;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
         select optgroup {
             font-weight: 600;
             color: #333;
             background: #eee;
         }
-        
-        .input-with-checkboxes { display: flex; align-items: flex-end; gap: 0.5rem; }
-        .checkbox-stack { display: flex; flex-direction: column; gap: 0.3rem; padding-bottom: 0.4rem; }
 
-        .inline-checkbox { display: flex; align-items: center; gap: 0.5rem; }
-        .inline-checkbox input { width: auto; }
-        .inline-checkbox label { margin: 0; font-weight: 400; font-size: 0.9rem; }
-        .label-with-checkbox { display: flex; justify-content: space-between; align-items: center; }
-        
+        .input-with-checkboxes {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .checkbox-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            padding-bottom: 0.4rem;
+        }
+
+        .inline-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .inline-checkbox input {
+            width: auto;
+        }
+
+        .inline-checkbox label {
+            margin: 0;
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .label-with-checkbox {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         /* Modal Styles */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.15s ease; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; }
-        .modal-close:hover { color: #333; }
-        .modal-content h2 { margin-top: 0; color: #1a253c; font-weight: 600; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s ease;
+        }
 
-        .estimates-list { list-style: none; padding: 0; margin: 0; }
-        .estimates-list li { padding: 0.6rem 0.4rem; border-bottom: 1px solid #e9ecef; cursor: pointer; transition: background-color 0.2s; display:flex; align-items:center; justify-content:space-between; gap: 0.5rem; }
-        .estimates-list li:hover { background-color: #f8f9fa; }
-        .estimates-list li:last-child { border-bottom: none; }
-        .estimate-name { flex-grow: 1; padding-right: 0.5rem; text-transform: none; color: #1a253c; font-weight: 500; }
-        .delete-estimate-btn { background: transparent; border: none; color: #d9534f; font-size: 1.2rem; cursor: pointer; padding: 6px 8px; border-radius: 6px; }
-        .delete-estimate-btn:hover { background: rgba(217,83,79,0.08); }
-        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #1a253c;
+            font-weight: 600;
+        }
+
+        .estimates-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .estimates-list li {
+            padding: 0.6rem 0.4rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .estimates-list li:hover {
+            background-color: #f8f9fa;
+        }
+
+        .estimates-list li:last-child {
+            border-bottom: none;
+        }
+
+        .estimate-name {
+            flex-grow: 1;
+            padding-right: 0.5rem;
+            text-transform: none;
+            color: #1a253c;
+            font-weight: 500;
+        }
+
+        .delete-estimate-btn {
+            background: transparent;
+            border: none;
+            color: #d9534f;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+
+        .delete-estimate-btn:hover {
+            background: rgba(217, 83, 79, 0.08);
+        }
+
         #weight-calculator-result {
             margin-top: 1.5rem;
             text-align: center;
@@ -121,18 +358,108 @@
             background-color: #f0f4f8;
             border: 1px solid #d1d9e6;
         }
-        #weight-calculator-result p { margin: 0; }
-        #weight-calculator-result .result-label { font-size: 0.9rem; color: #495057; }
-        #weight-calculator-result .result-value { font-size: 1.8rem; font-weight: 700; color: #1a253c; }
 
-        @media (max-width: 1200px) { .sections-wrapper { grid-template-columns: 1fr; } }
+        #weight-calculator-result p {
+            margin: 0;
+        }
+
+        #weight-calculator-result .result-label {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        #weight-calculator-result .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a253c;
+        }
+
+        @media (max-width: 1200px) {
+            .sections-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
-            .top-bar { flex-direction: column; align-items: stretch; }
-            .total-display-top { margin-left: 0; text-align: left; margin-top: 0.5rem; }
-            .icon-group { justify-content: center; margin-left: 0; padding-top: 0.5rem; }
+            body {
+                padding: 0.75rem;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .section {
+                padding: 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .top-bar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+                padding: 1rem;
+                position: sticky;
+                top: 0.5rem;
+                z-index: 100;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            }
+
+            .top-bar .form-group {
+                grid-column: span 2;
+            }
+
+            .top-bar .form-group.small-input {
+                grid-column: span 1;
+            }
+
+            .total-display-top {
+                grid-column: span 1;
+                margin-left: 0;
+                text-align: right;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .total-display-top .total-value {
+                font-size: 1.8rem;
+            }
+
+            .icon-group {
+                grid-column: span 2;
+                display: flex;
+                justify-content: space-between;
+                gap: 0.5rem;
+                padding-top: 0.2rem;
+            }
+
+            .icon-btn {
+                flex: 1;
+                height: 48px;
+            }
+
+            .modal-content {
+                padding: 1.2rem;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            /* Make sure span elements only take 1 column on narrow screens */
+            .form-grid > .grid-col-span-2,
+            .form-grid > .form-group {
+                grid-column: span 1 !important;
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="modal-container"></div>
     <div class="container">
@@ -151,48 +478,87 @@
                 <h3 class="total-label">Total</h3>
                 <p class="total-value" id="total-cost">₹ 0.00</p>
             </div>
-            
+
             <div class="icon-group">
                 <button id="download-pdf-btn" class="icon-btn" title="Download PDF & Save Estimate">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                    </svg>
+                </button>
+                <button id="copy-quotation-btn" class="icon-btn" title="Copy Quotation to Clipboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                 </button>
                 <button id="whatsapp-btn" class="icon-btn" title="Send to WhatsApp">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#25D366"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-26.7l-7-4.1-72.5 19.1 19.4-70.5-4.5-7.3c-18.4-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#25D366">
+                        <path
+                            d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.8 0-67.6-9.5-97.8-26.7l-7-4.1-72.5 19.1 19.4-70.5-4.5-7.3c-18.4-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
+                    </svg>
                 </button>
                 <button id="prev-estimates-btn" class="icon-btn" title="Past Estimates">
-                    <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24" fill="currentColor"><g><rect fill="none" height="24" width="24"/><path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8 s8,3.59,8,8S16.41,20,12,20z M12.5,7H11v6l5.25,3.15l0.75-1.23l-4.5-2.67V7z"/></g></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <g>
+                            <rect fill="none" height="24" width="24" />
+                            <path
+                                d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8s3.59-8,8-8 s8,3.59,8,8S16.41,20,12,20z M12.5,7H11v6l5.25,3.15l0.75-1.23l-4.5-2.67V7z" />
+                        </g>
+                    </svg>
                 </button>
             </div>
         </div>
         <div class="sections-wrapper">
             <div class="section">
-                <div class="section-title-container"><h2 class="section-title">1. Printing</h2></div>
+                <div class="section-title-container">
+                    <h2 class="section-title">1. Printing</h2>
+                </div>
                 <div class="form-grid">
                     <div class="form-group grid-col-span-2">
+                        <label for="plate-size">Plate Size</label>
+                        <select id="plate-size">
+                            <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="job-size">Job Size</label>
                         <select id="job-size">
                             <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <div class="form-group"><label for="printing-gsm-select">GSM</label><select id="printing-gsm-select"></select></div>
                     <div class="form-group">
-                        <label for="quantity">Quantity</label>
+                        <div class="label-with-checkbox">
+                            <label for="actual-quantity" style="margin:0;">Actual Quantity</label>
+                            <div class="inline-checkbox">
+                                <input type="checkbox" id="fb-actual">
+                                <label for="fb-actual">F/B</label>
+                            </div>
+                        </div>
+                        <input type="number" id="actual-quantity" value="1000" min="1" placeholder="e.g., 1000">
+                    </div>
+                    <div class="form-group"><label for="printing-gsm-select">GSM</label><select
+                            id="printing-gsm-select"></select></div>
+                    <div class="form-group">
+                        <label for="quantity">Actual Printing Quantity</label>
                         <div class="input-with-checkboxes">
                             <input type="number" id="quantity" placeholder="e.g., 2000" style="flex-grow:1; margin:0;">
                             <div class="checkbox-stack">
-                                <div class="inline-checkbox"><input type="checkbox" id="fb-check"><label for="fb-check">F/B</label></div>
-                                <div class="inline-checkbox"><input type="checkbox" id="form-check"><label for="form-check">Form</label></div>
+                                <div class="inline-checkbox"><input type="checkbox" id="fb-check"><label
+                                        for="fb-check">F/B</label></div>
+                                <div class="inline-checkbox"><input type="checkbox" id="form-check"><label
+                                        for="form-check">Form</label></div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="label-with-checkbox">
-                           <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
-                           <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label for="without-plate-check">Without Plate</label></div>
+                            <label for="printing-cost" style="margin:0;">Printing Cost (₹)</label>
+                            <div class="inline-checkbox"><input type="checkbox" id="without-plate-check"><label
+                                    for="without-plate-check">Without Plate</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="printing-cost" placeholder="" data-label="Printing Cost">
+                        <input type="number" class="cost-input" id="printing-cost" placeholder=""
+                            data-label="Printing Cost">
                     </div>
-                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number" class="cost-input" id="second-cost" placeholder="" data-label="Second Printing"></div>
+                    <div class="form-group"><label for="second-cost">Second (₹)</label><input type="number"
+                            class="cost-input" id="second-cost" placeholder="" data-label="Second Printing"></div>
                 </div>
             </div>
 
@@ -202,22 +568,32 @@
                     <button id="open-weight-calculator-btn" class="utility-btn">Weight Calculator</button>
                 </div>
                 <div class="form-grid">
-                    <div class="form-group"><label for="paper-size-select">Paper Size</label><select id="paper-size-select"></select></div>
-                    <div class="form-group"><label for="paper-gsm-select">Paper GSM</label><select id="paper-gsm-select"></select></div>
-                    <div class="form-group"><label for="paper-sheets-input">No. of Sheets</label><input type="number" id="paper-sheets-input" placeholder="0"></div>
-                    <div class="form-group"><label for="paper-rate-input">Rate per kg (₹)</label><input type="number" id="paper-rate-input" placeholder="e.g., 85"></div>
-                    <div class="form-group grid-col-span-2">
+                    <div class="form-group"><label for="paper-size-select">Paper Size</label><select
+                            id="paper-size-select"></select></div>
+                    <div class="form-group"><label for="paper-gsm-select">Paper GSM</label><select
+                            id="paper-gsm-select"></select></div>
+                    <div class="form-group"><label for="paper-sheets-input">No. of Sheets</label><input type="number"
+                            id="paper-sheets-input" placeholder="0"></div>
+                    <div class="form-group"><label for="paper-rate-input">Rate per kg (₹)</label><input type="number"
+                            id="paper-rate-input" placeholder="e.g., 85"></div>
+                    <div class="form-group"><label for="paper-ream-rate-input">Rate per Ream (₹)</label><input
+                            type="number" id="paper-ream-rate-input" placeholder="e.g., 900"></div>
+                    <div class="form-group">
                         <div class="label-with-checkbox">
                             <label for="paper-cost" style="margin:0;">Paper Cost (₹)</label>
-                            <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label for="gst-checkbox">Without GST</label></div>
+                            <div class="inline-checkbox"><input type="checkbox" id="gst-checkbox"><label
+                                    for="gst-checkbox">Without GST</label></div>
                         </div>
-                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00" data-label="Paper Cost">
+                        <input type="number" class="cost-input" id="paper-cost" placeholder="0.00"
+                            data-label="Paper Cost">
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <div class="section-title-container"><h2 class="section-title">3. Lamination</h2></div>
+                <div class="section-title-container">
+                    <h2 class="section-title">3. Lamination</h2>
+                </div>
                 <div class="form-grid">
                     <div class="form-group"><label for="lamination-type">Lamination</label>
                         <select id="lamination-type">
@@ -244,12 +620,15 @@
                             <option value="20X28">20X28</option>
                         </select>
                     </div>
-                    <div class="form-group"><label for="lami-sheets">No. of Sheets</label><input type="number" id="lami-sheets" placeholder="0"></div>
-                    <div class="form-group"><label for="lami-rate">Rate per Sheet (₹)</label><input type="number" id="lami-rate" placeholder="0.00"></div>
-                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number" class="cost-input" id="lami-cost" placeholder="0.00" data-label="Lamination Cost"></div>
+                    <div class="form-group"><label for="lami-sheets">No. of Sheets</label><input type="number"
+                            id="lami-sheets" placeholder="0"></div>
+                    <div class="form-group"><label for="lami-rate">Rate per Sheet (₹)</label><input type="number"
+                            id="lami-rate" placeholder="0.00"></div>
+                    <div class="form-group"><label for="lami-cost">Lamination Cost (₹)</label><input type="number"
+                            class="cost-input" id="lami-cost" placeholder="0.00" data-label="Lamination Cost"></div>
                 </div>
             </div>
-            
+
             <div class="section">
                 <div class="section-title-container">
                     <h2 class="section-title">4. Other Costs</h2>
@@ -259,506 +638,659 @@
                     </div>
                 </div>
                 <div class="form-grid">
-                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number" class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
-                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number" class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Cost"></div>
-                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number" class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
-                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number" class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
-                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size"><option value="">None</option><option value="9x4">9x4</option><option value="9x5">9x5</option><option value="9x6">9x6</option></select></div>
-                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number" class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
+                    <div class="form-group"><label for="binding-cost">Binding Cost (₹)</label><input type="number"
+                            class="cost-input" id="binding-cost" placeholder="0.00" data-label="Binding Cost"></div>
+                    <div class="form-group"><label for="other-misc-cost">Other Costs (₹)</label><input type="number"
+                            class="cost-input" id="other-misc-cost" placeholder="0.00" data-label="Other Cost"></div>
+                    <div class="form-group"><label for="punching-cost">Punching (₹)</label><input type="number"
+                            class="cost-input" id="punching-cost" placeholder="0.00" data-label="Punching"></div>
+                    <div class="form-group"><label for="clips-cost">Clips (₹)</label><input type="number"
+                            class="cost-input" id="clips-cost" placeholder="0.00" data-label="Clips"></div>
+                    <div class="form-group"><label for="envelope-size">Envelope Size</label><select id="envelope-size">
+                            <option value="">None</option>
+                            <option value="9x4">9x4</option>
+                            <option value="9x5">9x5</option>
+                            <option value="9x6">9x6</option>
+                        </select></div>
+                    <div class="form-group"><label for="env-cost">Envelope Cost (₹)</label><input type="number"
+                            class="cost-input" id="env-cost" placeholder="0.00" data-label="Envelope Cost"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DATA STORE ---
-        const appData = {
-          "paperData": [
-            {"size": "20X30", "gsm": 60, "perSheetWeight": 0.02323},
-            {"size": "20X30", "gsm": 70, "perSheetWeight": 0.02710},
-            {"size": "20X30", "gsm": 80, "perSheetWeight": 0.03097},
-            {"size": "20X30", "gsm": 90, "perSheetWeight": 0.03484},
-            {"size": "20X30", "gsm": 100, "perSheetWeight": 0.03871},
-            {"size": "20X30", "gsm": 120, "perSheetWeight": 0.04645}, // Added
-            {"size": "20X30", "gsm": 125, "perSheetWeight": 0.04839}, // Added
-            {"size": "20X30", "gsm": 130, "perSheetWeight": 0.05032},
-            {"size": "20X30", "gsm": 170, "perSheetWeight": 0.06581},
-            {"size": "20X30", "gsm": 210, "perSheetWeight": 0.08129},
-            {"size": "20X30", "gsm": 250, "perSheetWeight": 0.09677},
-            {"size": "20X30", "gsm": 300, "perSheetWeight": 0.11613},
-            {"size": "20X30", "gsm": 350, "perSheetWeight": 0.13548},
-            {"size": "20X30", "gsm": "STICKER", "perSheetWeight": 0.05806},
-            {"size": "20X30", "gsm": "DUPLEX", "perSheetWeight": 0.11613},
-            
-            {"size": "23X36", "gsm": 60, "perSheetWeight": 0.03206},
-            {"size": "23X36", "gsm": 70, "perSheetWeight": 0.03740},
-            {"size": "23X36", "gsm": 80, "perSheetWeight": 0.04275},
-            {"size": "23X36", "gsm": 90, "perSheetWeight": 0.04809},
-            {"size": "23X36", "gsm": 100, "perSheetWeight": 0.05343},
-            {"size": "23X36", "gsm": 120, "perSheetWeight": 0.06412}, // Added
-            {"size": "23X36", "gsm": 125, "perSheetWeight": 0.06679}, // Added
-            {"size": "23X36", "gsm": 130, "perSheetWeight": 0.06946},
-            {"size": "23X36", "gsm": 170, "perSheetWeight": 0.09084},
-            {"size": "23X36", "gsm": 210, "perSheetWeight": 0.11221},
-            {"size": "23X36", "gsm": 250, "perSheetWeight": 0.13358},
-            {"size": "23X36", "gsm": 300, "perSheetWeight": 0.16030},
-            {"size": "23X36", "gsm": 350, "perSheetWeight": 0.18701},
-            {"size": "23X36", "gsm": "STICKER", "perSheetWeight": 0.08015},
-            {"size": "23X36", "gsm": "DUPLEX", "perSheetWeight": 0.16030},
-            
-            {"size": "25X36", "gsm": 60, "perSheetWeight": 0.03484},
-            {"size": "25X36", "gsm": 70, "perSheetWeight": 0.04065},
-            {"size": "25X36", "gsm": 80, "perSheetWeight": 0.04645},
-            {"size": "25X36", "gsm": 90, "perSheetWeight": 0.05226},
-            {"size": "25X36", "gsm": 100, "perSheetWeight": 0.05806},
-            {"size": "25X36", "gsm": 120, "perSheetWeight": 0.06968}, // Added
-            {"size": "25X36", "gsm": 125, "perSheetWeight": 0.07258}, // Added
-            {"size": "25X36", "gsm": 130, "perSheetWeight": 0.07548},
-            {"size": "25X36", "gsm": 170, "perSheetWeight": 0.09871},
-            {"size": "25X36", "gsm": 210, "perSheetWeight": 0.12194},
-            {"size": "25X36", "gsm": 250, "perSheetWeight": 0.14516},
-            {"size": "25X36", "gsm": 300, "perSheetWeight": 0.17419},
-            {"size": "25X36", "gsm": 350, "perSheetWeight": 0.20323},
-            {"size": "25X36", "gsm": "STICKER", "perSheetWeight": 0.08710},
-            {"size": "25X36", "gsm": "DUPLEX", "perSheetWeight": 0.17419},
-            
-            {"size": "25X38", "gsm": 60, "perSheetWeight": 0.03677},
-            {"size": "25X38", "gsm": 70, "perSheetWeight": 0.04290},
-            {"size": "25X38", "gsm": 80, "perSheetWeight": 0.04903},
-            {"size": "25X38", "gsm": 90, "perSheetWeight": 0.05516},
-            {"size": "25X38", "gsm": 100, "perSheetWeight": 0.06129},
-            {"size": "25X38", "gsm": 120, "perSheetWeight": 0.07355}, // Added
-            {"size": "25X38", "gsm": 125, "perSheetWeight": 0.07661}, // Added
-            {"size": "25X38", "gsm": 130, "perSheetWeight": 0.07968},
-            {"size": "25X38", "gsm": 170, "perSheetWeight": 0.10420},
-            {"size": "25X38", "gsm": 210, "perSheetWeight": 0.12871},
-            {"size": "25X38", "gsm": 250, "perSheetWeight": 0.15323},
-            {"size": "25X38", "gsm": 300, "perSheetWeight": 0.18387},
-            {"size": "25X38", "gsm": 350, "perSheetWeight": 0.21452},
-            {"size": "25X38", "gsm": "STICKER", "perSheetWeight": 0.09194},
-            {"size": "25X38", "gsm": "DUPLEX", "perSheetWeight": 0.18387}
-          ],
-          // --- LAMINATION RATES (Placeholder rates - adjust as needed) ---
-          "laminationRates": {
-              "gloss": { "12x18": 3.50, "20x28": 7.00 }, // Rate per sheet
-              "matte": { "12x18": 4.50, "20x28": 9.00 }
-          }
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA STORE ---
+            const appData = {
+                "paperData": [
+                    { "size": "20X30", "gsm": 60, "perSheetWeight": 0.02323 },
+                    { "size": "20X30", "gsm": 70, "perSheetWeight": 0.02710 },
+                    { "size": "20X30", "gsm": 80, "perSheetWeight": 0.03097 },
+                    { "size": "20X30", "gsm": 90, "perSheetWeight": 0.03484 },
+                    { "size": "20X30", "gsm": 100, "perSheetWeight": 0.03871 },
+                    { "size": "20X30", "gsm": 120, "perSheetWeight": 0.04645 }, // Added
+                    { "size": "20X30", "gsm": 125, "perSheetWeight": 0.04839 }, // Added
+                    { "size": "20X30", "gsm": 130, "perSheetWeight": 0.05032 },
+                    { "size": "20X30", "gsm": 170, "perSheetWeight": 0.06581 },
+                    { "size": "20X30", "gsm": 210, "perSheetWeight": 0.08129 },
+                    { "size": "20X30", "gsm": 250, "perSheetWeight": 0.09677 },
+                    { "size": "20X30", "gsm": 300, "perSheetWeight": 0.11613 },
+                    { "size": "20X30", "gsm": 350, "perSheetWeight": 0.13548 },
+                    { "size": "20X30", "gsm": "STICKER", "perSheetWeight": 0.05806 },
+                    { "size": "20X30", "gsm": "DUPLEX", "perSheetWeight": 0.11613 },
 
-        // --- ELEMENT SELECTORS ---
-        const allInputs = document.querySelectorAll('input, select');
-        const customerNameInput = document.getElementById('customer-name');
-        const multipleJobsInput = document.getElementById('multiple-jobs-input');
-        const allCostInputs = document.querySelectorAll('.cost-input');
-        const totalCostDisplay = document.getElementById('total-cost');
-        const jobSizeSelect = document.getElementById('job-size');
-        const quantityInput = document.getElementById('quantity');
-        const fbCheck = document.getElementById('fb-check');
-        const formCheck = document.getElementById('form-check'); // NEW ELEMENT
-        const withoutPlateCheck = document.getElementById('without-plate-check');
-        const printingCostInput = document.getElementById('printing-cost');
-        const secondCostInput = document.getElementById('second-cost');
-        const paperSheetsInput = document.getElementById('paper-sheets-input');
-        const paperCostInput = document.getElementById('paper-cost');
-        const paperSizeSelect = document.getElementById('paper-size-select');
-        const paperGsmSelect = document.getElementById('paper-gsm-select');
-        const printingGsmSelect = document.getElementById('printing-gsm-select');
-        const paperRateInput = document.getElementById('paper-rate-input');
-        const gstCheckbox = document.getElementById('gst-checkbox');
-        const laminationTypeSelect = document.getElementById('lamination-type');
-        const laminationSizeSelect = document.getElementById('lami-size');
-        const lamiSheetsInput = document.getElementById('lami-sheets');
-        const lamiRateInput = document.getElementById('lami-rate');
-        const lamiCostInput = document.getElementById('lami-cost');
-        
-        // 2. Select new checkbox
-        const multiplyOtherCostsCheck = document.getElementById('multiply-other-costs-check');
-        
-        const bindingCostInput = document.getElementById('binding-cost');
-        const otherMiscCostInput = document.getElementById('other-misc-cost');
-        const punchingCostInput = document.getElementById('punching-cost');
-        const clipsCostInput = document.getElementById('clips-cost');
-        const envelopeSizeSelect = document.getElementById('envelope-size');
-        const envCostInput = document.getElementById('env-cost');
-        const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        const whatsappBtn = document.getElementById('whatsapp-btn');
-        const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
-        const openWeightCalculatorBtn = document.getElementById('open-weight-calculator-btn');
-        const modalContainer = document.getElementById('modal-container');
-        const COUNTER_KEY = 'akshardeep_estimate_counter';
+                    { "size": "23X36", "gsm": 60, "perSheetWeight": 0.03206 },
+                    { "size": "23X36", "gsm": 70, "perSheetWeight": 0.03740 },
+                    { "size": "23X36", "gsm": 80, "perSheetWeight": 0.04275 },
+                    { "size": "23X36", "gsm": 90, "perSheetWeight": 0.04809 },
+                    { "size": "23X36", "gsm": 100, "perSheetWeight": 0.05343 },
+                    { "size": "23X36", "gsm": 120, "perSheetWeight": 0.06412 }, // Added
+                    { "size": "23X36", "gsm": 125, "perSheetWeight": 0.06679 }, // Added
+                    { "size": "23X36", "gsm": 130, "perSheetWeight": 0.06946 },
+                    { "size": "23X36", "gsm": 170, "perSheetWeight": 0.09084 },
+                    { "size": "23X36", "gsm": 210, "perSheetWeight": 0.11221 },
+                    { "size": "23X36", "gsm": 250, "perSheetWeight": 0.13358 },
+                    { "size": "23X36", "gsm": 300, "perSheetWeight": 0.16030 },
+                    { "size": "23X36", "gsm": 350, "perSheetWeight": 0.18701 },
+                    { "size": "23X36", "gsm": "STICKER", "perSheetWeight": 0.08015 },
+                    { "size": "23X36", "gsm": "DUPLEX", "perSheetWeight": 0.16030 },
 
-        // --- INITIALIZATION ---
-        initializeApp();
+                    { "size": "25X36", "gsm": 60, "perSheetWeight": 0.03484 },
+                    { "size": "25X36", "gsm": 70, "perSheetWeight": 0.04065 },
+                    { "size": "25X36", "gsm": 80, "perSheetWeight": 0.04645 },
+                    { "size": "25X36", "gsm": 90, "perSheetWeight": 0.05226 },
+                    { "size": "25X36", "gsm": 100, "perSheetWeight": 0.05806 },
+                    { "size": "25X36", "gsm": 120, "perSheetWeight": 0.06968 }, // Added
+                    { "size": "25X36", "gsm": 125, "perSheetWeight": 0.07258 }, // Added
+                    { "size": "25X36", "gsm": 130, "perSheetWeight": 0.07548 },
+                    { "size": "25X36", "gsm": 170, "perSheetWeight": 0.09871 },
+                    { "size": "25X36", "gsm": 210, "perSheetWeight": 0.12194 },
+                    { "size": "25X36", "gsm": 250, "perSheetWeight": 0.14516 },
+                    { "size": "25X36", "gsm": 300, "perSheetWeight": 0.17419 },
+                    { "size": "25X36", "gsm": 350, "perSheetWeight": 0.20323 },
+                    { "size": "25X36", "gsm": "STICKER", "perSheetWeight": 0.08710 },
+                    { "size": "25X36", "gsm": "DUPLEX", "perSheetWeight": 0.17419 },
 
-        function initializeApp() {
-            populateDropdowns();
-            setupEventListeners();
-            calculateAllCosts();
-        }
-
-        // --- CALCULATION FUNCTIONS ---
-        // 2. Updated Grand Total Calculation Logic
-        function calculateGrandTotal() {
-            // Group A: Always Multiplied (Printing, Paper, Lamination)
-            const printing = parseFloat(printingCostInput.value) || 0;
-            const second = parseFloat(secondCostInput.value) || 0;
-            const paper = parseFloat(paperCostInput.value) || 0;
-            const lami = parseFloat(lamiCostInput.value) || 0;
-            const subtotalMultipliable = printing + second + paper + lami;
-
-            // Group B: Conditionally Multiplied (Other Costs)
-            const binding = parseFloat(bindingCostInput.value) || 0;
-            const other = parseFloat(otherMiscCostInput.value) || 0;
-            const punching = parseFloat(punchingCostInput.value) || 0;
-            const clips = parseFloat(clipsCostInput.value) || 0;
-            const env = parseFloat(envCostInput.value) || 0;
-            const subtotalOther = binding + other + punching + clips + env;
-
-            const multiplier = parseFloat(multipleJobsInput.value) || 1;
-            const shouldMultiplyOther = multiplyOtherCostsCheck.checked;
-
-            let finalTotal = 0;
-            if (shouldMultiplyOther) {
-                // If checkbox checked, multiply everything
-                finalTotal = (subtotalMultipliable + subtotalOther) * multiplier;
-            } else {
-                // If unchecked, multiply only Group A, add Group B once
-                finalTotal = (subtotalMultipliable * multiplier) + subtotalOther;
-            }
-
-            const roundedTotal = Math.round(finalTotal);
-            totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
-        }
-
-        // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
-        function calculatePrintingCosts() {
-            const selectedGsm = printingGsmSelect.value;
-            const selectedSize = jobSizeSelect.value;
-            
-            if (!selectedGsm || !selectedSize) {
-                printingCostInput.value = ""; 
-                secondCostInput.value = "";
-                calculateGrandTotal(); 
-                return;
-            }
-
-            const isWithoutPlate = withoutPlateCheck.checked;
-            const isFormChecked = formCheck.checked;
-            const isHeavyGsm = ['300', '350', 'DUPLEX'].includes(String(selectedGsm).toUpperCase());
-            
-            let baseCost = 0;
-            let secondRate = 0;
-
-            const smallSizes = ['10X15', '12X18'];
-
-            // 1. DETERMINE BASE COST AND RATE
-            if (smallSizes.includes(selectedSize)) {
-                // SMALL SIZES: Base is always 1200 regardless of GSM
-                baseCost = 1200;
-                secondRate = 300;
-            } else {
-                // LARGE SIZES
-                if (isHeavyGsm) {
-                    baseCost = 2400;
-                    secondRate = 600;
-                } else {
-                    baseCost = 1900;
-                    secondRate = 500;
+                    { "size": "25X38", "gsm": 60, "perSheetWeight": 0.03677 },
+                    { "size": "25X38", "gsm": 70, "perSheetWeight": 0.04290 },
+                    { "size": "25X38", "gsm": 80, "perSheetWeight": 0.04903 },
+                    { "size": "25X38", "gsm": 90, "perSheetWeight": 0.05516 },
+                    { "size": "25X38", "gsm": 100, "perSheetWeight": 0.06129 },
+                    { "size": "25X38", "gsm": 120, "perSheetWeight": 0.07355 }, // Added
+                    { "size": "25X38", "gsm": 125, "perSheetWeight": 0.07661 }, // Added
+                    { "size": "25X38", "gsm": 130, "perSheetWeight": 0.07968 },
+                    { "size": "25X38", "gsm": 170, "perSheetWeight": 0.10420 },
+                    { "size": "25X38", "gsm": 210, "perSheetWeight": 0.12871 },
+                    { "size": "25X38", "gsm": 250, "perSheetWeight": 0.15323 },
+                    { "size": "25X38", "gsm": 300, "perSheetWeight": 0.18387 },
+                    { "size": "25X38", "gsm": 350, "perSheetWeight": 0.21452 },
+                    { "size": "25X38", "gsm": "STICKER", "perSheetWeight": 0.09194 },
+                    { "size": "25X38", "gsm": "DUPLEX", "perSheetWeight": 0.18387 }
+                ],
+                // --- LAMINATION RATES (Placeholder rates - adjust as needed) ---
+                "laminationRates": {
+                    "gloss": { "12x18": 3.50, "20x28": 7.00 }, // Rate per sheet
+                    "matte": { "12x18": 4.50, "20x28": 9.00 }
                 }
+            };
+
+            // --- ELEMENT SELECTORS ---
+            const allInputs = document.querySelectorAll('input, select');
+            const customerNameInput = document.getElementById('customer-name');
+            const multipleJobsInput = document.getElementById('multiple-jobs-input');
+            const allCostInputs = document.querySelectorAll('.cost-input');
+            const totalCostDisplay = document.getElementById('total-cost');
+            const plateSizeSelect = document.getElementById('plate-size');
+            const jobSizeSelect = document.getElementById('job-size');
+            const actualQuantityInput = document.getElementById('actual-quantity');
+            const quantityInput = document.getElementById('quantity');
+            const fbActualCheck = document.getElementById('fb-actual');
+            const fbCheck = document.getElementById('fb-check');
+            const formCheck = document.getElementById('form-check'); // NEW ELEMENT
+            const withoutPlateCheck = document.getElementById('without-plate-check');
+            const printingCostInput = document.getElementById('printing-cost');
+            const secondCostInput = document.getElementById('second-cost');
+            const paperSheetsInput = document.getElementById('paper-sheets-input');
+            const paperCostInput = document.getElementById('paper-cost');
+            const paperSizeSelect = document.getElementById('paper-size-select');
+            const paperGsmSelect = document.getElementById('paper-gsm-select');
+            const printingGsmSelect = document.getElementById('printing-gsm-select');
+            const paperRateInput = document.getElementById('paper-rate-input');
+            const paperReamRateInput = document.getElementById('paper-ream-rate-input');
+            const gstCheckbox = document.getElementById('gst-checkbox');
+            const laminationTypeSelect = document.getElementById('lamination-type');
+            const laminationSizeSelect = document.getElementById('lami-size');
+            const lamiSheetsInput = document.getElementById('lami-sheets');
+            const lamiRateInput = document.getElementById('lami-rate');
+            const lamiCostInput = document.getElementById('lami-cost');
+
+            // 2. Select new checkbox
+            const multiplyOtherCostsCheck = document.getElementById('multiply-other-costs-check');
+
+            const bindingCostInput = document.getElementById('binding-cost');
+            const otherMiscCostInput = document.getElementById('other-misc-cost');
+            const punchingCostInput = document.getElementById('punching-cost');
+            const clipsCostInput = document.getElementById('clips-cost');
+            const envelopeSizeSelect = document.getElementById('envelope-size');
+            const envCostInput = document.getElementById('env-cost');
+            const downloadPdfBtn = document.getElementById('download-pdf-btn');
+            const copyQuotationBtn = document.getElementById('copy-quotation-btn');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            const prevEstimatesBtn = document.getElementById('prev-estimates-btn');
+            const openWeightCalculatorBtn = document.getElementById('open-weight-calculator-btn');
+            const modalContainer = document.getElementById('modal-container');
+            const COUNTER_KEY = 'akshardeep_estimate_counter';
+
+            // --- INITIALIZATION ---
+            initializeApp();
+
+            function initializeApp() {
+                populateDropdowns();
+                setupEventListeners();
+                calculateAllCosts();
             }
 
-            // 2. APPLY "WITHOUT PLATE" REDUCTION
-            if (isWithoutPlate) {
-                if (smallSizes.includes(selectedSize)) {
-                    baseCost = 700; // Explicit set to 700 (1200 - 500)
+            // --- CALCULATION FUNCTIONS ---
+            // 2. Updated Grand Total Calculation Logic
+            function calculateGrandTotal() {
+                // Group A: Always Multiplied (Printing, Paper, Lamination)
+                const printing = parseFloat(printingCostInput.value) || 0;
+                const second = parseFloat(secondCostInput.value) || 0;
+                const paper = parseFloat(paperCostInput.value) || 0;
+                const lami = parseFloat(lamiCostInput.value) || 0;
+                const subtotalMultipliable = printing + second + paper + lami;
+
+                // Group B: Conditionally Multiplied (Other Costs)
+                const binding = parseFloat(bindingCostInput.value) || 0;
+                const other = parseFloat(otherMiscCostInput.value) || 0;
+                const punching = parseFloat(punchingCostInput.value) || 0;
+                const clips = parseFloat(clipsCostInput.value) || 0;
+                const env = parseFloat(envCostInput.value) || 0;
+                const subtotalOther = binding + other + punching + clips + env;
+
+                const multiplier = parseFloat(multipleJobsInput.value) || 1;
+                const shouldMultiplyOther = multiplyOtherCostsCheck.checked;
+
+                let finalTotal = 0;
+                if (shouldMultiplyOther) {
+                    // If checkbox checked, multiply everything
+                    finalTotal = (subtotalMultipliable + subtotalOther) * multiplier;
                 } else {
-                    baseCost -= 1000; // Reduce by 1000 for large sizes
+                    // If unchecked, multiply only Group A, add Group B once
+                    finalTotal = (subtotalMultipliable * multiplier) + subtotalOther;
                 }
+
+                const roundedTotal = Math.ceil(finalTotal / 50) * 50;
+                totalCostDisplay.textContent = `₹ ${roundedTotal.toFixed(2)}`;
             }
 
-            // 3. APPLY "FORM" MULTIPLIER
-            if (isFormChecked) {
-                baseCost *= 2;
+            // --- UPDATED PRINTING COST FUNCTION (as per latest request) ---
+            function calculatePrintingCosts() {
+                const selectedGsm = printingGsmSelect.value;
+                const selectedPlateSize = plateSizeSelect.value;
+
+                if (!selectedGsm || !selectedPlateSize) {
+                    printingCostInput.value = "";
+                    secondCostInput.value = "";
+                    calculateGrandTotal();
+                    return;
+                }
+
+                const isWithoutPlate = withoutPlateCheck.checked;
+                const isFormChecked = formCheck.checked;
+                const isHeavyGsm = ['300', '350', 'DUPLEX'].includes(String(selectedGsm).toUpperCase());
+
+                let baseCost = 0;
+                let secondRate = 0;
+
+                const smallSizes = ['10X15', '12X18'];
+
+                // 1. DETERMINE BASE COST AND RATE (Based on Plate Size)
+                if (smallSizes.includes(selectedPlateSize)) {
+                    // SMALL SIZES: Base is always 1200 regardless of GSM
+                    baseCost = 1200;
+                    secondRate = 300;
+                } else {
+                    // LARGE SIZES
+                    if (isHeavyGsm) {
+                        baseCost = 2400;
+                        secondRate = 600;
+                    } else {
+                        baseCost = 1900;
+                        secondRate = 500;
+                    }
+                }
+
+                // 2. APPLY "WITHOUT PLATE" REDUCTION
+                if (isWithoutPlate) {
+                    if (smallSizes.includes(selectedPlateSize)) {
+                        baseCost = 700; // Explicit set to 700
+                    } else {
+                        baseCost -= 1000; // Reduce by 1000 for large sizes
+                    }
+                }
+
+                // 3. APPLY "FORM" MULTIPLIER
+                if (isFormChecked) {
+                    baseCost *= 2;
+                }
+
+                printingCostInput.value = baseCost.toFixed(2);
+
+                const threshold = isFormChecked ? 2000 : 1000;
+
+                let secondCost = 0;
+                const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
+
+                if (effectiveQuantity > threshold) {
+                    secondCost = Math.ceil((effectiveQuantity - threshold) / 1000) * secondRate;
+                }
+                secondCostInput.value = secondCost.toFixed(2);
+                calculateGrandTotal();
             }
-            
-            printingCostInput.value = baseCost.toFixed(2);
-            
-            const threshold = isFormChecked ? 2000 : 1000;
-            
-            let secondCost = 0;
-            const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
-            
-            if (effectiveQuantity > threshold) {
-                secondCost = Math.ceil((effectiveQuantity - threshold) / 1000) * secondRate;
-            }
-            secondCostInput.value = secondCost.toFixed(2);
-            calculateGrandTotal();
-        }
-        // --- END OF UPDATED FUNCTION ---
+            // --- END OF UPDATED FUNCTION ---
 
 
-        function calculatePaperCost() {
-            const sheets = parseFloat(paperSheetsInput.value) || 0;
-            const rate = parseFloat(paperRateInput.value) || 0;
+            function calculatePaperCost() {
+                const sheets = parseFloat(paperSheetsInput.value) || 0;
+                const rate = parseFloat(paperRateInput.value) || 0;
 
-            if (!paperSizeSelect.value || !paperGsmSelect.value || !sheets || !rate) {
-                paperCostInput.value = "0.00";
+                if (!paperSizeSelect.value || !paperGsmSelect.value || !sheets || !rate) {
+                    paperCostInput.value = "0.00";
+                    // Trigger an input event to update the grand total
+                    paperCostInput.dispatchEvent(new Event('input'));
+                    return;
+                }
+
+                const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
+
+                const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
+                if (perSheetWeight === 0) {
+                    console.warn(`Missing paper data for: ${paperSizeSelect.value} @ ${paperGsmSelect.value} GSM`);
+                }
+
+                const basePrice = perSheetWeight * sheets * rate;
+
+                // --- FIXED GST LOGIC ---
+                // If "Without GST" is checked, taxRate is 0.09 (9%).
+                // If it is unchecked, taxRate is 0.18 (18%).
+                const taxRate = gstCheckbox.checked ? 0.09 : 0.18;
+                const finalPrice = basePrice * (1 + taxRate);
+
+                paperCostInput.value = Math.round(finalPrice).toFixed(2);
                 // Trigger an input event to update the grand total
                 paperCostInput.dispatchEvent(new Event('input'));
-                return;
-            }
-            
-            const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSizeSelect.value.toLowerCase() && String(d.gsm).toLowerCase() === paperGsmSelect.value.toLowerCase());
-            
-            const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
-            if (perSheetWeight === 0) {
-                 console.warn(`Missing paper data for: ${paperSizeSelect.value} @ ${paperGsmSelect.value} GSM`);
             }
 
-            const basePrice = perSheetWeight * sheets * rate;
-            
-            // --- FIXED GST LOGIC ---
-            // If "Without GST" is checked, taxRate is 0.09 (9%).
-            // If it is unchecked, taxRate is 0.18 (18%).
-            const taxRate = gstCheckbox.checked ? 0.09 : 0.18;
-            const finalPrice = basePrice * (1 + taxRate);
-            
-            paperCostInput.value = Math.round(finalPrice).toFixed(2);
-            // Trigger an input event to update the grand total
-            paperCostInput.dispatchEvent(new Event('input'));
-        }
+            function syncPaperRates(source) {
+                const paperSize = paperSizeSelect.value;
+                const paperGsm = paperGsmSelect.value;
+                if (!paperSize || !paperGsm) return;
 
+                const paperInfo = appData.paperData?.find(d => d.size.toLowerCase() === paperSize.toLowerCase() && String(d.gsm).toLowerCase() === paperGsm.toLowerCase());
+                const perSheetWeight = paperInfo ? paperInfo.perSheetWeight : 0;
+                const reamWeight = perSheetWeight * 500;
 
-        function calculateNumberOfSheets() {
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const paperGsm = paperGsmSelect.value;
-            let divisionFactor = 0;
-            
-            const gsmIsSticker = String(paperGsm).toUpperCase() === 'STICKER';
+                if (reamWeight <= 0) return;
 
-            const size = jobSizeSelect.value;
-            if (size === '20X28') { 
-                divisionFactor = 1; 
-            } else if (['18X23', '18X25', '15X20', '19X25'].includes(size)) {
-                divisionFactor = gsmIsSticker ? 1 : 2;
-            } else if (['12X18', '10X15'].includes(size)) { 
-                divisionFactor = gsmIsSticker ? 2 : 4; 
-            }
-            
-            const baseSheets = (divisionFactor > 0) ? Math.ceil(quantity / divisionFactor) : 0;
-            paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
-            
-            calculatePaperCost();
-        }
-        
-        function calculateAllCosts() {
-            // This function now correctly calculates sheets (which in turn calculates paper cost)
-            // and then calculates printing costs.
-            calculateNumberOfSheets();
-            calculatePrintingCosts();
-            calculateLaminationCost(); // Ensure lami cost updates if dependent inputs change
-        }
-
-        // --- UI & HELPER FUNCTIONS ---
-        function getDynamicDescription() {
-            let desc = `${jobSizeSelect.value || 'N/A'} - ${printingGsmSelect.value || 'N/A'} GSM - ${quantityInput.value || '0'}`;
-            if (fbCheck.checked) { desc += ' F/B'; }
-            if (formCheck.checked) { desc += ' (Form)'; } // Added "Form" to description
-            const lamiType = laminationTypeSelect.value;
-            if (lamiType) {
-                const lamiSize = laminationSizeSelect.value;
-                // Formatting lami type string nicely
-                const formattedLamiType = lamiType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-                desc += ` - ${formattedLamiType} (${lamiSize || 'N/A'})`;
-            }
-            const envSize = envelopeSizeSelect.value;
-            if (envSize) { desc += ` - Envelope (${envSize})`; }
-            return desc;
-        }
-
-        function syncGsm(source, target) {
-            if (source.value) {
-                target.value = source.value;
-                target.dispatchEvent(new Event('change'));
-            }
-        }
-
-        function sendToWhatsApp() {
-            const customer = customerNameInput.value || 'Customer';
-            const total = totalCostDisplay.textContent;
-            const dynamicDescription = getDynamicDescription();
-            const multiplier = parseFloat(multipleJobsInput.value) || 1;
-
-            let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${dynamicDescription}*`;
-            
-            if (multiplier > 1) {
-                message += `\n\n*Jobs:* ${multiplier}`;
-            }
-
-            message += `\n\n*Total:* ${total}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
-        function generatePDF() {
-            const customerName = customerNameInput.value.trim();
-            if (!customerName) {
-                alert("Please enter a customer name before creating a PDF."); return;
-            }
-            
-            let counter = parseInt(localStorage.getItem(COUNTER_KEY)) || 0;
-            counter++;
-            const estimateNr = 'AOP' + String(counter).padStart(2, '0');
-            
-            const estimateData = {};
-            allInputs.forEach(input => {
-                if(input.id) estimateData[input.id] = input.type === 'checkbox' ? input.checked : input.value;
-            });
-            localStorage.setItem(estimateNr, JSON.stringify(estimateData));
-            localStorage.setItem(COUNTER_KEY, counter);
-            alert(`Estimate ${estimateNr} has been saved.`);
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const today = new Date().toLocaleDateString('en-GB');
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(20); doc.text("Cost Estimate", 105, 20, { align: 'center' });
-            
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(11);
-            doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35); doc.text(`Date: ${today}`, 148, 35);
-            doc.text(`Dear ${customerName},`, 14, 50);
-            doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
-
-            const dynamicDescription = getDynamicDescription();
-            doc.setFont("helvetica", "bold");
-            doc.text(dynamicDescription, 14, 67);
-            doc.setFont("helvetica", "normal");
-
-            const tableBody = [];
-            let subtotal = 0;
-            
-            // 3. New PDF Logic for Total Calculation matches calculateGrandTotal
-            const printing = parseFloat(printingCostInput.value) || 0;
-            const second = parseFloat(secondCostInput.value) || 0;
-            const totalPrintingCost = printing + second;
-
-            const costItems = [
-                { label: 'Printing Cost', value: totalPrintingCost }, 
-                { label: 'Paper Cost', value: parseFloat(paperCostInput.value) || 0 }, 
-                { label: 'Lamination Cost', value: parseFloat(lamiCostInput.value) || 0 }, 
-                { label: 'Binding Cost', value: parseFloat(bindingCostInput.value) || 0 }, 
-                { label: 'Punching', value: parseFloat(punchingCostInput.value) || 0 },
-                { label: 'Clips', value: parseFloat(clipsCostInput.value) || 0 }, 
-                { label: 'Envelope Cost', value: parseFloat(envCostInput.value) || 0 },
-                { label: 'Other Costs', value: parseFloat(otherMiscCostInput.value) || 0 }
-            ];
-
-            costItems.forEach((item) => {
-                if (item.value > 0) {
-                    tableBody.push([tableBody.length + 1, item.label, `₹ ${item.value.toFixed(2)}`]);
-                    subtotal += item.value;
+                if (source === 'kg') {
+                    const ratePerKg = parseFloat(paperRateInput.value) || 0;
+                    paperReamRateInput.value = ratePerKg > 0 ? (ratePerKg * reamWeight).toFixed(2) : "";
+                } else if (source === 'ream') {
+                    const ratePerReam = parseFloat(paperReamRateInput.value) || 0;
+                    paperRateInput.value = ratePerReam > 0 ? (ratePerReam / reamWeight).toFixed(2) : "";
                 }
-            });
-            
-            // Re-calculate Total for PDF Footer accurately
-            const multiplier = parseFloat(multipleJobsInput.value) || 1;
-            const shouldMultiplyOther = multiplyOtherCostsCheck.checked;
-
-            // Recalculate based on groups like calculateGrandTotal
-            const subtotalMultipliable = totalPrintingCost + (parseFloat(paperCostInput.value) || 0) + (parseFloat(lamiCostInput.value) || 0);
-            const subtotalOther = (parseFloat(bindingCostInput.value) || 0) + (parseFloat(punchingCostInput.value) || 0) + (parseFloat(clipsCostInput.value) || 0) + (parseFloat(envCostInput.value) || 0) + (parseFloat(otherMiscCostInput.value) || 0);
-
-            let finalTotal = 0;
-            if (shouldMultiplyOther) {
-                finalTotal = (subtotalMultipliable + subtotalOther) * multiplier;
-            } else {
-                finalTotal = (subtotalMultipliable * multiplier) + subtotalOther;
-            }
-            const total = Math.round(finalTotal);
-            
-            const footRows = [];
-            // Simplified Footer
-            if (multiplier > 1) {
-                 footRows.push(['', `Total (x ${multiplier} Jobs)`, `₹ ${total.toFixed(2)}`]);
-            } else {
-                 footRows.push(['', 'Total', `₹ ${total.toFixed(2)}`]);
             }
 
-            doc.autoTable({
-                head: [['Pos.', 'Description', 'Price']], 
-                body: tableBody, 
-                foot: footRows,
-                startY: 75, theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center', font: 'helvetica', fontStyle: 'bold' },
-                footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], font: 'helvetica', fontStyle: 'bold', halign: 'right' },
-                columnStyles: { 0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' } },
-                didDrawPage: (data) => {
-                    doc.setFont("helvetica", "normal");
-                    doc.setFontSize(10); 
-                    const validUntil = new Date(); validUntil.setDate(validUntil.getDate() + 15);
-                    doc.text(`This offer is valid until ${validUntil.toLocaleDateString('en-GB')}.`, 14, doc.internal.pageSize.height - 20);
-                    doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
+            function calculateLaminationCost() {
+                const type = laminationTypeSelect.value;
+                const size = laminationSizeSelect.value;
+
+                if (!type) {
+                    lamiSheetsInput.value = "";
+                    lamiRateInput.value = "";
+                    lamiCostInput.value = "";
+                    calculateGrandTotal();
+                    return;
                 }
-            });
-            
-            doc.save(`Cost-Estimate-${estimateNr}.pdf`);
-        }
 
-        // --- LOAD/DELETE/MODAL FUNCTIONS ---
-        function loadEstimate(estimateKey) {
-            const dataString = localStorage.getItem(estimateKey);
-            if (dataString) {
-                try {
-                    const estimateData = JSON.parse(dataString);
-                    allInputs.forEach(input => {
-                        if (input.id && estimateData[input.id] !== undefined) {
-                            input.type === 'checkbox' ? input.checked = estimateData[input.id] : input.value = estimateData[input.id];
-                            if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
-                        }
-                    });
-                    if (!multipleJobsInput.value) { multipleJobsInput.value = '1'; }
-                    calculateGrandTotal(); 
-                    closeModal();
-                    alert(`Loaded estimate for "${estimateData['customer-name'] || estimateKey}"`);
-                } catch (e) { alert("Failed to load estimate (corrupted data)."); console.error(e); }
+                const sheets = parseFloat(paperSheetsInput.value) || 0;
+                lamiSheetsInput.value = sheets > 0 ? sheets : "";
+
+                let rate = 0;
+                const rates = appData.laminationRates;
+                if (rates && rates[type] && rates[type][size.toLowerCase()]) {
+                    rate = rates[type][size.toLowerCase()];
+                    lamiRateInput.value = rate.toFixed(2);
+                } else {
+                    rate = parseFloat(lamiRateInput.value) || 0;
+                }
+
+                const lamiSheets = parseFloat(lamiSheetsInput.value) || 0;
+                const cost = lamiSheets * rate;
+                lamiCostInput.value = cost > 0 ? cost.toFixed(2) : "";
+
+                calculateGrandTotal();
             }
-        }
-        
-        function deleteEstimate(estimateKey) {
-            if (confirm(`Are you sure you want to delete estimate ${estimateKey}?`)) {
-                localStorage.removeItem(estimateKey);
-                alert("Estimate deleted successfully.");
-                showPreviousEstimates(); // Refresh the list
+
+            function resolveDimensions(sizeStr) {
+                if (!sizeStr) return "";
+                const cleaned = sizeStr.trim().toUpperCase();
+                const nameMap = {
+                    "A3": "11.7X16.5",
+                    "A4": "8.3X11.7",
+                    "A5": "5.8X8.3",
+                    "A6": "4.1X5.8",
+                    "1/8": "5.5X8.5"
+                };
+                return nameMap[cleaned] || cleaned;
             }
-        }
-        
-        function showPreviousEstimates() {
-            const estimates = Object.keys(localStorage).filter(key => key.startsWith('AOP')).sort();
-            
-            let listHtml = '<ul class="estimates-list">';
-            if (estimates.length > 0) {
-                estimates.forEach(key => {
-                    let customerName = 'Unknown Customer';
+
+            function calculateUps(parentSizeStr, childSizeStr) {
+                if (!parentSizeStr || !childSizeStr) return 1;
+
+                const parent = resolveDimensions(parentSizeStr).toUpperCase().split('X').map(Number);
+                const child = resolveDimensions(childSizeStr).toUpperCase().split('X').map(Number);
+
+                if (parent.length !== 2 || child.length !== 2 || parent.some(isNaN) || child.some(isNaN)) {
+                    return 1;
+                }
+
+                const upsNormal = Math.floor(parent[0] / child[0]) * Math.floor(parent[1] / child[1]);
+                const upsRotated = Math.floor(parent[0] / child[1]) * Math.floor(parent[1] / child[0]);
+
+                return Math.max(1, upsNormal, upsRotated);
+            }
+
+            function calculateNumberOfSheets() {
+                const actualQty = parseFloat(actualQuantityInput.value) || 0;
+                const paperSize = paperSizeSelect.value;
+                const plateSize = plateSizeSelect.value;
+                const jobSize = jobSizeSelect.value;
+
+                if (!plateSize || !jobSize || actualQty <= 0) {
+                    quantityInput.value = "";
+                    paperSheetsInput.value = "";
+                    calculatePaperCost();
+                    return;
+                }
+
+                // 1. Calculate how many jobs fit on a plate (Ups)
+                let upsPlateToJob = calculateUps(plateSize, jobSize);
+
+                // If F/B (Front/Back) is checked next to Actual Quantity and NOT running as Form (Work & Turn)
+                // then both Front and Back are laid out on the same plate, halving the effective Ups.
+                if (fbActualCheck.checked && !formCheck.checked) {
+                    upsPlateToJob = Math.max(1, Math.floor(upsPlateToJob / 2));
+                }
+
+                // 2. Set the Quantity (impressions) input box automatically
+                const quantity = Math.ceil(actualQty / upsPlateToJob);
+                quantityInput.value = quantity;
+
+                // 3. Calculate how many plates fit on a big paper sheet
+                let upsPaperToPlate = 1;
+                if (paperSize) {
+                    upsPaperToPlate = calculateUps(paperSize, plateSize);
+                }
+
+                // 4. Calculate the required paper sheets
+                const baseSheets = Math.ceil(quantity / upsPaperToPlate);
+                paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
+
+                calculatePaperCost();
+            }
+
+            function calculateAllCosts() {
+                // This function now correctly calculates sheets (which in turn calculates paper cost)
+                // and then calculates printing costs.
+                calculateNumberOfSheets();
+                calculatePrintingCosts();
+                calculateLaminationCost(); // Ensure lami cost updates if dependent inputs change
+            }
+
+            // --- UI & HELPER FUNCTIONS ---
+            function getDynamicDescription() {
+                let desc = `Plate: ${plateSizeSelect.value || 'N/A'} - Job: ${jobSizeSelect.value || 'N/A'} - Qty: ${actualQuantityInput.value || '0'} (${printingGsmSelect.value || 'N/A'} GSM)`;
+                if (fbActualCheck.checked) { desc += ' F/B'; }
+                if (formCheck.checked) { desc += ' (Form)'; } // Added "Form" to description
+                const lamiType = laminationTypeSelect.value;
+                if (lamiType) {
+                    const lamiSize = laminationSizeSelect.value;
+                    // Formatting lami type string nicely
+                    const formattedLamiType = lamiType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    desc += ` - ${formattedLamiType} (${lamiSize || 'N/A'})`;
+                }
+                const envSize = envelopeSizeSelect.value;
+                if (envSize) { desc += ` - Envelope (${envSize})`; }
+                return desc;
+            }
+
+            function copyQuotation() {
+                const customer = customerNameInput.value.trim() || 'Customer Name';
+                const jobSize = jobSizeSelect.value || 'N/A';
+                let paperGsm = paperGsmSelect.value || 'N/A';
+                if (paperGsm && !isNaN(paperGsm)) {
+                    paperGsm = `${paperGsm} Art`;
+                }
+                
+                let qtyText = actualQuantityInput.value || '0';
+                if (fbActualCheck.checked) {
+                    qtyText += ' FB';
+                }
+                
+                const parts = [jobSize, paperGsm, qtyText];
+                
+                const lamiType = laminationTypeSelect.value;
+                if (lamiType) {
+                    const formattedLamiType = lamiType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    parts.push(`${formattedLamiType} Lami`);
+                }
+                
+                const binding = parseFloat(bindingCostInput.value) || 0;
+                const punching = parseFloat(punchingCostInput.value) || 0;
+                const envSize = envelopeSizeSelect.value;
+                const other = parseFloat(otherMiscCostInput.value) || 0;
+                
+                if (binding > 0) parts.push("Binding");
+                if (punching > 0) parts.push("Punching");
+                if (envSize) parts.push(`Envelope (${envSize})`);
+                if (other > 0) parts.push("Other");
+
+                const description = parts.join(' - ');
+                const total = totalCostDisplay.textContent.replace('₹', '').trim();
+                const roundedTotal = Math.ceil(parseFloat(total) / 50) * 50 || total;
+
+                const message = `${customer}\n${description}\n\n${roundedTotal}/-`;
+
+                navigator.clipboard.writeText(message).catch(err => {
+                    console.error("Failed to copy text: ", err);
+                });
+            }
+
+            function syncGsm(source, target) {
+                if (source.value) {
+                    target.value = source.value;
+                    target.dispatchEvent(new Event('change'));
+                }
+            }
+
+            function sendToWhatsApp() {
+                const customer = customerNameInput.value || 'Customer';
+                const total = totalCostDisplay.textContent;
+                const dynamicDescription = getDynamicDescription();
+                const multiplier = parseFloat(multipleJobsInput.value) || 1;
+
+                let message = `Hello ${customer},\n\nHere is your cost estimate for:\n*${dynamicDescription}*`;
+
+                if (multiplier > 1) {
+                    message += `\n\n*Jobs:* ${multiplier}`;
+                }
+
+                message += `\n\n*Total:* ${total}`;
+                window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            }
+
+            function generatePDF() {
+                const customerName = customerNameInput.value.trim();
+                if (!customerName) {
+                    alert("Please enter a customer name before creating a PDF."); return;
+                }
+
+                let counter = parseInt(localStorage.getItem(COUNTER_KEY)) || 0;
+                counter++;
+                const estimateNr = 'AOP' + String(counter).padStart(2, '0');
+
+                const estimateData = {};
+                allInputs.forEach(input => {
+                    if (input.id) estimateData[input.id] = input.type === 'checkbox' ? input.checked : input.value;
+                });
+                localStorage.setItem(estimateNr, JSON.stringify(estimateData));
+                localStorage.setItem(COUNTER_KEY, counter);
+                alert(`Estimate ${estimateNr} has been saved.`);
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const today = new Date().toLocaleDateString('en-GB');
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(20); doc.text("Cost Estimate", 105, 20, { align: 'center' });
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                doc.text(`Cost estimate Nr.: ${estimateNr}`, 14, 35); doc.text(`Date: ${today}`, 148, 35);
+                doc.text(`Dear ${customerName},`, 14, 50);
+                doc.text("We thank you for your enquiry and would like to make the following offer:", 14, 57);
+
+                const dynamicDescription = getDynamicDescription();
+                doc.setFont("helvetica", "bold");
+                doc.text(dynamicDescription, 14, 67);
+                doc.setFont("helvetica", "normal");
+
+                const tableBody = [];
+                let subtotal = 0;
+
+                // 3. New PDF Logic for Total Calculation matches calculateGrandTotal
+                const printing = parseFloat(printingCostInput.value) || 0;
+                const second = parseFloat(secondCostInput.value) || 0;
+                const totalPrintingCost = printing + second;
+
+                const costItems = [
+                    { label: 'Printing Cost', value: totalPrintingCost },
+                    { label: 'Paper Cost', value: parseFloat(paperCostInput.value) || 0 },
+                    { label: 'Lamination Cost', value: parseFloat(lamiCostInput.value) || 0 },
+                    { label: 'Binding Cost', value: parseFloat(bindingCostInput.value) || 0 },
+                    { label: 'Punching', value: parseFloat(punchingCostInput.value) || 0 },
+                    { label: 'Clips', value: parseFloat(clipsCostInput.value) || 0 },
+                    { label: 'Envelope Cost', value: parseFloat(envCostInput.value) || 0 },
+                    { label: 'Other Costs', value: parseFloat(otherMiscCostInput.value) || 0 }
+                ];
+
+                costItems.forEach((item) => {
+                    if (item.value > 0) {
+                        tableBody.push([tableBody.length + 1, item.label, `₹ ${item.value.toFixed(2)}`]);
+                        subtotal += item.value;
+                    }
+                });
+
+                // Re-calculate Total for PDF Footer accurately
+                const multiplier = parseFloat(multipleJobsInput.value) || 1;
+                const shouldMultiplyOther = multiplyOtherCostsCheck.checked;
+
+                // Recalculate based on groups like calculateGrandTotal
+                const subtotalMultipliable = totalPrintingCost + (parseFloat(paperCostInput.value) || 0) + (parseFloat(lamiCostInput.value) || 0);
+                const subtotalOther = (parseFloat(bindingCostInput.value) || 0) + (parseFloat(punchingCostInput.value) || 0) + (parseFloat(clipsCostInput.value) || 0) + (parseFloat(envCostInput.value) || 0) + (parseFloat(otherMiscCostInput.value) || 0);
+
+                let finalTotal = 0;
+                if (shouldMultiplyOther) {
+                    finalTotal = (subtotalMultipliable + subtotalOther) * multiplier;
+                } else {
+                    finalTotal = (subtotalMultipliable * multiplier) + subtotalOther;
+                }
+                const total = Math.ceil(finalTotal / 50) * 50;
+
+                const footRows = [];
+                // Simplified Footer
+                if (multiplier > 1) {
+                    footRows.push(['', `Total (x ${multiplier} Jobs)`, `₹ ${total.toFixed(2)}`]);
+                } else {
+                    footRows.push(['', 'Total', `₹ ${total.toFixed(2)}`]);
+                }
+
+                doc.autoTable({
+                    head: [['Pos.', 'Description', 'Price']],
+                    body: tableBody,
+                    foot: footRows,
+                    startY: 75, theme: 'grid',
+                    headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255], halign: 'center', font: 'helvetica', fontStyle: 'bold' },
+                    footStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], font: 'helvetica', fontStyle: 'bold', halign: 'right' },
+                    columnStyles: { 0: { halign: 'center', cellWidth: 15 }, 1: { halign: 'left' }, 2: { halign: 'right' } },
+                    didDrawPage: (data) => {
+                        doc.setFont("helvetica", "normal");
+                        doc.setFontSize(10);
+                        const validUntil = new Date(); validUntil.setDate(validUntil.getDate() + 15);
+                        doc.text(`This offer is valid until ${validUntil.toLocaleDateString('en-GB')}.`, 14, doc.internal.pageSize.height - 20);
+                        doc.text("We hope you will approve and look forward to working with you.", 14, doc.internal.pageSize.height - 13);
+                    }
+                });
+
+                doc.save(`Cost-Estimate-${estimateNr}.pdf`);
+            }
+
+            // --- LOAD/DELETE/MODAL FUNCTIONS ---
+            function loadEstimate(estimateKey) {
+                const dataString = localStorage.getItem(estimateKey);
+                if (dataString) {
                     try {
-                        const data = JSON.parse(localStorage.getItem(key));
-                        if(data && data['customer-name']) customerName = data['customer-name'];
-                    } catch(e) {}
-                    listHtml += `<li class="estimate-item">
+                        const estimateData = JSON.parse(dataString);
+                        allInputs.forEach(input => {
+                            if (input.id && estimateData[input.id] !== undefined) {
+                                input.type === 'checkbox' ? input.checked = estimateData[input.id] : input.value = estimateData[input.id];
+                                if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
+                            }
+                        });
+                        if (!multipleJobsInput.value) { multipleJobsInput.value = '1'; }
+                        calculateGrandTotal();
+                        closeModal();
+                        alert(`Loaded estimate for "${estimateData['customer-name'] || estimateKey}"`);
+                    } catch (e) { alert("Failed to load estimate (corrupted data)."); console.error(e); }
+                }
+            }
+
+            function deleteEstimate(estimateKey) {
+                if (confirm(`Are you sure you want to delete estimate ${estimateKey}?`)) {
+                    localStorage.removeItem(estimateKey);
+                    alert("Estimate deleted successfully.");
+                    showPreviousEstimates(); // Refresh the list
+                }
+            }
+
+            function showPreviousEstimates() {
+                const estimates = Object.keys(localStorage).filter(key => key.startsWith('AOP')).sort();
+
+                let listHtml = '<ul class="estimates-list">';
+                if (estimates.length > 0) {
+                    estimates.forEach(key => {
+                        let customerName = 'Unknown Customer';
+                        try {
+                            const data = JSON.parse(localStorage.getItem(key));
+                            if (data && data['customer-name']) customerName = data['customer-name'];
+                        } catch (e) { }
+                        listHtml += `<li class="estimate-item">
                                    <span class="estimate-name" data-key="${key}">${key}: ${customerName}</span>
                                    <button class="delete-estimate-btn" data-key="${key}" title="Delete estimate">✕</button>
                                  </li>`;
-                });
-            } else {
-                listHtml += '<li>No saved estimates found.</li>';
+                    });
+                } else {
+                    listHtml += '<li>No saved estimates found.</li>';
+                }
+                listHtml += '</ul>';
+                modalContainer.innerHTML = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close" title="Close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
             }
-            listHtml += '</ul>';
-            modalContainer.innerHTML = `<div class="modal-overlay active"><div class="modal-content"><button class="modal-close" title="Close">&times;</button><h2>Previous Estimates</h2>${listHtml}</div></div>`;
-        }
 
-        function showWeightCalculatorModal() {
-            const modalHTML = `
+            function showWeightCalculatorModal() {
+                const modalHTML = `
                 <div class="modal-overlay active">
                     <div class="modal-content">
                         <button class="modal-close" title="Close">&times;</button>
@@ -785,106 +1317,132 @@
                         <div id="weight-calculator-result" style="display: none;"></div>
                     </div>
                 </div>`;
-            modalContainer.innerHTML = modalHTML;
-            
-            document.getElementById('paper-weight-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const widthInches = parseFloat(document.getElementById('calc-width').value);
-                const lengthInches = parseFloat(document.getElementById('calc-length').value);
-                const gsm = parseFloat(document.getElementById('calc-gsm').value);
-                const sheets = parseInt(document.getElementById('calc-sheets').value, 10);
-                const resultDiv = document.getElementById('weight-calculator-result');
-                
-                if (isNaN(widthInches) || isNaN(lengthInches) || isNaN(gsm) || isNaN(sheets) || widthInches <= 0 || lengthInches <= 0 || gsm <= 0 || sheets <= 0) {
-                    resultDiv.innerHTML = `<p class="result-label">Error</p><p class="result-value">Invalid Input</p>`;
-                } else {
-                    const widthMeters = widthInches * 0.0254;
-                    const lengthMeters = lengthInches * 0.0254;
-                    const areaMetersSq = widthMeters * lengthMeters;
-                    const totalWeightGrams = (areaMetersSq * gsm) * sheets;
-                    const totalWeightKg = totalWeightGrams / 1000;
-                    resultDiv.innerHTML = `<p class="result-label">Total Ream Weight is:</p><p class="result-value">${totalWeightKg.toFixed(2)} kg</p>`;
-                }
-                resultDiv.style.display = 'block';
-            });
-        }
-        
-        function closeModal() { modalContainer.innerHTML = ''; }
-        
-        function populateDropdowns() {
-            if (!appData.paperData) return;
-            // Add more GSMs that are in the cost logic but not in paper data
-            const hardcodedGsms = [170, 300, 350, 'DUPLEX'];
-            let allGsm = [...new Set(appData.paperData.map(item => item.gsm))];
-            
-            hardcodedGsms.forEach(gsm => {
-                if (!allGsm.includes(gsm)) {
-                    allGsm.push(gsm);
-                }
-            });
-            
-            allGsm.sort((a,b) => {
-                const aIsStr = isNaN(a), bIsStr = isNaN(b);
-                if (aIsStr !== bIsStr) return aIsStr ? -1 : 1;
-                return aIsStr ? a.localeCompare(b) : a - b;
-            });
-            
-            const uniqueSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))].sort();
-            paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + uniqueSizes.map(s => `<option value="${s}">${s}</option>`).join('');
-            const gsmOptions = '<option value="">Select GSM</option>' + allGsm.map(g => `<option value="${g}">${g}</option>`).join('');
-            printingGsmSelect.innerHTML = gsmOptions;
-            paperGsmSelect.innerHTML = gsmOptions;
+                modalContainer.innerHTML = modalHTML;
 
-            // --- Job Size Dropdown (Simplified) ---
-            const currentJobSizes = ["10X15", "12X18", "18X23", "18X25", "15X20", "19X25", "20X28"];
-            
-            let jobSizeHTML = '<option value="">Select Size</option>';
-            jobSizeHTML += currentJobSizes.map(s => `<option value="${s}">${s}</option>`).join('');
-            
-            jobSizeSelect.innerHTML = jobSizeHTML;
-        }
-        
-        function setupEventListeners() {
-            modalContainer.addEventListener('click', (e) => {
-                if(e.target.matches('.modal-overlay, .modal-close')) closeModal();
-                if(e.target.matches('.estimate-name')) loadEstimate(e.target.dataset.key);
-                if(e.target.matches('.delete-estimate-btn')) {
-                    e.stopPropagation();
-                    deleteEstimate(e.target.dataset.key);
-                }
-            });
+                document.getElementById('paper-weight-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const widthInches = parseFloat(document.getElementById('calc-width').value);
+                    const lengthInches = parseFloat(document.getElementById('calc-length').value);
+                    const gsm = parseFloat(document.getElementById('calc-gsm').value);
+                    const sheets = parseInt(document.getElementById('calc-sheets').value, 10);
+                    const resultDiv = document.getElementById('weight-calculator-result');
 
-            downloadPdfBtn.addEventListener('click', generatePDF);
-            whatsappBtn.addEventListener('click', sendToWhatsApp);
-            prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
-            openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
+                    if (isNaN(widthInches) || isNaN(lengthInches) || isNaN(gsm) || isNaN(sheets) || widthInches <= 0 || lengthInches <= 0 || gsm <= 0 || sheets <= 0) {
+                        resultDiv.innerHTML = `<p class="result-label">Error</p><p class="result-value">Invalid Input</p>`;
+                    } else {
+                        const widthMeters = widthInches * 0.0254;
+                        const lengthMeters = lengthInches * 0.0254;
+                        const areaMetersSq = widthMeters * lengthMeters;
+                        const totalWeightGrams = (areaMetersSq * gsm) * sheets;
+                        const totalWeightKg = totalWeightGrams / 1000;
+                        resultDiv.innerHTML = `<p class="result-label">Total Ream Weight is:</p><p class="result-value">${totalWeightKg.toFixed(2)} kg</p>`;
+                    }
+                    resultDiv.style.display = 'block';
+                });
+            }
 
-            // Grand total listener
-            allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
-            
-            // Listeners that trigger main calculations
-            // ADDED formCheck to this list
-            [jobSizeSelect, quantityInput, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect].forEach(el => {
-                el.addEventListener('change', calculateAllCosts);
-                el.addEventListener('input', calculateAllCosts);
-            });
-            
-            // Listeners that *only* trigger paper cost calculation
-            [paperSizeSelect, paperGsmSelect, paperRateInput, gstCheckbox, paperSheetsInput].forEach(el => {
-                el.addEventListener('change', calculatePaperCost);
-                el.addEventListener('input', calculatePaperCost);
-            });
-            
-            // Add listeners for new lamination inputs
-            [laminationTypeSelect, laminationSizeSelect, lamiSheetsInput, lamiRateInput].forEach(el => {
-                el.addEventListener('change', calculateLaminationCost); // Specific calc first
-                el.addEventListener('input', calculateLaminationCost);
-            });
+            function closeModal() { modalContainer.innerHTML = ''; }
 
-            printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
-            paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
-        }
-    });
+            function populateDropdowns() {
+                if (!appData.paperData) return;
+                // Add more GSMs that are in the cost logic but not in paper data
+                const hardcodedGsms = [170, 300, 350, 'DUPLEX'];
+                let allGsm = [...new Set(appData.paperData.map(item => item.gsm))];
+
+                hardcodedGsms.forEach(gsm => {
+                    if (!allGsm.includes(gsm)) {
+                        allGsm.push(gsm);
+                    }
+                });
+
+                allGsm.sort((a, b) => {
+                    const aIsStr = isNaN(a), bIsStr = isNaN(b);
+                    if (aIsStr !== bIsStr) return aIsStr ? -1 : 1;
+                    return aIsStr ? a.localeCompare(b) : a - b;
+                });
+
+                const uniqueSizes = [...new Set(appData.paperData.map(item => item.size.toUpperCase()))].sort();
+                paperSizeSelect.innerHTML = '<option value="">Select Size</option>' + uniqueSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+                const gsmOptions = '<option value="">Select GSM</option>' + allGsm.map(g => `<option value="${g}">${g}</option>`).join('');
+                printingGsmSelect.innerHTML = gsmOptions;
+                paperGsmSelect.innerHTML = gsmOptions;
+
+                // --- Job Size and Plate Size Dropdowns ---
+                const currentJobSizes = [
+                    "A3", "A4", "A5", "A6", "1/8",
+                    "9X11", "9X23", "10X15", "11X17", "11X18", "12X17", "12X18", "12X25",
+                    "15X20", "18X23", "18X25", "19X25", "20X28"
+                ];
+                const currentPlateSizes = ["12X18", "20X28"];
+
+                let jobSizeHTML = '<option value="">Select Size</option>';
+                jobSizeHTML += currentJobSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+                jobSizeSelect.innerHTML = jobSizeHTML;
+
+                let plateSizeHTML = '<option value="">Select Size</option>';
+                plateSizeHTML += currentPlateSizes.map(s => `<option value="${s}">${s}</option>`).join('');
+                plateSizeSelect.innerHTML = plateSizeHTML;
+            }
+
+            function setupEventListeners() {
+                modalContainer.addEventListener('click', (e) => {
+                    if (e.target.matches('.modal-overlay, .modal-close')) closeModal();
+                    if (e.target.matches('.estimate-name')) loadEstimate(e.target.dataset.key);
+                    if (e.target.matches('.delete-estimate-btn')) {
+                        e.stopPropagation();
+                        deleteEstimate(e.target.dataset.key);
+                    }
+                });
+
+                downloadPdfBtn.addEventListener('click', generatePDF);
+                copyQuotationBtn.addEventListener('click', copyQuotation);
+                whatsappBtn.addEventListener('click', sendToWhatsApp);
+                prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
+                openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
+
+                // Grand total listener
+                allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
+
+                // Listeners that trigger main calculations
+                [plateSizeSelect, jobSizeSelect, actualQuantityInput, quantityInput, fbActualCheck, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect].forEach(el => {
+                    el.addEventListener('change', calculateAllCosts);
+                    el.addEventListener('input', calculateAllCosts);
+                });
+
+                // Listeners that *only* trigger paper cost calculation
+                [paperRateInput, paperReamRateInput, gstCheckbox].forEach(el => {
+                    el.addEventListener('change', calculatePaperCost);
+                    el.addEventListener('input', calculatePaperCost);
+                });
+
+                // Add listeners for new lamination inputs
+                [laminationTypeSelect, laminationSizeSelect, lamiSheetsInput, lamiRateInput].forEach(el => {
+                    el.addEventListener('change', calculateLaminationCost); // Specific calc first
+                    el.addEventListener('input', calculateLaminationCost);
+                });
+
+                // Specific event listeners for bidirectional rate syncing
+                paperRateInput.addEventListener('input', () => syncPaperRates('kg'));
+                paperRateInput.addEventListener('change', () => syncPaperRates('kg'));
+                paperReamRateInput.addEventListener('input', () => syncPaperRates('ream'));
+                paperReamRateInput.addEventListener('change', () => syncPaperRates('ream'));
+
+                // Sync ream rates when paper specs change
+                [paperSizeSelect, paperGsmSelect].forEach(el => {
+                    el.addEventListener('change', () => syncPaperRates('kg'));
+                });
+
+                // Bidirectional sync for F/B checkboxes (Smart Defaulting)
+                fbActualCheck.addEventListener('change', () => {
+                    fbCheck.checked = fbActualCheck.checked;
+                    calculateAllCosts();
+                });
+
+                printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
+                paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
+            }
+        });
     </script>
 </body>
+
 </html>
