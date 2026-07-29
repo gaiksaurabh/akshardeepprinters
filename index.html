@@ -895,26 +895,19 @@
 
                 // 1. DETERMINE BASE COST AND RATE (Based on Plate Size)
                 if (smallSizes.includes(selectedPlateSize)) {
-                    // SMALL SIZES: Base is always 1200 regardless of GSM
-                    baseCost = 1200;
+                    // SMALL SIZES: 1200 with plate, 700 without plate
+                    baseCost = isWithoutPlate ? 700 : 1200;
                     secondRate = 300;
                 } else {
-                    // LARGE SIZES
+                    // LARGE SIZES (e.g. 20X28)
                     if (isHeavyGsm) {
-                        baseCost = 2400;
+                        // Higher GSM: 2600 with plate, 1600 without plate
+                        baseCost = isWithoutPlate ? 1600 : 2600;
                         secondRate = 600;
                     } else {
-                        baseCost = 1900;
+                        // Normal GSM: 2200 with plate, 1100 without plate
+                        baseCost = isWithoutPlate ? 1100 : 2200;
                         secondRate = 500;
-                    }
-                }
-
-                // 2. APPLY "WITHOUT PLATE" REDUCTION
-                if (isWithoutPlate) {
-                    if (smallSizes.includes(selectedPlateSize)) {
-                        baseCost = 700; // Explicit set to 700
-                    } else {
-                        baseCost -= 1000; // Reduce by 1000 for large sizes
                     }
                 }
 
@@ -928,7 +921,7 @@
                 const threshold = isFormChecked ? 2000 : 1000;
 
                 let secondCost = 0;
-                const effectiveQuantity = fbCheck.checked ? (parseFloat(quantityInput.value) || 0) * 2 : (parseFloat(quantityInput.value) || 0);
+                const effectiveQuantity = parseFloat(quantityInput.value) || 0;
 
                 if (effectiveQuantity > threshold) {
                     secondCost = Math.ceil((effectiveQuantity - threshold) / 1000) * secondRate;
@@ -1002,8 +995,9 @@
                     return;
                 }
 
-                const sheets = parseFloat(paperSheetsInput.value) || 0;
-                lamiSheetsInput.value = sheets > 0 ? sheets : "";
+                const upsPlateToJob = calculateUps(plateSizeSelect.value, jobSizeSelect.value);
+                const baseQty = Math.ceil((parseFloat(actualQuantityInput.value) || 0) / upsPlateToJob);
+                lamiSheetsInput.value = baseQty > 0 ? baseQty : "";
 
                 let rate = 0;
                 const rates = appData.laminationRates;
@@ -1050,6 +1044,24 @@
                 return Math.max(1, upsNormal, upsRotated);
             }
 
+            function calculatePaperToPlateUps(paperSizeStr, plateSizeStr) {
+                const paper = paperSizeStr.toUpperCase().trim();
+                const plate = plateSizeStr.toUpperCase().trim();
+
+                // Custom override mappings for standard Indian paper-to-plate cuts
+                if (paper === "23X36") {
+                    if (plate === "12X18") return 4; // 23x36 cuts into exactly 4 pieces of 12x18 (technically 11.5x18)
+                    if (plate === "20X28") return 1;
+                }
+                if (paper === "20X30") {
+                    if (plate === "12X18") return 2; // 20x30 cuts into exactly 2 pieces of 12x18 (with some waste)
+                    if (plate === "20X28") return 1;
+                }
+
+                // Fallback to standard geometric grid layout calculation
+                return calculateUps(paper, plate);
+            }
+
             function calculateNumberOfSheets() {
                 const actualQty = parseFloat(actualQuantityInput.value) || 0;
                 const paperSize = paperSizeSelect.value;
@@ -1064,26 +1076,23 @@
                 }
 
                 // 1. Calculate how many jobs fit on a plate (Ups)
-                let upsPlateToJob = calculateUps(plateSize, jobSize);
-
-                // If F/B (Front/Back) is checked next to Actual Quantity and NOT running as Form (Work & Turn)
-                // then both Front and Back are laid out on the same plate, halving the effective Ups.
-                if (fbActualCheck.checked && !formCheck.checked) {
-                    upsPlateToJob = Math.max(1, Math.floor(upsPlateToJob / 2));
-                }
+                const upsPlateToJob = calculateUps(plateSize, jobSize);
 
                 // 2. Set the Quantity (impressions) input box automatically
-                const quantity = Math.ceil(actualQty / upsPlateToJob);
+                const baseQuantity = Math.ceil(actualQty / upsPlateToJob);
+                
+                // If F/B Printing is checked, the actual printing quantity is impressions (sheets * 2)
+                const quantity = fbCheck.checked ? baseQuantity * 2 : baseQuantity;
                 quantityInput.value = quantity;
 
                 // 3. Calculate how many plates fit on a big paper sheet
                 let upsPaperToPlate = 1;
                 if (paperSize) {
-                    upsPaperToPlate = calculateUps(paperSize, plateSize);
+                    upsPaperToPlate = calculatePaperToPlateUps(paperSize, plateSize);
                 }
 
-                // 4. Calculate the required paper sheets
-                const baseSheets = Math.ceil(quantity / upsPaperToPlate);
+                // 4. Calculate the required paper sheets based on baseQuantity (physical plate sheets printed, not impressions)
+                const baseSheets = Math.ceil(baseQuantity / upsPaperToPlate);
                 paperSheetsInput.value = baseSheets > 0 ? baseSheets + 5 : 0;
 
                 calculatePaperCost();
@@ -1445,4 +1454,50 @@
                 copyQuotationBtn.addEventListener('click', copyQuotation);
                 whatsappBtn.addEventListener('click', sendToWhatsApp);
                 prevEstimatesBtn.addEventListener('click', showPreviousEstimates);
-       
+                openWeightCalculatorBtn.addEventListener('click', showWeightCalculatorModal);
+
+                // Grand total listener
+                allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
+
+                // Listeners that trigger main calculations
+                [plateSizeSelect, jobSizeSelect, actualQuantityInput, quantityInput, fbActualCheck, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect].forEach(el => {
+                    el.addEventListener('change', calculateAllCosts);
+                    el.addEventListener('input', calculateAllCosts);
+                });
+
+                // Listeners that *only* trigger paper cost calculation
+                [paperRateInput, paperReamRateInput, gstCheckbox].forEach(el => {
+                    el.addEventListener('change', calculatePaperCost);
+                    el.addEventListener('input', calculatePaperCost);
+                });
+
+                // Add listeners for new lamination inputs
+                [laminationTypeSelect, laminationSizeSelect, lamiSheetsInput, lamiRateInput].forEach(el => {
+                    el.addEventListener('change', calculateLaminationCost); // Specific calc first
+                    el.addEventListener('input', calculateLaminationCost);
+                });
+
+                // Specific event listeners for bidirectional rate syncing
+                paperRateInput.addEventListener('input', () => syncPaperRates('kg'));
+                paperRateInput.addEventListener('change', () => syncPaperRates('kg'));
+                paperReamRateInput.addEventListener('input', () => syncPaperRates('ream'));
+                paperReamRateInput.addEventListener('change', () => syncPaperRates('ream'));
+
+                // Sync ream rates when paper specs change
+                [paperSizeSelect, paperGsmSelect].forEach(el => {
+                    el.addEventListener('change', () => syncPaperRates('kg'));
+                });
+
+                // Bidirectional sync for F/B checkboxes (Smart Defaulting)
+                fbActualCheck.addEventListener('change', () => {
+                    calculateAllCosts();
+                });
+
+                printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
+                paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
+            }
+        });
+    </script>
+</body>
+
+</html>
