@@ -572,13 +572,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <div class="label-with-checkbox">
-                            <label for="actual-quantity" style="margin:0;">Actual Quantity</label>
-                            <div class="inline-checkbox">
-                                <input type="checkbox" id="fb-actual">
-                                <label for="fb-actual">F/B</label>
-                            </div>
-                        </div>
+                        <label for="actual-quantity">Actual Quantity</label>
                         <input type="number" id="actual-quantity" value="1000" min="1" placeholder="e.g., 1000">
                     </div>
                     <div class="form-group"><label for="printing-gsm-select">GSM</label><select
@@ -792,7 +786,6 @@
             const jobSizeSelect = document.getElementById('job-size');
             const actualQuantityInput = document.getElementById('actual-quantity');
             const quantityInput = document.getElementById('quantity');
-            const fbActualCheck = document.getElementById('fb-actual');
             const fbCheck = document.getElementById('fb-check');
             const formCheck = document.getElementById('form-check'); // NEW ELEMENT
             const withoutPlateCheck = document.getElementById('without-plate-check');
@@ -1109,7 +1102,7 @@
             // --- UI & HELPER FUNCTIONS ---
             function getDynamicDescription() {
                 let desc = `Plate: ${plateSizeSelect.value || 'N/A'} - Job: ${jobSizeSelect.value || 'N/A'} - Qty: ${actualQuantityInput.value || '0'} (${printingGsmSelect.value || 'N/A'} GSM)`;
-                if (fbActualCheck.checked) { desc += ' F/B'; }
+                if (fbCheck.checked) { desc += ' F/B'; }
                 if (formCheck.checked) { desc += ' (Form)'; } // Added "Form" to description
                 const lamiType = laminationTypeSelect.value;
                 if (lamiType) {
@@ -1132,7 +1125,7 @@
                 }
                 
                 let qtyText = actualQuantityInput.value || '0';
-                if (fbActualCheck.checked) {
+                if (fbCheck.checked) {
                     qtyText += ' FB';
                 }
                 
@@ -1460,7 +1453,7 @@
                 allCostInputs.forEach(input => input.addEventListener('input', calculateGrandTotal));
 
                 // Listeners that trigger main calculations
-                [plateSizeSelect, jobSizeSelect, actualQuantityInput, quantityInput, fbActualCheck, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect].forEach(el => {
+                [plateSizeSelect, jobSizeSelect, actualQuantityInput, quantityInput, fbCheck, formCheck, withoutPlateCheck, printingGsmSelect, paperSizeSelect, paperGsmSelect].forEach(el => {
                     el.addEventListener('change', calculateAllCosts);
                     el.addEventListener('input', calculateAllCosts);
                 });
@@ -1488,10 +1481,7 @@
                     el.addEventListener('change', () => syncPaperRates('kg'));
                 });
 
-                // Bidirectional sync for F/B checkboxes (Smart Defaulting)
-                fbActualCheck.addEventListener('change', () => {
-                    calculateAllCosts();
-                });
+
 
                 printingGsmSelect.addEventListener('change', () => syncGsm(printingGsmSelect, paperGsmSelect));
                 paperGsmSelect.addEventListener('change', () => syncGsm(paperGsmSelect, printingGsmSelect));
